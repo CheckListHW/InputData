@@ -1,11 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from ChangeName.Tools.point_in_polygon import point_in_polygon
-from ChangeName.Tools.plot_limit import PlotLimit
-from ChangeName.Editor3d.figure_3d import Figure3d
+from Tools.point_in_polygon import point_in_polygon
+from Tools.plot_limit import PlotLimit
+from Model.figure_3d import Figure3d
 
 debug_mode = False
-
 
 class Plot3d:
     def __init__(self, fig: plt.figure = None, ax: plt.axes = None):
@@ -59,7 +58,6 @@ class DrawVoxels:
 
     "Delete invisible polygon"
     def calc_polygon_in_draw(self):
-        print(len(self.fig3d.layers))
         data = np.zeros(self.fig3d.size_fig(), dtype=bool)
         for k in range(len(self.fig3d.layers)):
             for i in range(self.fig3d.size_x()):

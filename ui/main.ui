@@ -81,6 +81,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="halve">
+            <property name="text">
+             <string>halve</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="drawCurve">
             <property name="text">
              <string>draw curve</string>

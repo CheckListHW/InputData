@@ -62,7 +62,7 @@ class DrawVoxels:
         for k in range(len(self.fig3d.layers)):
             for i in range(self.fig3d.size_x()):
                 for j in range(self.fig3d.size_y()):
-                    if point_in_polygon(self.fig3d.layers[k].x_dots, self.fig3d.layers[k].y_dots,
+                    if point_in_polygon(self.fig3d.layers[k].x, self.fig3d.layers[k].y,
                                         i + 0.5, j + 0.5):
                         data[i, j, k] = True
         return data

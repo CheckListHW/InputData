@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>881</width>
-    <height>688</height>
+    <width>885</width>
+    <height>0</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -76,42 +76,45 @@
              </size>
             </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string>draw curve</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="halve">
             <property name="text">
-             <string>halve</string>
+             <string>Count of dots in half</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="drawCurve">
             <property name="text">
-             <string>draw curve</string>
+             <string>Draw curve</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="deleteDot">
             <property name="text">
-             <string>delete dot</string>
+             <string>Delete dot</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="addDot">
             <property name="text">
-             <string>add dot</string>
+             <string>Add dot</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="moveDot">
             <property name="text">
-             <string>move dot</string>
+             <string>Move dot</string>
             </property>
            </widget>
           </item>
@@ -128,6 +131,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="view_layers">
+            <property name="text">
+             <string>View layers</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -141,7 +151,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>881</width>
+     <width>885</width>
      <height>21</height>
     </rect>
    </property>

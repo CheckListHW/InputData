@@ -11,6 +11,7 @@ class ModeStatus(enum.Enum):
     DeleteDot = 2
     AddDot = 3
     MoveDot = 4
+    Watch = 5
 
 
 class Mode:
@@ -86,3 +87,14 @@ class MoveDot(Mode):
 
     def on_release(self, event):
         self.plot.update_plot()
+
+
+class Watch(Mode):
+    def on_click(self, event):
+        pass
+
+    def on_move(self, event):
+        pass
+
+    def on_release(self, event):
+        pass

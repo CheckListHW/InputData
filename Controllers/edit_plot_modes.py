@@ -1,5 +1,6 @@
 import enum
 from abc import abstractmethod
+from typing import Callable
 
 from matplotlib.backend_bases import MouseButton
 
@@ -15,6 +16,8 @@ class ModeStatus(enum.Enum):
 
 
 class Mode:
+    __slots__ = ['handler_move_id', 'plot']
+
     def __init__(self, plot: Edit2dSurface):
         self.handler_move_id: int
         self.plot: Edit2dSurface = plot
@@ -64,7 +67,7 @@ class DeleteDot(Mode):
 class AddDot(Mode):
     def on_click(self, event):
         if event.button is MouseButton.LEFT:
-            self.plot.choose_dots_beetwen_add(event.xdata, event.ydata)
+            self.plot.choose_line(event.xdata, event.ydata)
         if event.button is MouseButton.RIGHT:
             self.plot.add_dot(event.xdata, event.ydata)
 
@@ -90,8 +93,15 @@ class MoveDot(Mode):
 
 
 class Watch(Mode):
+    def __init__(self, plot, click_handler: Callable = None):
+        super(Watch, self).__init__(plot)
+        self.plot.grid_off = True
+        self.plot.update_plot()
+        self.move_handler = click_handler
+
     def on_click(self, event):
-        pass
+        if self.move_handler:
+            self.move_handler()
 
     def on_move(self, event):
         pass

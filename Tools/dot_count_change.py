@@ -1,4 +1,6 @@
-class dot:
+class Dot:
+    __slots__ = ['x', 'y', 'index', 'distance']
+
     def __init__(self, index, distance, x, y):
         self.index = index
         self.distance = distance
@@ -10,12 +12,12 @@ def halve_dot_count(x: [float], y: [float]) -> ([float], [float]):
     if min(len(x), len(y)) < 10:
         return x, y
 
-    dots: [dot] = list[dot]()
+    dots: [Dot] = list[Dot]()
 
     for i in range(1, min(len(x), len(y)) - 1):
         distance_ab = ((x[i - 1] - x[i]) ** 2 + (y[i - 1] - y[i]) ** 2) ** 0.5
         distance_bc = ((x[i + 1] - x[i]) ** 2 + (y[i + 1] - y[i]) ** 2) ** 0.5
-        dots.append(dot(i, distance_ab + distance_bc, x[i], y[i]))
+        dots.append(Dot(i, distance_ab + distance_bc, x[i], y[i]))
 
     dots.sort(key=lambda j: j.distance)
     dots = dots[int(len(dots)/2):-1]

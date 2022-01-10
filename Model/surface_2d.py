@@ -4,12 +4,17 @@ from Tools.filedialog import save_as_json
 
 
 class SurfaceFigure2d:
-    __slots__ = ['pre_x', 'pre_y', 'start_x', 'start_y', 'priority', 'x', 'y', 'index']
+    __slots__ = ['pre_x', 'pre_y', 'start_x', 'start_y', 'priority', 'x', 'y', 'index', 'save_as_json', 'max_x',
+                 'max_y']
 
     def __init__(self, lay: dict = None):
         self.pre_x, self.pre_y, self.start_x, self.start_y = None, None, None, None
         self.priority, self.index = 1, 0
         self.x, self.y = list[float](), list[float]()
+
+        self.save_as_json = lambda: save_as_json(self.get_surface_as_dict())
+        self.max_x = lambda: int(max(self.x) + 0.999)
+        self.max_y = lambda: int(max(self.y) + 0.999)
 
         if lay:
             self.load_surface_from_dict(lay)
@@ -39,21 +44,11 @@ class SurfaceFigure2d:
         self.x.append(x1)
         self.y.append(y1)
 
-    def max_x(self) -> int:
-        return int(max(self.x) + 0.999)
-
-    def max_y(self) -> int:
-        return int(max(self.y) + 0.999)
-
     def clear(self):
-        self.x = list()
-        self.y = list()
+        self.x, self.y = list(), list()
 
     def get_surface_as_dict(self) -> dict:
         return {'priority': self.priority, 'x': self.x, 'y': self.y}
-
-    def save_as_json(self):
-        save_as_json(self.get_surface_as_dict())
 
     def load_surface_from_json(self, filename: str):
         with open(filename) as f:
@@ -71,8 +66,7 @@ class SurfaceFigure2d:
 class Surface2dPlus(SurfaceFigure2d):
 
     def __init__(self, size=15):
-        s = 15
-
+        s = size
         x = [s * .4, s * .4, s * .1, s * .1, s * .4, s * .4, s * .6, s * .6, s * .9, s * .9, s * .9, s * .6, s * .6]
         y = [s * .1, s * .4, s * .4, s * .6, s * .6, s * .9, s * .9, s * .6, s * .6, s * .4, s * .4, s * .4, s * .1]
         lay = {'x': x, 'y': y}

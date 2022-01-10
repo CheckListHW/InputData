@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.editor_controller import EditorController
 from Tools.dict_from_json import dict_from_json
-from View.select_surface_window import ViewingLayersWindow
+from View.select_surface import ViewingLayersWindow
 
 
 class EditWindow(QMainWindow):
@@ -32,7 +32,7 @@ class EditWindow(QMainWindow):
         self.drawCurve.clicked.connect(lambda: self.change_mode(ModeStatus.DrawCurve))
 
     def show_layers(self):
-        self.view_layers_window.set_surfaces(self.editor2d.figure3d.get_figure_as_dict())
+        self.view_layers_window.set_surfaces(self.editor2d.figure3d.get_figure_as_dict)
         self.view_layers_window.show()
 
     def open_file(self):

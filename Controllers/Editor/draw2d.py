@@ -57,7 +57,6 @@ class Edit2dSurface:
         draw_polygon(0, 0, self.ax, size=max(self.width, self.length), color='white')
 
     def update_plot(self, fast: bool = False, sub_layers: bool = False):
-
         if fast:
             self.clear_content()
         else:

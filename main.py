@@ -3,12 +3,12 @@ from traceback import format_exception
 
 from PyQt5.QtWidgets import QApplication
 
-from View.edit_2d_surface_window import EditWindow
+from View.edit_2d_surface import EditWindow
 
 
 def console_excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(format_exception(exc_type, exc_value, exc_tb))
-    print("Oбнаружена ошибка !:", tb)
+    print("error!:", tb)
 
 
 if __name__ == '__main__':

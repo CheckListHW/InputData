@@ -8,29 +8,13 @@ from Model.surface_2d import SurfaceFigure2d
 
 
 class MatplotlibConnector(FigureCanvasQTAgg):
-    def __init__(self, parent=None, tight=False, surf: SurfaceFigure2d = None, **kwargs):
-        self.kwargs = kwargs
-        if not tight:
-            fig = Figure(tight_layout=True)
-        else:
-            fig = Figure()
-            fig.subplots_adjust(left=-0.003, bottom=0, right=1, top=1, wspace=0, hspace=0)
-
-        FigureCanvasQTAgg.__init__(self, fig)
-        self.mainLayout = QtWidgets.QGridLayout(parent)
-        self.mainLayout.addWidget(self)
+    def __init__(self, mode: ModeStatus, surf: SurfaceFigure2d = None):
 
         self.ax = self.figure.add_subplot()
         self.plot = Edit2dSurface(width=15, length=15, fig=self.figure, ax=self.ax)
 
-        if surf:
-            self.plot.set_active_layer(surf)
-
-        if not tight:
-            self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
-            self.set_mode(ModeStatus.DrawCurve)
-        else:
-            self.set_mode(ModeStatus.Watch)
+        self.plot.set_active_layer(surf)
+        self.set_mode(mode)
 
         self.mpl_connect('button_press_event', self.on_click)
         self.mpl_connect('button_release_event', self.on_release)
@@ -79,4 +63,34 @@ class MatplotlibConnector(FigureCanvasQTAgg):
         self.mode.on_release(event)
         self.mpl_disconnect(self.handler_move_id)
         self.draw()
+
+
+class MatplotlibConnectorTight(MatplotlibConnector):
+    def __init__(self, parent=None, surf: SurfaceFigure2d = None, **kwargs):
+        self.kwargs = kwargs
+        fig = Figure()
+        fig.subplots_adjust(left=-0.003, bottom=0, right=1, top=1, wspace=0, hspace=0)
+
+        FigureCanvasQTAgg.__init__(self, fig)
+        self.mainLayout = QtWidgets.QGridLayout(parent)
+        self.mainLayout.addWidget(self)
+
+        super().__init__(surf=surf, mode=ModeStatus.Watch)
+
+class MatplotlibConnectorEdit(MatplotlibConnector):
+    def __init__(self, parent=None, surf: SurfaceFigure2d = None, **kwargs):
+        self.kwargs = kwargs
+        fig = Figure(tight_layout=True)
+    
+        FigureCanvasQTAgg.__init__(self, fig)
+        self.mainLayout = QtWidgets.QGridLayout(parent)
+        self.mainLayout.addWidget(self)
+        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
+
+        super().__init__(surf=surf, mode=ModeStatus.DrawCurve)
+
+
+
+
+
 

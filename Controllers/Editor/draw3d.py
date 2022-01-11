@@ -6,6 +6,7 @@ from Model.figure_3d import Figure3d
 
 debug_mode = False
 
+
 class Plot3d:
     def __init__(self, fig: plt.figure = None, ax: plt.axes = None):
         if not fig or not ax:
@@ -26,6 +27,8 @@ class DrawVoxels:
         plt.show()
 
     def set_limits(self, limits: PlotLimit):
+        if not limits:
+            return
         if limits.x:
             self.plot3d.ax.axes.set_xlim3d(xmin=0.000001, xmax=limits.x)
         if limits.y:
@@ -57,6 +60,7 @@ class DrawVoxels:
         plt.show()
 
     "Delete invisible polygon"
+
     def calc_polygon_in_draw(self):
         data = np.zeros(self.fig3d.size_fig(), dtype=bool)
         for k in range(len(self.fig3d.layers)):

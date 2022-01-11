@@ -132,6 +132,20 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="show_3d">
+            <property name="text">
+             <string>Show 3d</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="load">
+            <property name="text">
+             <string>Load figure</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="view_layers">
             <property name="text">
              <string>View layers</string>

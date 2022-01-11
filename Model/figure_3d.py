@@ -1,9 +1,20 @@
 from Model.surface_2d import SurfaceFigure2d
+from Tools.dict_from_json import dict_from_json
 
 
 class Figure3d:
-    def __init__(self) -> None:
+    def __init__(self, path: str = None) -> None:
+        self.priority = 100
         self.layers = list[SurfaceFigure2d]()
+
+        if path:
+            self.load_from_json(path)
+
+    def load_from_json(self, path: str):
+        layers = dict_from_json(path)
+        for lay in layers:
+            sf2d = SurfaceFigure2d(lay=layers[lay])
+            self.add_layer(sf2d)
 
     def add_layer(self, layer: SurfaceFigure2d):
         self.layers.append(layer)
@@ -26,6 +37,10 @@ class Figure3d:
     def get_layer(self, number: int) -> SurfaceFigure2d:
         if 0 <= number < len(self.layers):
             return self.layers[number]
+
+    def set_priority(self, value: int):
+        if value in range(101):
+            self.priority = value
 
     def get_figure_as_dict(self) -> dict:
         a = {}

@@ -3,6 +3,7 @@ import os
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 
+from Controllers.Editor.draw3d import DrawVoxels
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.editor_controller import EditorController
 from Tools.dict_from_json import dict_from_json
@@ -25,6 +26,7 @@ class EditWindow(QMainWindow):
         self.save.clicked.connect(self.save_figure)
         self.open.clicked.connect(self.open_file)
         self.view_layers.clicked.connect(self.show_layers)
+        self.show_3d.clicked.connect(lambda: DrawVoxels(self.editor2d.figure3d))
 
         self.deleteDot.clicked.connect(lambda: self.change_mode(ModeStatus.DeleteDot))
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))
@@ -37,7 +39,7 @@ class EditWindow(QMainWindow):
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, '', os.getcwd(), 'Json Files (*.json)')
-        self.editor2d.load_layers(dict_from_json(filename))
+        self.editor2d.load_layers(filename)
 
     def save_figure(self):
         self.editor2d.save()

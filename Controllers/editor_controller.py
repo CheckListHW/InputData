@@ -13,11 +13,11 @@ class EditorController:
         self.select_layer = 0
         self.connector = MatplotlibConnectorEdit(parent)
 
-    def load_layers(self, layers: dict):
-        self.figure3d = Figure3d(len(layers))
-        for i in layers:
-            lay = SurfaceFigure2d(layers[i])
-            self.figure3d.add_layer(lay)
+    def load_layers(self, path: str):
+        self.figure3d = Figure3d(path)
+
+        for lay in self.figure3d.layers:
+            print(lay)
 
     def change_lay(self, number: int):
         if number < 0:
@@ -31,4 +31,6 @@ class EditorController:
         self.connector.change_lay(lay)
 
     def save(self):
-        save_as_json(self.figure3d.get_figure_as_dict())
+        fig_dict = self.figure3d.get_figure_as_dict()
+        print(fig_dict)
+        save_as_json(fig_dict)

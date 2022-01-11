@@ -64,7 +64,7 @@ class Edit2dSurface:
             self.plot_prepare()
             self.ax.fill(self.surface.x, self.surface.y)
 
-        # before
+        # front layer
         if sub_layers:
             x1, x2 = 4, 8
             x, y = [x1, x2, x2, x1, x1], [x1, x1, x2, x2, x1]
@@ -75,7 +75,7 @@ class Edit2dSurface:
         for lay in self.all_layers():
             self.draw_curve(lay.x, lay.y)
 
-        # after
+        # back layer
         if sub_layers:
             x1, x2 = 1, 14
             x, y = [x1, x2, x2, x1, x1], [x1, x1, x2, x2, x1]

@@ -6,8 +6,7 @@ from Model.surface_2d import SurfaceFigure2d
 from Tools.filedialog import save_as_json
 
 
-class EditorController:
-
+class EditorController2d:
     def __init__(self, parent: QFrame):
         self.figure3d = Figure3d()
         self.select_layer = 0
@@ -15,9 +14,6 @@ class EditorController:
 
     def load_layers(self, path: str):
         self.figure3d = Figure3d(path)
-
-        for lay in self.figure3d.layers:
-            print(lay)
 
     def change_lay(self, number: int):
         if number < 0:
@@ -32,5 +28,6 @@ class EditorController:
 
     def save(self):
         fig_dict = self.figure3d.get_figure_as_dict()
-        print(fig_dict)
         save_as_json(fig_dict)
+
+

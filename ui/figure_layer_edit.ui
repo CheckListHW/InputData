@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>981</width>
     <height>784</height>
    </rect>
   </property>
@@ -25,14 +25,32 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QFrame" name="frame_3">
+        <widget class="QFrame" name="viewFrame">
+         <property name="styleSheet">
+          <string notr="true">background-color:rgb(202, 255, 192)</string>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_7"/>
+         <widget class="QFrame" name="frame_3">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>188</y>
+            <width>341</width>
+            <height>331</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+         </widget>
         </widget>
        </item>
        <item>
@@ -101,7 +119,7 @@
             <property name="widgetResizable">
              <bool>true</bool>
             </property>
-            <widget class="QWidget" name="scrollAreaWidgetContents">
+            <widget class="QWidget" name="scrollArea_3">
              <property name="geometry">
               <rect>
                <x>0</x>
@@ -112,25 +130,15 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
-               <widget class="QCheckBox" name="checkBox">
-                <property name="text">
-                 <string>Layer name</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBox_2">
-                <property name="text">
-                 <string>Layer name 2</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBox_3">
-                <property name="text">
-                 <string>Layer name 3</string>
-                </property>
-               </widget>
+               <layout class="QGridLayout" name="showLayersScrollArea">
+                <item row="0" column="0">
+                 <widget class="QCheckBox" name="checkBox">
+                  <property name="text">
+                   <string>CheckBox</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
                <spacer name="verticalSpacer_2">
@@ -196,7 +204,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="layer_name_label">
+           <widget class="QLabel" name="layerNameLabel">
             <property name="text">
              <string>Name</string>
             </property>
@@ -306,7 +314,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="lineEdit"/>
+                  <widget class="QLineEdit" name="nameLineEdit"/>
                  </item>
                 </layout>
                </widget>
@@ -340,7 +348,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Priority</string>
+                    <string>Color</string>
                    </property>
                   </widget>
                  </item>
@@ -745,7 +753,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="acceptSettings">
+           <widget class="QPushButton" name="acceptSettingsButton">
             <property name="text">
              <string>Accept</string>
             </property>
@@ -815,7 +823,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox"/>
+           <widget class="QComboBox" name="layersComboBox"/>
           </item>
           <item>
            <spacer name="verticalSpacer_3">
@@ -1272,7 +1280,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="descriptionLabel">
             <property name="font">
              <font>
               <pointsize>12</pointsize>
@@ -1283,6 +1291,13 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="updateViewButton">
+            <property name="text">
+             <string>Update</string>
             </property>
            </widget>
           </item>
@@ -1322,6 +1337,43 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QLabel" name="editLabel">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Edit</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editLayerButton">
+            <property name="text">
+             <string>Edit layer</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
@@ -1334,7 +1386,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>981</width>
      <height>21</height>
     </rect>
    </property>

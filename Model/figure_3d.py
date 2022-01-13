@@ -1,10 +1,13 @@
+from Model.observer import Subject
 from Model.surface_2d import SurfaceFigure2d
 from Tools.dict_from_json import dict_from_json
 
 
-class Figure3d:
+class Figure3d(Subject):
     def __init__(self, path: str = None) -> None:
-        self.priority = 100
+        super().__init__()
+        self.name: str = 'layer 1'
+        self.priority: int = 100
         self.layers = list[SurfaceFigure2d]()
 
         if path:
@@ -18,15 +21,23 @@ class Figure3d:
 
     def add_layer(self, layer: SurfaceFigure2d):
         self.layers.append(layer)
+        self.notify()
 
     def insert_layer(self, index: int, layer: SurfaceFigure2d):
         self.layers.insert(index, layer)
+        self.notify()
 
     def size_x(self) -> int:
-        return max(self.layers, key=lambda i: i.max_x()).max_x()
+        if self.layers:
+            return max(self.layers, key=lambda i: i.max_x()).max_x()
+        else:
+            return 0
 
     def size_y(self) -> int:
-        return max(self.layers, key=lambda i: i.max_y()).max_y()
+        if self.layers:
+            return max(self.layers, key=lambda i: i.max_y()).max_y()
+        else:
+            return 0
 
     def size_fig(self) -> [int]:
         return [self.size_x(), self.size_y(), len(self.layers)]
@@ -47,3 +58,16 @@ class Figure3d:
         for i in range(len(self.layers)):
             a[str(i)] = self.layers[i].get_surface_as_dict()
         return a
+
+    def set_name(self, text: str) -> None:
+        self.name = text
+        self.notify()
+
+    def set_property(self, settings: dict):
+        for name_property in settings:
+            if name_property == 'name':
+                self.set_name(settings[name_property])
+            elif name_property == 'priority':
+                self.set_priority(settings[name_property])
+
+        self.notify()

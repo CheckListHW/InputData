@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 
 from Controllers.Editor.draw3d import DrawVoxels
 from Controllers.edit_plot_modes import ModeStatus
-from Controllers.editor_controller import EditorController
-from Tools.dict_from_json import dict_from_json
+from Controllers.editor_controller import EditorController2d
+from Model.figure_3d import Figure3d
 from View.select_surface import ViewingLayersWindow
 
 
@@ -15,7 +15,7 @@ class EditWindow(QMainWindow):
         super(EditWindow, self).__init__()
         uic.loadUi('ui/edit_surface.ui', self)
 
-        self.editor2d = EditorController(self.draw_polygon_frame)
+        self.editor2d = EditorController2d(self.draw_polygon_frame)
         self.view_layers_window = ViewingLayersWindow(click_handler=self.editor2d.change_lay)
 
         self.button_connect()
@@ -36,6 +36,14 @@ class EditWindow(QMainWindow):
     def show_layers(self):
         self.view_layers_window.set_surfaces(self.editor2d.figure3d.get_figure_as_dict)
         self.view_layers_window.show()
+
+    def set_figure(self, path: str = None, figure: Figure3d = None) -> None:
+        if path:
+            self.editor2d.load_layers(path)
+        elif figure:
+            self.editor2d.figure3d = figure
+        else:
+            return
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, '', os.getcwd(), 'Json Files (*.json)')

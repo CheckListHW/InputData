@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QFrame
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
@@ -9,6 +10,7 @@ from Model.surface_2d import SurfaceFigure2d
 
 class MatplotlibConnector(FigureCanvasQTAgg):
     def __init__(self, mode: ModeStatus, surf: SurfaceFigure2d = None):
+        # при добавлении 'super().__init__()' крашится
 
         self.ax = self.figure.add_subplot()
         self.plot = Edit2dSurface(width=15, length=15, fig=self.figure, ax=self.ax)
@@ -77,11 +79,12 @@ class MatplotlibConnectorTight(MatplotlibConnector):
 
         super().__init__(surf=surf, mode=ModeStatus.Watch)
 
+
 class MatplotlibConnectorEdit(MatplotlibConnector):
     def __init__(self, parent=None, surf: SurfaceFigure2d = None, **kwargs):
         self.kwargs = kwargs
         fig = Figure(tight_layout=True)
-    
+
         FigureCanvasQTAgg.__init__(self, fig)
         self.mainLayout = QtWidgets.QGridLayout(parent)
         self.mainLayout.addWidget(self)
@@ -90,7 +93,12 @@ class MatplotlibConnectorEdit(MatplotlibConnector):
         super().__init__(surf=surf, mode=ModeStatus.DrawCurve)
 
 
+class MatplotlibConnector3dViewing(FigureCanvasQTAgg):
+    def __init__(self, parent: QFrame):
+        fig = Figure(tight_layout=True)
 
-
-
-
+        FigureCanvasQTAgg.__init__(self, fig)
+        self.mainLayout = QtWidgets.QGridLayout(parent)
+        self.mainLayout.addWidget(self)
+        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
+        self.ax = self.figure.add_subplot(111, projection='3d')

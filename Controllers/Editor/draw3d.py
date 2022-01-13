@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 from matplotlib import pyplot as plt
 from Tools.point_in_polygon import point_in_polygon
@@ -18,8 +20,8 @@ class Plot3d:
 
 
 class DrawVoxels:
-    def __init__(self, fig3d: Figure3d, plot3d=None, limits: PlotLimit = None):
-        self.fig3d = fig3d
+    def __init__(self, figs3d: [Figure3d], plot3d=None, limits: PlotLimit = None):
+        self.figs3d = figs3d
         self.plot3d = plot3d if plot3d else Plot3d()
         self.set_limits(limits)
 
@@ -50,23 +52,29 @@ class DrawVoxels:
 
     def draw_all_polygon(self):
         # data = self.clean_figure(self.calc_polygon_in_draw())
-        data = self.calc_polygon_in_draw()
+        print(self.figs3d)
+        for fig in self.figs3d:
+            data = self.calc_polygon_in_draw(fig)
 
-        axes = self.fig3d.size_fig()
-        colors = np.empty(axes + [4], dtype=np.float32)
-        colors[:] = [1, 0, 0, 0.9]
-
-        self.plot3d.ax.voxels(data, facecolors=colors)
+            axes = fig.size_fig()
+            colors = np.empty(axes + [4], dtype=np.float32)
+            # здесь менять цвет фигур
+            random.Random('ra')
+            colors[:] = [1, 1, 0, 0.9]
+            self.plot3d.ax.voxels(data, facecolors=colors)
         plt.show()
 
     "Delete invisible polygon"
-
-    def calc_polygon_in_draw(self):
-        data = np.zeros(self.fig3d.size_fig(), dtype=bool)
-        for k in range(len(self.fig3d.layers)):
-            for i in range(self.fig3d.size_x()):
-                for j in range(self.fig3d.size_y()):
-                    if point_in_polygon(self.fig3d.layers[k].x, self.fig3d.layers[k].y,
+    def calc_polygon_in_draw(self, fig: Figure3d):
+        data = np.zeros(fig.size_fig(), dtype=bool)
+        for k in range(len(fig.layers)):
+            for i in range(fig.size_x()):
+                for j in range(fig.size_y()):
+                    if point_in_polygon(fig.layers[k].x, fig.layers[k].y,
                                         i + 0.5, j + 0.5):
                         data[i, j, k] = True
         return data
+
+    def update(self):
+        self.plot3d.ax.clear()
+        self.draw_all_polygon()

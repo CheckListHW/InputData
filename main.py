@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication
 
 from View.edit_2d_surface import EditWindow
 from View.figure_layer_edit import LayerEditWindow
+from View.select_surface import ViewingLayersWindow
 
 
 def console_excepthook(exc_type, exc_value, exc_tb):

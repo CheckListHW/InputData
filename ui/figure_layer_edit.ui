@@ -130,15 +130,7 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
-               <layout class="QGridLayout" name="showLayersScrollArea">
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="checkBox">
-                  <property name="text">
-                   <string>CheckBox</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <layout class="QGridLayout" name="showLayersScrollArea"/>
               </item>
               <item>
                <spacer name="verticalSpacer_2">
@@ -341,19 +333,19 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_22">
                  <item>
-                  <widget class="QLabel" name="priority_lbl_7">
+                  <widget class="QLabel" name="colorRlbl">
                    <property name="font">
                     <font>
                      <pointsize>10</pointsize>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Color</string>
+                    <string>Color(R)</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QSpinBox" name="priority_spinbox_7">
+                  <widget class="QSpinBox" name="colorRSpinBox">
                    <property name="maximumSize">
                     <size>
                      <width>50</width>
@@ -361,10 +353,10 @@
                     </size>
                    </property>
                    <property name="maximum">
-                    <number>100</number>
+                    <number>255</number>
                    </property>
                    <property name="value">
-                    <number>100</number>
+                    <number>0</number>
                    </property>
                   </widget>
                  </item>
@@ -393,19 +385,19 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_21">
                  <item>
-                  <widget class="QLabel" name="priority_lbl_9">
+                  <widget class="QLabel" name="colorGlbl">
                    <property name="font">
                     <font>
                      <pointsize>10</pointsize>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Priority</string>
+                    <string>Color(G)</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QSpinBox" name="priority_spinbox_9">
+                  <widget class="QSpinBox" name="colorGSpinBox">
                    <property name="maximumSize">
                     <size>
                      <width>50</width>
@@ -413,10 +405,10 @@
                     </size>
                    </property>
                    <property name="maximum">
-                    <number>100</number>
+                    <number>255</number>
                    </property>
                    <property name="value">
-                    <number>100</number>
+                    <number>0</number>
                    </property>
                   </widget>
                  </item>
@@ -445,19 +437,19 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_20">
                  <item>
-                  <widget class="QLabel" name="priority_lbl_3">
+                  <widget class="QLabel" name="colorBlbl">
                    <property name="font">
                     <font>
                      <pointsize>10</pointsize>
                     </font>
                    </property>
                    <property name="text">
-                    <string>Priority</string>
+                    <string>Color(B)</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QSpinBox" name="priority_spinbox_3">
+                  <widget class="QSpinBox" name="colorBSpinBox">
                    <property name="maximumSize">
                     <size>
                      <width>50</width>
@@ -465,10 +457,10 @@
                     </size>
                    </property>
                    <property name="maximum">
-                    <number>100</number>
+                    <number>255</number>
                    </property>
                    <property name="value">
-                    <number>100</number>
+                    <number>0</number>
                    </property>
                   </widget>
                  </item>
@@ -504,23 +496,20 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Priority</string>
+                    <string>Alpha</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QSpinBox" name="priority_spinbox_5">
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
+                  <widget class="QDoubleSpinBox" name="alphaSpinBox">
                    <property name="maximum">
-                    <number>100</number>
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.001000000000000</double>
                    </property>
                    <property name="value">
-                    <number>100</number>
+                    <double>0.900000000000000</double>
                    </property>
                   </widget>
                  </item>

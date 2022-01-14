@@ -10,7 +10,7 @@ from Tools.dot_count_change import halve_dot_count
 # x - width, y - length
 class Edit2dSurface:
     def __init__(self, width: int = 25, length: int = 25, fig=None, ax=None):
-        self.surface: SurfaceFigure2d()
+        self.surface: SurfaceFigure2d(z=-1)
         self.grid_off = False
         self.line_dots_index: int
         self.nearst_dot_index: int = 0

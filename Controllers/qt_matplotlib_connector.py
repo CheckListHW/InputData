@@ -35,11 +35,6 @@ class MatplotlibConnector(FigureCanvasQTAgg):
         self.plot.update_plot()
         self.draw()
 
-    def update_plot_from_json(self, filename):
-        self.plot.surface.load_surface_from_json(filename)
-        self.plot.update_plot()
-        self.draw()
-
     def set_mode(self, status: ModeStatus):
         if status == ModeStatus.DrawCurve:
             self.mode = DrawCurve(self.plot)

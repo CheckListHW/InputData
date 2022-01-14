@@ -16,7 +16,8 @@ class EditWindow(QMainWindow):
         uic.loadUi('ui/edit_surface.ui', self)
 
         self.editor2d = EditorController2d(self.draw_polygon_frame)
-        self.view_layers_window = ViewingLayersWindow(click_handler=self.editor2d.change_lay)
+        self.view_layers_window = ViewingLayersWindow(edit_lay_handler=self.editor2d.edit_lay,
+                                                      change_lay_handler=self.editor2d.change_lay)
 
         self.button_connect()
 
@@ -26,7 +27,6 @@ class EditWindow(QMainWindow):
         self.save.clicked.connect(self.save_figure)
         self.open.clicked.connect(self.open_file)
         self.view_layers.clicked.connect(self.show_layers)
-        self.show_3d.clicked.connect(lambda: DrawVoxels(self.editor2d.figure3d))
 
         self.deleteDot.clicked.connect(lambda: self.change_mode(ModeStatus.DeleteDot))
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))

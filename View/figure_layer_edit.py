@@ -2,7 +2,7 @@ import os
 from typing import Final, Callable
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QCheckBox, QSpacerItem
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QInputDialog, QCheckBox, QSpacerItem, QSpinBox
 
 from Controllers.Editor.draw3d import Plot3d, DrawVoxels
 from Controllers.qt_matplotlib_connector import MatplotlibConnector3dViewing
@@ -13,46 +13,46 @@ from Tools.filedialog import save_as_json
 from View.edit_2d_surface import EditWindow
 
 
-class LayerEditObserver(Observer):
-    __handlers = list[Callable]()
-
-    def add_handler(self, handler: Callable) -> None:
-        self.__handlers.append(handler)
-
-    def add_handlers(self, handlers: [Callable]) -> None:
-        for handler in handlers:
-            self.add_handler(handler)
-
-    def update(self, subject: Subject) -> None:
-        for handler in self.__handlers:
-            handler()
-
-
 class LayerEditWindow(QMainWindow):
-    visible = False
-
     def __init__(self):
-        self.map, self.file = Map(), MapFile(self)
-
         super(LayerEditWindow, self).__init__()
         uic.loadUi('ui/figure_layer_edit.ui', self)
 
+        self.map, self.file = Map(), MapFile(self)
+
         self.handlers_connect()
-        self.layer_observer_build()
+        self.map.attach(LayerEditObserver([self.update_all]))
 
-        connector = MatplotlibConnector3dViewing(self.viewFrame)
-        plot = Plot3d(connector.figure, connector.ax)
-        self.map.add_layer(Figure3d(path='C:/Users/KosachevIV/PycharmProjects/InputData/lay_name254.json'))
-        self.map.add_layer(Figure3d(path='C:/Users/KosachevIV/PycharmProjects/InputData/lay_name607.json'))
-        self.voxels = DrawVoxels(self.map.get_figures(), plot)
+        self.connector = MatplotlibConnector3dViewing(self.viewFrame)
 
-    def update3dView(self):
+        self.map.random_layer_for_test()
+        self.voxels = DrawVoxels(self.map, Plot3d(self.connector.figure, self.connector.ax))
+        self.update_all()
+
+    def handlers_connect(self) -> None:
+        self.create_file_action.triggered.connect(self.file.create_file)
+        self.open_file_action.triggered.connect(self.file.open_file)
+        self.save_file_action.triggered.connect(lambda: self.file.save_file(self.map))
+
+        del_def: () = lambda: self.map.delete_layer(figure=self.layersComboBox.currentData())
+        self.deleteLayerButton.clicked.connect(del_def)
+        self.addLayerButton.clicked.connect(self.map.add_layer)
+        self.acceptSettingsButton.clicked.connect(self.accept_settings)
+        self.editLayerButton.clicked.connect(self.edit_layer)
+        self.updateViewButton.clicked.connect(self.update_view_map)
+        self.acceptLayersChange.clicked.connect(self.accept_view)
+
+        self.allLayersCheckBox.stateChanged.connect(self.change_all_layers_show)
+        self.layersComboBox.activated.connect(self.update_layers_info)
+
+    def update_all(self):
+        self.update_layers_info()
+        self.update_show_layers()
+        self.update_view_map()
+
+    def update_view_map(self):
         self.voxels.update()
-
-    def layer_observer_build(self) -> None:
-        observer = LayerEditObserver()
-        observer.add_handler(self.update_layers_info)
-        self.map.attach(observer)
+        self.connector.draw()
 
     def update_layers_info(self) -> None:
         current_index = self.layersComboBox.currentIndex() if self.layersComboBox.currentIndex() >= 0 else 0
@@ -63,60 +63,63 @@ class LayerEditWindow(QMainWindow):
 
         self.layersComboBox.setCurrentIndex(current_index)
 
-        self.update_show_layers()
-
-        try:
-            layer = self.layersComboBox.currentData()
+        layer = self.layersComboBox.currentData()
+        if type(layer) is Figure3d:
             self.descriptionLabel.setText('Description ({0})'.format(layer.name))
             self.editLabel.setText('Edit ({0})'.format(layer.name))
             self.layerNameLabel.setText(layer.name)
             self.nameLineEdit.setText(layer.name)
-        except:
-            return
+            r, g, b = layer.get_color()
+            self.colorRSpinBox.setValue(r)
+            self.colorGSpinBox.setValue(g)
+            self.colorBSpinBox.setValue(b)
+            self.alphaSpinBox.setValue(layer.alpha)
 
     def update_show_layers(self):
         layers = self.map.get_figures()
 
         for i in reversed(range(self.showLayersScrollArea.count())):
-            if not type(self.showLayersScrollArea.itemAt(i)) is QSpacerItem:
-                self.showLayersScrollArea.itemAt(i).widget().setParent(None)
+            self.showLayersScrollArea.itemAt(i).widget().setParent(None)
 
         for i in range(len(layers)):
             widget = QCheckBox(layers[i].name)
-            widget.setChecked(self.visible)
+            widget.setChecked(layers[i].visible)
+            widget.setProperty('figure', layers[i])
+            widget.stateChanged.connect(self.accept_view)
             self.showLayersScrollArea.addWidget(widget, i, 0)
 
     def change_all_layers_show(self, check):
-        if check == 0:
-            self.visible = False
-        else:
-            self.visible = True
+        for lay in self.map.get_figures():
+            lay.visible = True if check == 2 else False
 
-        self.update_layers_info()
+        self.update_all()
 
-    def handlers_connect(self) -> None:
-        self.create_file_action.triggered.connect(self.file.create_file)
-        self.open_file_action.triggered.connect(self.file.open_file)
-        self.save_file_action.triggered.connect(lambda: self.file.save_file(self.map))
-        self.addLayerButton.clicked.connect(self.map.add_layer)
-        self.deleteLayerButton.clicked.connect(self.map.delete_layer)
-        self.acceptSettingsButton.clicked.connect(self.accept_settings)
-        self.editLayerButton.clicked.connect(self.edit_layer)
-        self.updateViewButton.clicked.connect(self.update3dView)
-        self.allLayersCheckBox.stateChanged.connect(self.change_all_layers_show)
+    def accept_view(self):
+        for i in range(self.showLayersScrollArea.count()):
+            check_box = self.showLayersScrollArea.itemAt(i).widget()
+            if type(check_box) is QCheckBox:
+                if check_box.checkState():
+                    check_box.property('figure').visible = True
+                else:
+                    check_box.property('figure').visible = False
 
-        self.layersComboBox.activated.connect(self.update_layers_info)
+        self.update_all()
 
     def edit_layer(self):
         # self.edit_window если оставлять локальной переменной удаляется из памяти!
         self.edit_window = EditWindow()
-        print()
-        self.edit_window.set_figure(figure=self.map.get_figures()[0])
+        self.edit_window.set_figure(figure=self.layersComboBox.currentData())
         self.edit_window.show()
 
     def accept_settings(self):
+        color = '{0},{1},{2}'.format(self.colorRSpinBox.value(), self.colorGSpinBox.value(), self.colorBSpinBox.value())
         self.layersComboBox.currentData().set_property({'name': self.nameLineEdit.text(),
-                                                        'priority': self.priority_spinbox.text()})
+                                                        'priority': self.priority_spinbox.text(),
+                                                        'color': color,
+                                                        'alpha': self.alphaSpinBox.value(),
+                                                        'a1': None,
+                                                        'a2': None,
+                                                        })
         self.update_layers_info()
 
 
@@ -150,5 +153,24 @@ class MapFile:
     def save_file(self, map: Map):
         for lay in map.get_figures():
             lay.get_figure_as_dict()
-            save_as_json(dict=lay.get_figure_as_dict(), filename=lay.name)
+            save_as_json(data=lay.get_figure_as_dict(), filename=lay.name)
         pass
+
+
+class LayerEditObserver(Observer):
+    def __init__(self, handlers: [Callable]):
+        super(LayerEditObserver, self).__init__()
+        self.__handlers = list[Callable]()
+        self.add_handlers(handlers)
+
+    def add_handler(self, handler: Callable) -> None:
+        self.__handlers.append(handler)
+
+    def add_handlers(self, handlers: [Callable]) -> None:
+        for handler in handlers:
+            self.add_handler(handler)
+
+    def update(self, subject: Subject) -> None:
+        print('-----update-------')
+        for handler in self.__handlers:
+            handler()

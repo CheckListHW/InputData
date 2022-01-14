@@ -2,12 +2,14 @@ from Model.observer import Subject
 from Model.surface_2d import SurfaceFigure2d
 from Tools.dict_from_json import dict_from_json
 
-
+# z - высота слоя
 class Figure3d(Subject):
     def __init__(self, path: str = None) -> None:
         super().__init__()
         self.name: str = 'layer 1'
+        self.color: str = '0,0,0'
         self.priority: int = 100
+        self.z = 0
         self.layers = list[SurfaceFigure2d]()
 
         if path:
@@ -54,10 +56,15 @@ class Figure3d(Subject):
             self.priority = value
 
     def get_figure_as_dict(self) -> dict:
-        a = {}
+        dict = {
+            'name': self.name,
+            'color': self.color,
+            'z': self.z,
+            'priority': self.priority
+        }
         for i in range(len(self.layers)):
-            a[str(i)] = self.layers[i].get_surface_as_dict()
-        return a
+            dict[str(i)] = self.layers[i].get_surface_as_dict()
+        return dict
 
     def set_name(self, text: str) -> None:
         self.name = text
@@ -71,3 +78,4 @@ class Figure3d(Subject):
                 self.set_priority(settings[name_property])
 
         self.notify()
+

@@ -97,7 +97,7 @@ class LayerEditWindow(QMainWindow):
     def handlers_connect(self) -> None:
         self.create_file_action.triggered.connect(self.file.create_file)
         self.open_file_action.triggered.connect(self.file.open_file)
-        self.save_file_action.triggered.connect(self.file.save_file)
+        self.save_file_action.triggered.connect(lambda: self.file.save_file(self.map))
         self.addLayerButton.clicked.connect(self.map.add_layer)
         self.deleteLayerButton.clicked.connect(self.map.delete_layer)
         self.acceptSettingsButton.clicked.connect(self.accept_settings)
@@ -147,5 +147,8 @@ class MapFile:
         file_path, _ = QFileDialog.getOpenFileName(self.parent, '', os.getcwd(), 'Json Files (*.json)')
         self.file_used = file_path
 
-    def save_file(self):
+    def save_file(self, map: Map):
+        for lay in map.get_figures():
+            lay.get_figure_as_dict()
+            save_as_json(dict=lay.get_figure_as_dict(), filename=lay.name)
         pass

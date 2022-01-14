@@ -21,7 +21,7 @@ class Plot3d:
 
 class DrawVoxels:
     def __init__(self, figs3d: [Figure3d], plot3d=None, limits: PlotLimit = None):
-        self.figs3d = figs3d
+        self.figs3d: [Figure3d] = figs3d
         self.plot3d = plot3d if plot3d else Plot3d()
         self.set_limits(limits)
 
@@ -30,6 +30,7 @@ class DrawVoxels:
 
     def set_limits(self, limits: PlotLimit):
         if not limits:
+            # x = max(self.figs3d, key=lambda i: i.size_x())
             return
         if limits.x:
             self.plot3d.ax.axes.set_xlim3d(xmin=0.000001, xmax=limits.x)
@@ -51,8 +52,6 @@ class DrawVoxels:
         return new_data
 
     def draw_all_polygon(self):
-        # data = self.clean_figure(self.calc_polygon_in_draw())
-        print(self.figs3d)
         for fig in self.figs3d:
             data = self.calc_polygon_in_draw(fig)
 
@@ -77,4 +76,6 @@ class DrawVoxels:
 
     def update(self):
         self.plot3d.ax.clear()
+        limits = PlotLimit(x=15, y=15, z=3)
+        self.set_limits(limits)
         self.draw_all_polygon()

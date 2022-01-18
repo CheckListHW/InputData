@@ -3,7 +3,7 @@ from typing import Callable
 from PyQt5 import QtGui, uic
 from PyQt5.QtWidgets import QMainWindow, QFrame
 
-from Controllers.qt_matplotlib_connector import MatplotlibConnector, MatplotlibConnectorTight
+from Controllers.qt_matplotlib_connector import MatplotlibConnectorTight
 from Model.surface_2d import SurfaceFigure2d
 from View.single_lay_view import SingleLayWidget
 
@@ -21,7 +21,7 @@ class ViewingLayersWindow(QMainWindow):
         self.get_surfaces = surface
 
     def add_frame_to_layout(self, index: int) -> QFrame:
-        frame = SingleLayWidget(index, edit_lay_handler=self.add_layer)
+        frame = SingleLayWidget(index, edit_lay_handler=self.edit_layer)
         self.layout_plots.addWidget(frame, index, 0)
 
         frame.setMinimumSize(self.size, self.size)
@@ -30,19 +30,20 @@ class ViewingLayersWindow(QMainWindow):
         self.aaa.append(frame)
         return frame.viewFrame
 
-    def add_layer(self, index):
-        self.kwargs.get('edit_lay_handler')(index)
+    def edit_layer(self, index: int, edit_method: str = 'add', **kwargs):
+        self.kwargs.get('edit_lay_handler')(index, edit_method, **kwargs)
         self.update_main_frame()
-        
+
     def change_layer(self, index):
-        self.kwargs.get('change_lay_handler')(index)
-        self.update_main_frame()
+        if self.kwargs.get('change_lay_handler')(index):
+            self.update_main_frame()
 
     def show(self) -> None:
         if not hasattr(self, 'get_surfaces'):
             return
 
         surfaces: list[dict] = self.get_surfaces().get('layers')
+        print(surfaces)
 
         for i in range(len(surfaces)):
             frame = self.add_frame_to_layout(i)

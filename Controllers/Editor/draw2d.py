@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
@@ -12,7 +14,7 @@ class Edit2dSurface:
     def __init__(self, width: int = 25, length: int = 25, fig=None, ax=None):
         self.surface: SurfaceFigure2d(z=-1)
         self.grid_off = False
-        self.line_dots_index: int
+        self.line_dot_index: int = 9999
         self.nearst_dot_index: int = 0
 
         self.width = width if width in range(0, 501) else 25
@@ -45,6 +47,7 @@ class Edit2dSurface:
 
     def set_active_layer(self, surf: SurfaceFigure2d):
         self.surface = surf
+        self.update_plot()
 
     def draw_line(self, x: [float], y: [float]):
         if not (x + y).__contains__(None):
@@ -117,7 +120,6 @@ class Edit2dSurface:
         lay = self.surface
         self.draw_line([lay.start_x, lay.pre_x], [lay.start_y, lay.pre_y])
         self.surface.set_pre_dot(lay.start_x, lay.start_y)
-        # self.ax.fill(lay.x, lay.y)
         self.update_plot()
 
     def delete_dot(self, x: float, y: float):
@@ -130,16 +132,24 @@ class Edit2dSurface:
         self.update_plot()
 
     def choose_line(self, x: float, y: float):
-        self.clear_content()
-        self.draw_curve(self.surface.x, self.surface.y)
+        if len(self.surface.x) > 1:
+            self.clear_content()
+            self.draw_curve(self.surface.x, self.surface.y)
 
-        _, self.line_dot_index = a, b = nearst_line_index(self.surface.x, self.surface.y, x, y)
+            _, self.line_dot_index = a, b = nearst_line_index(self.surface.x, self.surface.y, x, y)
 
-        self.ax.scatter(self.surface.x[a], self.surface.y[a], color='red')
-        self.ax.scatter(self.surface.x[b], self.surface.y[b], color='red')
+            self.ax.scatter(self.surface.x[a], self.surface.y[a], color='red')
+            self.ax.scatter(self.surface.x[b], self.surface.y[b], color='red')
 
     def add_dot(self, x, y):
-        self.surface.insert_dot(self.line_dot_index, x, y)
+        print('add_dot', len(self.surface.x))
+
+        if len(self.surface.x) < 1:
+            self.start_draw_curve(x, y)
+            self.end_draw_curve()
+        else:
+            print(self.line_dot_index)
+            self.surface.insert_dot(self.line_dot_index, x, y)
         self.update_plot()
 
     def draw_curve(self, dots_x, dots_y):

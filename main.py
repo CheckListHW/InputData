@@ -16,6 +16,6 @@ def console_excepthook(exc_type, exc_value, exc_tb):
 if __name__ == '__main__':
     sys.excepthook = console_excepthook
     app = QApplication(sys.argv)
-    window = LayerEditWindow()
+    window = EditWindow()
     window.show()
     sys.exit(app.exec_())

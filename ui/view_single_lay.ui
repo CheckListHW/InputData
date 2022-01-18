@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>601</width>
+    <width>594</width>
     <height>427</height>
    </rect>
   </property>
@@ -104,6 +104,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="moveUpButton">
+           <property name="text">
+            <string>🠕</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QFrame" name="frame_4">
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -128,17 +135,14 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="indexLabel">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>TextLabel</string>
+             <widget class="QLineEdit" name="heightLineEdit">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBox"/>
             </item>
             <item>
              <widget class="QPushButton" name="delButton">
@@ -148,6 +152,13 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="moveDownButton">
+           <property name="text">
+            <string>🠗</string>
+           </property>
           </widget>
          </item>
          <item>

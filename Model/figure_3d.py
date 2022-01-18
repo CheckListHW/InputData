@@ -16,15 +16,35 @@ class Figure3d(Subject):
         self.priority: int = 100
         self.height = 15
 
-        self.top_lay = SurfaceFigure2d(z=self.height)
-        self.top_lay.random_layer_for_test()
-        self.bottom_lay = SurfaceFigure2d(z=0)
-        self.bottom_lay.random_layer_for_test()
+        top_lay = SurfaceFigure2d(z=0)
+        top_lay.square_layer()
+        bottom_lay = SurfaceFigure2d(z=self.height)
+        bottom_lay.square_layer()
 
         self.layers = list[SurfaceFigure2d]()
+        self.add_layer(top_lay)
+        self.add_layer(bottom_lay)
 
         if path:
             self.load_from_json(path)
+
+    def get_top_lay(self):
+        top_lay = list(filter(lambda x: x.z == 0, self.get_layers()))
+        if len(top_lay) > 0:
+            return top_lay[0]
+
+    def swap_layer(self, index_a, index_b) -> bool:
+        range_layers = range(len(self.layers))
+        if index_a in range_layers and index_b in range_layers:
+            self.layers[index_a], self.layers[index_b] = self.layers[index_b], self.layers[index_a]
+            return True
+        return False
+
+    def change_height_on_layer(self, layer_index: int, new_z: int) -> int:
+        if layer_index in range(1, len(self.layers)-1):
+            self.get_layers_by_z()[layer_index].z = new_z
+            print('set')
+            return new_z
 
     def random_layer_for_test(self):
         count = random.randint(3, 5)
@@ -48,21 +68,41 @@ class Figure3d(Subject):
             sf2d = SurfaceFigure2d(lay=layers[lay])
             self.add_layer(sf2d)
 
-    def add_layer(self, layer: SurfaceFigure2d = None):
-        if layer:
-            self.layers.append(layer)
-        else:
-            self.layers.append(SurfaceFigure2d())
-        self.notify()
+    def add_layer(self, layer: SurfaceFigure2d = None) -> SurfaceFigure2d:
+        return self.insert_layer(len(self.layers), layer)
 
-    def insert_layer(self, index: int, layer: SurfaceFigure2d):
-        self.layers.insert(index, layer)
+    def check_z_between_layers(self, index_a, index_b, new_Z):
+        pass
+
+
+    def insert_layer(self, index: int, layer: SurfaceFigure2d = None) -> SurfaceFigure2d:
+        if not layer:
+            layer = SurfaceFigure2d()
+        if index <= 0:
+            self.layers.insert(0, layer)
+            layer.set_z(value)
+        elif 0 < index < len(self.layers):
+            self.layers.insert(index, layer)
+            layer.set_z(value)
+        else:
+            self.layers.append(layer)
+            layer.set_z(value)
+
         self.notify()
+        return layer
 
     def pop_layer(self, index: int):
-        if len(self.layers) > 1:
+        if len(self.get_layers()) <= 2:
+            return
+
+        if index <= 0:
+            self.layers.pop(0)
+        elif 0 < index < len(self.layers):
             self.layers.pop(index)
-            self.notify()
+        else:
+            self.layers.pop()
+
+        self.notify()
 
     def size_x(self) -> int:
         if self.layers:
@@ -77,17 +117,21 @@ class Figure3d(Subject):
             return 0
 
     def size_fig(self) -> [int]:
-        return [self.size_x(), self.size_y(), self.height+1]
+        return [self.size_x(), self.size_y(), self.height + 1]
 
     def get_layers(self) -> [SurfaceFigure2d]:
-        return [self.top_lay] + self.layers + [self.bottom_lay]
+        return self.layers
 
-    def get_layers_by_priority(self) -> [SurfaceFigure2d]:
+    def get_layers_by_z(self) -> [SurfaceFigure2d]:
+        for lay in self.get_layers():
+            print(lay.z)
         return sorted(self.get_layers(), key=lambda i: i.z)
 
     def get_layer(self, index: int) -> SurfaceFigure2d:
         if index in range(len(self.layers)):
             return self.get_layers()[index]
+        else:
+            return self.get_layers()[0]
 
     def set_priority(self, value: int):
         if value in range(101):
@@ -110,13 +154,12 @@ class Figure3d(Subject):
             'color': self.color,
             'priority': self.priority,
             'height': self.height,
-            'top': self.top_lay.get_surface_as_dict(),
-            'bottom': self.bottom_lay.get_surface_as_dict(),
             'layers': {},
         }
 
-        for i in range(len(self.layers)):
-            dict['layers'][str(i)] = self.layers[i].get_surface_as_dict()
+        layers = self.get_layers()
+        for i in range(len(layers)):
+            dict['layers'][str(i)] = layers[i].get_surface_as_dict()
         return dict
 
     def set_name(self, text: str) -> None:

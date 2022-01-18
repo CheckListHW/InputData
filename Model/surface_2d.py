@@ -1,5 +1,6 @@
 import json
 import random
+import sys
 
 from Tools.filedialog import save_as_json
 
@@ -34,8 +35,16 @@ class SurfaceFigure2d:
         for i in range(4):
             self.add_dot(random.randint(0, 15), random.randint(0, 15))
 
+    def square_layer(self):
+        max_y, max_x = 15, 15
+        self.add_dot(1, 1)
+        self.add_dot(1, max_y-1)
+        self.add_dot(max_x-1, max_y-1)
+        self.add_dot(max_x-1, 1)
+
     def insert_dot(self, index: int, x1: float, y1: float):
-        if 0 < index <= len(self.x):
+        print(index)
+        if 0 < index:
             self.x.insert(index, x1)
             self.y.insert(index, y1)
 
@@ -55,6 +64,9 @@ class SurfaceFigure2d:
     def add_dot(self, x1: float, y1: float):
         self.x.append(x1)
         self.y.append(y1)
+
+    def set_z(self, new_z: int):
+        self.z = new_z
 
     def clear(self):
         self.x, self.y = list(), list()

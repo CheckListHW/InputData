@@ -51,7 +51,7 @@ class DrawVoxels:
 
     def calc_polygon_in_draw(self, fig: Figure3d):
         data = np.zeros(fig.size_fig(), dtype=bool)
-        layers = fig.get_layers_by_priority()
+        layers = fig.get_layers_by_z()
         for lay in layers:
             print(lay.z)
         for k in range(len(layers)):

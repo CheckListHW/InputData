@@ -28,9 +28,6 @@ if __name__ == '__main__':
 
     x, y, z = intersection_point_horizontal_plane(x1, x2, h)
 
-    print(x1, x2, h)
-    print(x, y, z)
-
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 

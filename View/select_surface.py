@@ -22,7 +22,9 @@ class ViewingLayersWindow(QMainWindow):
         self.get_surfaces = surface
 
     def add_frame_to_layout(self, index: int) -> QFrame:
-        frame = SingleLayWidget(index, edit_lay_handler=self.edit_layer)
+        z = self.get_surfaces().get('layers')[str(index)].get('z')
+        frame = SingleLayWidget(index, z, edit_lay_handler=self.edit_layer)
+
         self.layout_plots.addWidget(frame, index, 0)
 
         frame.setMinimumSize(self.size, self.size)
@@ -42,6 +44,8 @@ class ViewingLayersWindow(QMainWindow):
     def show(self) -> None:
         if not hasattr(self, 'get_surfaces'):
             return
+
+        print(self.get_surfaces)
 
         surfaces: list[dict] = self.get_surfaces().get('layers')
 

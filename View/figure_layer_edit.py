@@ -160,7 +160,7 @@ class MapFile:
 class LayerEditObserver(Observer):
     def __init__(self, handlers: [Callable]):
         super(LayerEditObserver, self).__init__()
-        self.__handlers = list[Callable]()
+        self.__handlers: [Callable] = list()
         self.add_handlers(handlers)
 
     def add_handler(self, handler: Callable) -> None:

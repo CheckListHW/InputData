@@ -26,11 +26,15 @@ class EditWindow(QMainWindow):
         self.save.clicked.connect(self.save_figure)
         self.open.clicked.connect(self.open_file)
         self.view_layers.clicked.connect(self.show_layers)
+        self.calcLayerButton.clicked.connect(self.calc)
 
         self.deleteDot.clicked.connect(lambda: self.change_mode(ModeStatus.DeleteDot))
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))
         self.moveDot.clicked.connect(lambda: self.change_mode(ModeStatus.MoveDot))
         self.drawCurve.clicked.connect(lambda: self.change_mode(ModeStatus.DrawCurve))
+
+    def calc(self):
+        self.editor2d.figure3d.calc_intermediate_layers()
 
     def show_layers(self):
         self.view_layers_window.set_surfaces(self.editor2d.figure3d.get_figure_as_dict)

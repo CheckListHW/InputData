@@ -1,5 +1,3 @@
-import sys
-
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
@@ -12,10 +10,10 @@ from Tools.dot_count_change import halve_dot_count
 # x - width, y - length
 class Edit2dSurface:
     def __init__(self, width: int = 25, length: int = 25, fig=None, ax=None):
-        self.surface: SurfaceFigure2d(z=-1)
-        self.grid_off = False
-        self.line_dot_index: int = 9999
-        self.nearst_dot_index: int = 0
+        self.surface = SurfaceFigure2d()
+        self.front_surface: SurfaceFigure2d
+        self.back_surface: SurfaceFigure2d
+        self.grid_off, self.line_dot_index, self.nearst_dot_index = False, 999, 0
 
         self.width = width if width in range(0, 501) else 25
         self.length = length if length in range(0, 501) else 25
@@ -41,15 +39,6 @@ class Edit2dSurface:
         self.ax.grid(which='major', color='#CCCCCC', linestyle='--')
         self.ax.grid(which='minor', color='#CCCCCC', linestyle=':')
 
-    # для вторичных слоев
-    def all_layers(self) -> [SurfaceFigure2d]:
-        return [self.surface]
-
-    def set_active_layer(self, surf: SurfaceFigure2d):
-        self.surface = surf
-        print('---------------', self.surface, '---------------')
-        self.update_plot()
-
     def draw_line(self, x: [float], y: [float]):
         if not (x + y).__contains__(None):
             self.ax.plot(x, y, color='black', marker='.', markersize=6)
@@ -68,27 +57,18 @@ class Edit2dSurface:
             self.plot_prepare()
             self.ax.fill(self.surface.x, self.surface.y)
 
-        # front layer
-        if sub_layers:
-            x1, x2 = 4, 8
-            x, y = [x1, x2, x2, x1, x1], [x1, x1, x2, x2, x1]
-            self.ax.plot(x, y, color='green', linestyle='--')
-            self.ax.fill(x, y, color='green', alpha=0.1)
+        if hasattr(self, 'front_surface'):
+            self.ax.plot(self.front_surface.x, self.front_surface.y, color='green', linestyle='--')
+            self.ax.fill(self.front_surface.x, self.front_surface.y, color='green', alpha=0.1)
 
-        # main
-        for lay in self.all_layers():
-            self.draw_curve(lay.x, lay.y)
+        self.draw_curve(self.surface.x, self.surface.y)
 
-        # back layer
-        if sub_layers:
-            x1, x2 = 1, 14
-            x, y = [x1, x2, x2, x1, x1], [x1, x1, x2, x2, x1]
-            self.ax.plot(x, y, color='red')
-            self.ax.fill(x, y, color='red')
+        if hasattr(self, 'back_surface'):
+            self.ax.plot(self.back_surface.x, self.back_surface.y, color='red')
+            self.ax.fill(self.back_surface.x, self.back_surface.y, color='red')
 
     def halve_dot_count(self):
-        self.surface.x, self.surface.y = \
-            halve_dot_count(self.surface.x, self.surface.y)
+        self.surface.x, self.surface.y = halve_dot_count(self.surface.x, self.surface.y)
 
         self.update_plot()
 
@@ -110,7 +90,6 @@ class Edit2dSurface:
 
     def start_draw_curve(self, x: float, y: float):
         self.surface.clear()
-        # self.clear_content()
         self.surface.set_start_dot(x, y)
 
     def continue_draw_curve(self, x: float, y: float):
@@ -143,8 +122,6 @@ class Edit2dSurface:
             self.ax.scatter(self.surface.x[b], self.surface.y[b], color='red')
 
     def add_dot(self, x, y):
-        print('add_dot', len(self.surface.x))
-
         if len(self.surface.x) < 1:
             self.start_draw_curve(x, y)
             self.end_draw_curve()

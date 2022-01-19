@@ -39,9 +39,9 @@ class DrawVoxels:
             self.plot3d.ax.axes.set_zlim3d(zmin=0.000001, zmax=self.limits.z)
 
     def draw_all_polygon(self):
-        for fig in self.map.get_figures():
+        for fig in self.map.get_visible_figures():
             data = self.calc_polygon_in_draw(fig)
-            axes = fig.size_fig()
+            axes = [fig.size_x(), fig.size_y(), fig.height+1]
             colors = np.empty(axes + [4], dtype=np.float32)
             r, g, b = fig.get_color()
             colors[:] = [r / 255, g / 255, b / 255, 0.9]
@@ -50,16 +50,13 @@ class DrawVoxels:
     "Delete invisible polygon"
 
     def calc_polygon_in_draw(self, fig: Figure3d):
-        data = np.zeros(fig.size_fig(), dtype=bool)
-        layers = fig.get_layers_by_z()
-        for lay in layers:
-            print(lay.z)
-        for k in range(len(layers)):
+        data = np.zeros([fig.size_x(), fig.size_y(), fig.height+1], dtype=bool)
+        for k in range(len(fig.layers)):
             for i in range(fig.size_x()):
                 for j in range(fig.size_y()):
-                    if point_in_polygon(layers[k].x, layers[k].y,
+                    if point_in_polygon(fig.layers[k].x, fig.layers[k].y,
                                         i + 0.5, j + 0.5):
-                        data[i, j, layers[k].z] = True
+                        data[i, j, fig.layers[k].z] = True
         return data
 
     def update(self):

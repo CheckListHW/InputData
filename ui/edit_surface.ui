@@ -132,6 +132,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="calcLayerButton">
+            <property name="text">
+             <string>Calc intermediate layer</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="show_3d">
             <property name="text">
              <string>Show 3d</string>

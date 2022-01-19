@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Dot:
     __slots__ = ['x', 'y', 'index', 'distance']
 
@@ -9,10 +12,18 @@ class Dot:
 
 
 def halve_dot_count(x: [float], y: [float]) -> ([float], [float]):
+    new_x, new_y = x.copy(), y.copy()
+    while len(new_x) > len(x)/2:
+        new_x, new_y = dot_count_minus_one(new_x, new_y, pop_dot_count=int(len(x)*0.05)+1)
+
+    return new_x, new_y
+
+
+def dot_count_minus_one(x: [float], y: [float], pop_dot_count: int = 1) -> ([float], [float]):
     if min(len(x), len(y)) < 10:
         return x, y
 
-    dots: [Dot] = list[Dot]()
+    dots: List[Dot] = list()
 
     for i in range(1, min(len(x), len(y)) - 1):
         distance_ab = ((x[i - 1] - x[i]) ** 2 + (y[i - 1] - y[i]) ** 2) ** 0.5
@@ -20,11 +31,12 @@ def halve_dot_count(x: [float], y: [float]) -> ([float], [float]):
         dots.append(Dot(i, distance_ab + distance_bc, x[i], y[i]))
 
     dots.sort(key=lambda j: j.distance)
-    dots = dots[int(len(dots)/2):-1]
+    for _ in range(pop_dot_count):
+        dots.pop(0)
     dots.sort(key=lambda j: j.index)
 
-    xx = list[float]()
-    yy = list[float]()
+    xx: List[float] = list()
+    yy: List[float] = list()
 
     xx.append(x[0])
     yy.append(y[0])

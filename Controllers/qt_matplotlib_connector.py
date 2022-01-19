@@ -14,9 +14,9 @@ class MatplotlibConnector(FigureCanvasQTAgg):
 
         self.ax = self.figure.add_subplot()
         self.plot = Edit2dSurface(width=15, length=15, fig=self.figure, ax=self.ax)
-        print('---------------', surf, '---------------')
 
-        self.plot.set_active_layer(surf)
+        self.plot.surface = surf
+        self.plot.update_plot()
         self.set_mode(mode)
 
         self.mpl_connect('button_press_event', self.on_click)

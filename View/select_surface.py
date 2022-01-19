@@ -12,6 +12,7 @@ class ViewingLayersWindow(QMainWindow):
     def __init__(self, **kwargs):
         super(ViewingLayersWindow, self).__init__()
         uic.loadUi('ui/viewing_layers.ui', self)
+        # добавляется для того чтобы сборщик мусора не удалял объекты
         self.aaa = []
 
         self.kwargs, self.get_surfaces, self.frames, self.size = kwargs, None, list(), 200
@@ -43,7 +44,6 @@ class ViewingLayersWindow(QMainWindow):
             return
 
         surfaces: list[dict] = self.get_surfaces().get('layers')
-        print(surfaces)
 
         for i in range(len(surfaces)):
             frame = self.add_frame_to_layout(i)

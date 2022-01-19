@@ -17,6 +17,8 @@ class Figure3d(Subject):
         self.height = 15
 
         top_lay = SurfaceFigure2d(z=0)
+        print('top_lay.z={0}'.format(top_lay.z))
+
         top_lay.square_layer()
         bottom_lay = SurfaceFigure2d(z=self.height)
         bottom_lay.square_layer()
@@ -29,6 +31,8 @@ class Figure3d(Subject):
             self.load_from_json(path)
 
     def get_top_lay(self):
+        for lay in self.get_layers():
+            print('z={0}'.format(lay.z))
         top_lay = list(filter(lambda x: x.z == 0, self.get_layers()))
         if len(top_lay) > 0:
             return top_lay[0]
@@ -41,9 +45,8 @@ class Figure3d(Subject):
         return False
 
     def change_height_on_layer(self, layer_index: int, new_z: int) -> int:
-        if layer_index in range(1, len(self.layers)-1):
+        if layer_index in range(1, len(self.layers) - 1):
             self.get_layers_by_z()[layer_index].z = new_z
-            print('set')
             return new_z
 
     def random_layer_for_test(self):
@@ -71,23 +74,15 @@ class Figure3d(Subject):
     def add_layer(self, layer: SurfaceFigure2d = None) -> SurfaceFigure2d:
         return self.insert_layer(len(self.layers), layer)
 
-    def check_z_between_layers(self, index_a, index_b, new_Z):
-        pass
-
-
     def insert_layer(self, index: int, layer: SurfaceFigure2d = None) -> SurfaceFigure2d:
         if not layer:
             layer = SurfaceFigure2d()
         if index <= 0:
             self.layers.insert(0, layer)
-            layer.set_z(value)
         elif 0 < index < len(self.layers):
             self.layers.insert(index, layer)
-            layer.set_z(value)
         else:
             self.layers.append(layer)
-            layer.set_z(value)
-
         self.notify()
         return layer
 

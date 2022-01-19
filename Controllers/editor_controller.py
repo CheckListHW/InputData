@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QFrame
 
 from Controllers.qt_matplotlib_connector import MatplotlibConnectorEdit
 from Model.figure_3d import Figure3d
-from Model.surface_2d import SurfaceFigure2d
 from Tools.filedialog import save_as_json
 
 
@@ -11,14 +10,12 @@ class EditorController2d:
         self.figure3d = Figure3d()
         self.select_layer = 0
         surf = self.figure3d.get_top_lay()
-        print(surf.x, surf.y)
         self.connector = MatplotlibConnectorEdit(parent, surf=surf)
 
     def load_layers(self, path: str):
         self.figure3d = Figure3d(path)
 
     def edit_lay(self, index: int, edit_method: str = 'add', **kwargs):
-        print(edit_method, index)
         lay = None
         if edit_method == 'add' and index >= 0:
             lay = self.figure3d.insert_layer(index)

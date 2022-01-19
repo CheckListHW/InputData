@@ -47,6 +47,7 @@ class Edit2dSurface:
 
     def set_active_layer(self, surf: SurfaceFigure2d):
         self.surface = surf
+        print('---------------', self.surface, '---------------')
         self.update_plot()
 
     def draw_line(self, x: [float], y: [float]):

@@ -3,7 +3,6 @@ import os
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 
-from Controllers.Editor.draw3d import DrawVoxels
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.editor_controller import EditorController2d
 from Model.figure_3d import Figure3d

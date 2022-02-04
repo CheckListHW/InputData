@@ -1,4 +1,4 @@
-def point_in_polygon(curves_x, curves_y, x, y):
+def check_point_in_polygon(curves_x, curves_y, x, y):
     entry, j = False, len(curves_x) - 1
 
     for i in range(0, len(curves_x)):

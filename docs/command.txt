@@ -1,0 +1,7 @@
+python -m PyQt5.uic.pyuic -x ui/edit_surface.ui -o ui/edit_surface_ui.py
+python -m PyQt5.uic.pyuic -x ui/figure_layer_edit.ui -o ui/figure_layer_edit_ui.py
+python -m PyQt5.uic.pyuic -x ui/figure_widget.ui -o ui/figure_widget_ui.py
+python -m PyQt5.uic.pyuic -x ui/view_single_lay.ui -o ui/view_single_lay_ui.py
+python -m PyQt5.uic.pyuic -x ui/viewing_layers.ui -o ui/viewing_layers_ui.py
+
+pyinstaller --noconfirm --onedir --windowed --add-data "C:/Users/kosac/PycharmProjects/InputData/base.json;." --add-data "C:/Users/kosac/PycharmProjects/InputData/ui;ui/"  "C:/Users/kosac/PycharmProjects/InputData/main.py"

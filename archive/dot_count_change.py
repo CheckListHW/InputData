@@ -13,14 +13,14 @@ class Dot:
 
 def halve_dot_count(x: [float], y: [float]) -> ([float], [float]):
     new_x, new_y = x.copy(), y.copy()
-    while len(new_x) > len(x)/2:
+    while len(new_x) > len(x)/2 and len(new_x) > 5:
         new_x, new_y = dot_count_minus_one(new_x, new_y, pop_dot_count=int(len(x)*0.05)+1)
 
     return new_x, new_y
 
 
 def dot_count_minus_one(x: [float], y: [float], pop_dot_count: int = 1) -> ([float], [float]):
-    if min(len(x), len(y)) < 10:
+    if min(len(x), len(y)) < 5:
         return x, y
 
     dots: List[Dot] = list()
@@ -47,7 +47,5 @@ def dot_count_minus_one(x: [float], y: [float], pop_dot_count: int = 1) -> ([flo
 
     xx.append(x[-1])
     yy.append(y[-1])
-
-    print('halve', len(xx), len(yy))
 
     return xx, yy

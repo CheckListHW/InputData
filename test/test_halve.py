@@ -2,7 +2,7 @@ from random import random
 
 import matplotlib.pyplot as plt
 
-from Tools.dot_count_change import halve_dot_count
+from archive.dot_count_change import halve_dot_count
 
 if __name__ == '__main__':
     x = [float(i) for i in range(100)] + [random() / 2 + 100 for _ in range(100)] + \

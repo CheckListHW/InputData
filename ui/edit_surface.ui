@@ -75,18 +75,20 @@
               <height>100</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>15</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>draw curve</string>
             </property>
+            <property name="textFormat">
+             <enum>Qt::AutoText</enum>
+            </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="halve">
-            <property name="text">
-             <string>Count of dots in half</string>
             </property>
            </widget>
           </item>
@@ -119,7 +121,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="update">
+           <widget class="QPushButton" name="updateButton">
             <property name="minimumSize">
              <size>
               <width>100</width>
@@ -132,28 +134,35 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="calcLayerButton">
-            <property name="text">
-             <string>Calc intermediate layer</string>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="show_3d">
+           <widget class="QPushButton" name="simplifyButton">
             <property name="text">
-             <string>Show 3d</string>
+             <string>Simplify line</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="load">
+           <widget class="QPushButton" name="halve">
             <property name="text">
-             <string>Load figure</string>
+             <string>Count of dots in half</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="view_layers">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="viewLayersButton">
             <property name="text">
              <string>View layers</string>
             </property>

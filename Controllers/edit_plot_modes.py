@@ -4,7 +4,7 @@ from typing import Callable
 
 from matplotlib.backend_bases import MouseButton
 
-from Controllers.Editor.draw2d import Edit2dSurface
+from Controllers.Editor.draw_surface import EditSurface
 
 
 class ModeStatus(enum.Enum):
@@ -18,9 +18,9 @@ class ModeStatus(enum.Enum):
 class Mode:
     __slots__ = ['handler_move_id', 'plot']
 
-    def __init__(self, plot: Edit2dSurface):
+    def __init__(self, plot: EditSurface):
         self.handler_move_id: int
-        self.plot: Edit2dSurface = plot
+        self.plot: EditSurface = plot
 
     @abstractmethod
     def on_click(self, event):

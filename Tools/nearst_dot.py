@@ -1,6 +1,6 @@
 def nearst_dot_index(dots_x, dots_y, x, y):
     if len(dots_x) < 1:
-        return None, None
+        return None
 
     current_distance = ((dots_x[0] - x) ** 2 + (dots_y[0] - y) ** 2) ** 0.5
 

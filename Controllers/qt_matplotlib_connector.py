@@ -4,18 +4,21 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationTool
 from matplotlib.figure import Figure
 
 from Controllers.edit_plot_modes import *
-from Controllers.Editor.draw2d import Edit2dSurface
-from Model.surface_2d import SurfaceFigure2d
+from Controllers.Editor.draw_surface import EditSurface
+from Model.shape import Shape
+from Model.surface import Surface
+from Tools.filedialog import save_dict_as_json
 
 
-class MatplotlibConnector(FigureCanvasQTAgg):
-    def __init__(self, mode: ModeStatus, surf: SurfaceFigure2d = None):
+class EditorController(FigureCanvasQTAgg):
+    def __init__(self, mode: ModeStatus, surf: Surface = None):
         # при добавлении 'super().__init__()' крашится
 
         self.ax = self.figure.add_subplot()
-        self.plot = Edit2dSurface(width=15, length=15, fig=self.figure, ax=self.ax)
+        self.plot = EditSurface(fig=self.figure, ax=self.ax)
 
-        self.plot.surface = surf
+        if surf:
+            self.plot.surface = surf
         self.plot.update_plot()
         self.set_mode(mode)
 
@@ -23,7 +26,7 @@ class MatplotlibConnector(FigureCanvasQTAgg):
         self.mpl_connect('button_release_event', self.on_release)
         self.mpl_connect('pick_event', self.pick_event)
 
-    def change_lay(self, lay: SurfaceFigure2d):
+    def change_lay(self, lay: Surface):
         self.plot.surface = lay
         self.plot.update_plot()
         self.draw()
@@ -63,8 +66,8 @@ class MatplotlibConnector(FigureCanvasQTAgg):
         self.draw()
 
 
-class MatplotlibConnectorTight(MatplotlibConnector):
-    def __init__(self, parent=None, surf: SurfaceFigure2d = None, **kwargs):
+class EditorSurfaceControllerTight(EditorController):
+    def __init__(self, parent=None, surf: Surface = None, **kwargs):
         self.kwargs = kwargs
         fig = Figure()
         fig.subplots_adjust(left=-0.003, bottom=0, right=1, top=1, wspace=0, hspace=0)
@@ -76,20 +79,7 @@ class MatplotlibConnectorTight(MatplotlibConnector):
         super().__init__(surf=surf, mode=ModeStatus.Watch)
 
 
-class MatplotlibConnectorEdit(MatplotlibConnector):
-    def __init__(self, parent=None, surf: SurfaceFigure2d = None, **kwargs):
-        self.kwargs = kwargs
-        fig = Figure(tight_layout=True)
-
-        FigureCanvasQTAgg.__init__(self, fig)
-        self.mainLayout = QtWidgets.QGridLayout(parent)
-        self.mainLayout.addWidget(self)
-        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
-
-        super().__init__(surf=surf, mode=ModeStatus.DrawCurve)
-
-
-class MatplotlibConnector3dViewing(FigureCanvasQTAgg):
+class EditorFigureController(FigureCanvasQTAgg):
     def __init__(self, parent: QFrame):
         fig = Figure(tight_layout=True)
 
@@ -98,3 +88,65 @@ class MatplotlibConnector3dViewing(FigureCanvasQTAgg):
         self.mainLayout.addWidget(self)
         self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
         self.ax = self.figure.add_subplot(111, projection='3d')
+
+
+class EditorSurfaceController(EditorController):
+    def __init__(self, parent=None, surf: Surface = None, **kwargs):
+        self.kwargs = kwargs
+        fig = Figure(tight_layout=True)
+        self.shape: Shape
+
+        FigureCanvasQTAgg.__init__(self, fig)
+        self.mainLayout = QtWidgets.QGridLayout(parent)
+        self.mainLayout.addWidget(self)
+        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
+
+        self.select_layer = 0
+        super().__init__(surf=surf, mode=ModeStatus.DrawCurve)
+
+    def set_shape(self, path: str = None, shape: Shape = None):
+        if path:
+            self.shape = Shape(path)
+        elif shape:
+            self.shape = shape
+        self.change_lay(0)
+
+    def edit_lay(self, index: int, edit_method: str = 'add', **kwargs):
+        lay = None
+        if edit_method == 'add':
+            lay = self.shape.insert_layer(index)
+
+        elif edit_method == 'del':
+            self.shape.pop_layer(index)
+            lay = self.shape.layers[index] if index in range(0, len(self.shape.layers)) else None
+
+        elif edit_method == 'move_up':
+            if self.shape.swap_layer(index, index - 1):
+                lay = self.shape.layers[index - 1]
+
+        elif edit_method == 'move_down':
+            if self.shape.swap_layer(index, index + 1):
+                lay = self.shape.layers[index + 1]
+
+        elif edit_method == 'change_height' and kwargs.get('height') is not None:
+            self.shape.set_layer_z(index, kwargs.get('height'))
+
+        if lay is None:
+            lay = self.shape.layers[0]
+
+        self.change_lay(lay=lay)
+
+    def change_lay(self, index: int = None, lay: Surface = None):
+        if index in range(0, len(self.shape.layers)):
+            super(EditorSurfaceController, self).change_lay(self.shape.layers[index])
+        elif lay:
+            super(EditorSurfaceController, self).change_lay(lay)
+
+    def save(self):
+        if hasattr(self, 'shape'):
+            fig_dict = self.shape.get_figure_as_dict()
+            save_dict_as_json(fig_dict)
+
+    def simplify_line(self):
+        self.plot.simplify_line()
+        self.draw()

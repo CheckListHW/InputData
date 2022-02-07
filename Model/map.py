@@ -13,6 +13,9 @@ class Map(Subject):
         self.__size_z = 15
         self.shapes: [Shape] = list()
 
+    def set_size(self, x: int, y: int, z: int):
+        if
+
     def add_layer(self, figure: Shape = None) -> Shape:
         if not figure:
             figure = Shape(name='layer {0}'.format(len(self.shapes)))
@@ -45,7 +48,7 @@ class Map(Subject):
         self.shapes = load_shapes
         self.notify()
 
-    def load_from_json(self, path: str) -> int:
+    def load_from_json(self, path: str):
         self.load_from_dict(dict_from_json(path))
 
     def size(self, axis: str) -> int:

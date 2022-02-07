@@ -14,7 +14,7 @@ class ViewingLayersWindow(QMainWindow):
 
     def __init__(self, surface_editor: EditorSurfaceController):
         super(ViewingLayersWindow, self).__init__()
-        uic.loadUi(environ['project'] + '/ui/viewing_layers.ui', self)
+        uic.loadUi(environ['project'] + '/ui/surface_choose_view.ui', self)
         # добавляется для того чтобы сборщик мусора не удалял объекты
         self.aaa = []
         self.surface_editor = surface_editor

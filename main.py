@@ -18,7 +18,6 @@ def console_excepthook(exc_type, exc_value, exc_tb):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     sys.excepthook = console_excepthook
-    # window = SurfaceEditWindow(single_surface=True)
     window = ShapeEditWindow()
     window.show()
     sys.exit(app.exec_())

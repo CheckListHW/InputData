@@ -1,3 +1,3 @@
 if __name__ == '__main__':
-    x = {'a': 1, 'b': 2}
-    v, c = x.values()
+    if [1, 2] in range(0, 10):
+        print('yes')

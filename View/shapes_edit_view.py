@@ -17,7 +17,7 @@ from View.surface_draw_view import SurfaceEditWindow
 class ShapeEditWindow(QMainWindow):
     def __init__(self):
         super(ShapeEditWindow, self).__init__()
-        uic.loadUi(environ['project'] + '/ui/figure_layer_edit.ui', self)
+        uic.loadUi(environ['project'] + '/ui/shape_edit.ui', self)
 
         self.map, self.file_map, self.file_shape = Map(), MapFile(self), ShapeFile(self)
         self.map.attach(ObjectObserver([self.update_all]))
@@ -49,19 +49,24 @@ class ShapeEditWindow(QMainWindow):
         self.addLayerButton.clicked.connect(self.map.add_layer)
         self.acceptSettingsButton.clicked.connect(self.accept_settings)
         self.editLayerButton.clicked.connect(self.edit_layer)
-        self.updateViewButton.clicked.connect(self.voxels.draw_all_polygon)
+        self.redrawButton.clicked.connect(self.voxels.draw_all_polygon)
+        self.updateButton.clicked.connect(self.update_all)
         self.acceptLayersChange.clicked.connect(self.accept_view)
         self.allLayersCheckBox.stateChanged.connect(self.change_all_layers_show)
         self.layersComboBox.activated.connect(self.update_layers_info)
         self.nameLineEdit.editingFinished.connect(self.accept_settings)
         self.priority_spinbox.editingFinished.connect(self.accept_settings)
 
-        r, g, b = self.layersComboBox.currentData().color
-        alpha = self.layersComboBox.currentData().alpha * 255
-        cd = QColorDialog(QColor(r, g, b, alpha=alpha), self)
-        cd.setOption(QColorDialog.ShowAlphaChannel, on=True)
-        cd.colorSelected.connect(self.set_color)
-        self.colorButton.clicked.connect(cd.show)
+        self.colorButton.clicked.connect(self.show_palette)
+
+    def show_palette(self):
+        if self.layersComboBox.currentData():
+            r, g, b = self.layersComboBox.currentData().color
+            alpha = self.layersComboBox.currentData().alpha * 255
+            cd = QColorDialog(QColor(r, g, b, alpha=alpha), self)
+            cd.setOption(QColorDialog.ShowAlphaChannel, on=True)
+            cd.colorSelected.connect(self.set_color)
+            cd.show()
 
     def set_color(self, color: QColor):
         alpha = color.alpha()/255
@@ -70,6 +75,9 @@ class ShapeEditWindow(QMainWindow):
                                                         'alpha': alpha})
 
     def update_all(self):
+        x, y, z = self.xSpinbox.text(), self.ySpinbox.text(), self.zSpinbox.text()
+        self.map.s
+        print(x, y, z)
         self.update_layers_info()
         self.list_displayed_layers()
         self.voxels.draw_all_polygon()

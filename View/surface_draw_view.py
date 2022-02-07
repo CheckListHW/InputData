@@ -12,7 +12,7 @@ from resource import string_resource as str_res
 class SurfaceEditWindow(QMainWindow):
     def __init__(self, single_surface=False):
         super(SurfaceEditWindow, self).__init__()
-        uic.loadUi(os.environ['project'] + '/ui/edit_surface.ui', self)
+        uic.loadUi(os.environ['project'] + '/ui/surface_edit.ui', self)
 
         self.surface_editor = EditorSurfaceController(self.draw_polygon_frame)
         self.view_layers_window = ViewingLayersWindow(self.surface_editor)

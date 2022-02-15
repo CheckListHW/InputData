@@ -1,8 +1,8 @@
 from os import environ
 
-from PyQt5 import uic
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog
+from PyQt5 import uic, QtGui
+from PyQt5.QtGui import QColor, QKeySequence
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog, QShortcut, QSpinBox
 
 from Controllers.Editor.draw_shape import Plot3d, DrawVoxels
 from Controllers.qt_matplotlib_connector import EditorFigureController
@@ -46,16 +46,23 @@ class ShapeEditWindow(QMainWindow):
         del_def: () = lambda: self.map.delete_layer(figure=self.layersComboBox.currentData())
         self.deleteLayerButton.clicked.connect(del_def)
 
-        self.addLayerButton.clicked.connect(self.map.add_layer)
+        self.addLayerButton.clicked.connect(lambda: self.map.add_layer())
         self.acceptSettingsButton.clicked.connect(self.accept_settings)
         self.editLayerButton.clicked.connect(self.edit_layer)
         self.redrawButton.clicked.connect(self.voxels.draw_all_polygon)
         self.updateButton.clicked.connect(self.update_all)
         self.acceptLayersChange.clicked.connect(self.accept_view)
+
         self.allLayersCheckBox.stateChanged.connect(self.change_all_layers_show)
         self.layersComboBox.activated.connect(self.update_layers_info)
+
         self.nameLineEdit.editingFinished.connect(self.accept_settings)
         self.priority_spinbox.editingFinished.connect(self.accept_settings)
+
+        self.xEndSpinbox.editingFinished.connect(self.accept_size)
+        self.yEndSpinbox.editingFinished.connect(self.accept_size)
+        self.zStartSpinbox.editingFinished.connect(self.accept_size)
+        self.zEndSpinbox.editingFinished.connect(self.accept_size)
 
         self.colorButton.clicked.connect(self.show_palette)
 
@@ -69,15 +76,20 @@ class ShapeEditWindow(QMainWindow):
             cd.show()
 
     def set_color(self, color: QColor):
-        alpha = color.alpha()/255
+        alpha = color.alpha() / 255
         r, g, b, _ = color.getRgb()
         self.layersComboBox.currentData().set_property({'color': (r, g, b),
                                                         'alpha': alpha})
 
+    def accept_size(self):
+        x = self.map.height if self.map.height >= int(self.zEndSpinbox.text()) else int(self.zEndSpinbox.text())
+        self.zEndSpinbox.setValue(x)
+        x_end, y_end = self.xEndSpinbox.text(), self.yEndSpinbox.text()
+        z_start, z_end = self.zStartSpinbox.text(), self.zEndSpinbox.text()
+        self.map.size.change_constraints(None, x_end, None, y_end, z_start, z_end)
+
     def update_all(self):
-        x, y, z = self.xSpinbox.text(), self.ySpinbox.text(), self.zSpinbox.text()
-        self.map.s
-        print(x, y, z)
+        self.accept_size()
         self.update_layers_info()
         self.list_displayed_layers()
         self.voxels.draw_all_polygon()
@@ -93,7 +105,6 @@ class ShapeEditWindow(QMainWindow):
 
         layer = self.layersComboBox.currentData()
         if type(layer) is Shape:
-            self.descriptionLabel.setText('Description ({0})'.format(layer.name))
             self.editLabel.setText('Edit ({0})'.format(layer.name))
             self.layerNameLabel.setText(layer.name)
             self.nameLineEdit.setText(layer.name)

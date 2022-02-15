@@ -1,26 +1,25 @@
-import random
-
+from Model.size import Size
 from Model.shape import Shape
 from Model.observer import Subject
 from Tools.filedialog import dict_from_json
 
 
 class Map(Subject):
+    __slots__ = 'size', 'shapes'
+
     def __init__(self):
         super().__init__()
-        self.__size_x = 15
-        self.__size_y = 15
-        self.__size_z = 15
+        self.size = Size()
         self.shapes: [Shape] = list()
-
-    def set_size(self, x: int, y: int, z: int):
-        if
 
     def add_layer(self, figure: Shape = None) -> Shape:
         if not figure:
-            figure = Shape(name='layer {0}'.format(len(self.shapes)))
-        figure._observers = self._observers
-        figure.set_size(self.__size_x, self.__size_y, self.__size_z)
+            figure = Shape(size=self.size)
+        if not figure.size:
+            figure.size = self.size
+        if not figure._observers:
+            figure._observers = self._observers
+
         self.shapes.append(figure)
         self.notify()
         return figure
@@ -39,25 +38,17 @@ class Map(Subject):
         return sorted(filter(lambda i: i.visible is True, self.get_shapes()), key=lambda i: i.priority).__reversed__()
 
     def load_from_dict(self, dictionary: dict):
-        load_shapes: [Shape] = list()
+        self.shapes = list()
         for lay in dictionary:
-            fig = Shape()
+            fig = Shape(size=self.size)
             fig.load_from_dict(dictionary[lay])
-            load_shapes.append(fig)
+            self.add_layer(fig)
 
-        self.shapes = load_shapes
         self.notify()
 
     def load_from_json(self, path: str):
         self.load_from_dict(dict_from_json(path))
 
-    def size(self, axis: str) -> int:
-        if axis == 'x':
-            return self.__size_x
-        elif axis == 'y':
-            return self.__size_y
-        elif axis == 'z':
-            return self.__size_z
-        else:
-            return max(self.__size_z, self.__size_x, self.__size_y)
-
+    @property
+    def height(self) -> int:
+        return max(self.shapes, key=lambda i: i.height).height

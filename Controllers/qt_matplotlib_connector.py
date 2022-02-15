@@ -1,11 +1,13 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QFrame
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QFrame, QShortcut
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
 from Controllers.edit_plot_modes import *
 from Controllers.Editor.draw_surface import EditSurface
 from Model.shape import Shape
+from Model.size import Size
 from Model.surface import Surface
 from Tools.filedialog import save_dict_as_json
 
@@ -25,6 +27,17 @@ class EditorController(FigureCanvasQTAgg):
         self.mpl_connect('button_press_event', self.on_click)
         self.mpl_connect('button_release_event', self.on_release)
         self.mpl_connect('pick_event', self.pick_event)
+
+        QShortcut(QKeySequence('Ctrl+Z'), self).activated.connect(self.set_prev)
+        QShortcut(QKeySequence('Ctrl+Shift+Z'), self).activated.connect(self.set_next)
+
+    def set_prev(self):
+        self.plot.surface.memento.get_prev()
+        self.update_plot()
+
+    def set_next(self):
+        self.plot.surface.memento.get_next()
+        self.update_plot()
 
     def change_lay(self, lay: Surface):
         self.plot.surface = lay
@@ -48,6 +61,8 @@ class EditorController(FigureCanvasQTAgg):
             self.mode = AddDot(self.plot)
         elif status == ModeStatus.MoveDot:
             self.mode = MoveDot(self.plot)
+        elif status == ModeStatus.AddSplit:
+            self.mode = AddSplit(self.plot)
         elif status == ModeStatus.Watch:
             self.mode = Watch(self.plot, self.kwargs.get('watch_click_handler'))
 
@@ -106,7 +121,7 @@ class EditorSurfaceController(EditorController):
 
     def set_shape(self, path: str = None, shape: Shape = None):
         if path:
-            self.shape = Shape(path)
+            self.shape = Shape(size=Size(), path=path)
         elif shape:
             self.shape = shape
         self.change_lay(0)

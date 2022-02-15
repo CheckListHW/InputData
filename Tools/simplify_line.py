@@ -1,7 +1,12 @@
+from typing import Optional
+
 from Tools.intersection_point_horizontal_plane import intersection_point_horizontal_plane
 
 
-def simplify_line(x: [float], y: [float], dot_count: int) -> ([int], [int]):
+def simplify_line(x: [float], y: [float], dot_count: Optional[int] = None) -> ([int], [int]):
+    if not dot_count:
+        dot_count = int(min(len(x), len(y)))
+
     if len(x) < dot_count or len(y) < dot_count or dot_count < 2:
         return x, y
 

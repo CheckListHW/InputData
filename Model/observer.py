@@ -4,13 +4,15 @@ from typing import List, Callable
 
 
 class Observer(ABC):
+    __slots__ = ()
+
     @abstractmethod
     def update(self, subject: Subject) -> None:
         pass
 
 
 class Subject(ABC):
-    __slots__ = ['_observers']
+    __slots__ = '_observers'
 
     def __init__(self):
         self._observers: List[Observer] = []
@@ -27,6 +29,8 @@ class Subject(ABC):
 
 
 class ObjectObserver(Observer):
+    __slots__ = '__handlers'
+
     def __init__(self, handlers: [Callable]):
         super(ObjectObserver, self).__init__()
         self.__handlers: [Callable] = list()

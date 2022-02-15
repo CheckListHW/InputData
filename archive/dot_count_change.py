@@ -12,7 +12,7 @@ class Dot:
 
 
 def halve_dot_count(x: [float], y: [float]) -> ([float], [float]):
-    new_x, new_y = x.copy(), y.copy()
+    new_x, new_y = x.get_copy(), y.get_copy()
     while len(new_x) > len(x)/2 and len(new_x) > 5:
         new_x, new_y = dot_count_minus_one(new_x, new_y, pop_dot_count=int(len(x)*0.05)+1)
 

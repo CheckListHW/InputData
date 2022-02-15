@@ -1,4 +1,7 @@
-def nearst_dot_index(dots_x, dots_y, x, y):
+from typing import Optional
+
+
+def nearst_dot_index(dots_x, dots_y, x, y) -> Optional[int]:
     if len(dots_x) < 1:
         return None
 
@@ -13,7 +16,7 @@ def nearst_dot_index(dots_x, dots_y, x, y):
     return j
 
 
-def nearst_dot_value(dots_x, dots_y, x, y):
+def nearst_dot_value(dots_x, dots_y, x, y) -> (Optional[int], Optional[int]):
     i = nearst_dot_index(dots_x, dots_y, x, y)
     return dots_x[i], dots_y[i]
 

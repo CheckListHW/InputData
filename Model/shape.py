@@ -1,23 +1,27 @@
 import math
 import random
-from typing import List, Optional
+from typing import List, Optional, Counter
 
 from Model.observer import Subject
+from Model.size import Size
 from Model.surface import Surface
 from Tools.filedialog import dict_from_json
 
 # alpha - прозрачнгость от 0 до 1
 from Tools.intersection_point_horizontal_plane import intersection_point_horizontal_plane
 from Tools.simplify_line import simplify_line
+from Tools.counter import Counter
 
 
-class ShapeProperty:
-    def __init__(self, name):
+class ShapeProperty(Subject):
+    __slots__ = 'size', 'visible', '__alpha', '__priority', '__color', '__name', '__layers'
+
+    def __init__(self, size: Size):
         super(ShapeProperty, self).__init__()
-        self.__height, self.__size_x, self.__size_y = 15, 15, 15
+        self.size = size
         self.visible, self.__alpha, self.__priority = True, 0.9, 100
         self.__color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        self.__name: str = name
+        self.__name: str = 'layer 1'
         self.__layers: List[Surface] = list()
 
     @property
@@ -49,12 +53,7 @@ class ShapeProperty:
 
     @property
     def height(self):
-        return self.__height
-
-    @height.setter
-    def height(self, value: int):
-        if value in range(501):
-            self.__height = value
+        return max(self.layers, key=lambda i: i.z).z
 
     @property
     def priority(self):
@@ -67,24 +66,6 @@ class ShapeProperty:
             self.__priority = value
 
     @property
-    def size_x(self) -> int:
-        return self.__size_x
-
-    @size_x.setter
-    def size_x(self, value: int):
-        if type(value) is int:
-            self.__size_x = value
-
-    @property
-    def size_y(self) -> int:
-        return self.__size_y
-
-    @size_y.setter
-    def size_y(self, value: int):
-        if type(value) is int:
-            self.__size_y = value
-
-    @property
     def layers(self) -> [Surface]:
         return self.__layers
 
@@ -93,15 +74,15 @@ class ShapeProperty:
         self.__layers = value
 
 
-class Shape(ShapeProperty, Subject):
-    def __init__(self, path: str = None, name: str = 'layer 1') -> None:
-        super().__init__(name)
-        self.add_layer(Surface(z=0))
+class Shape(ShapeProperty):
+    __slots__ = 'size'
+
+    def __init__(self, size: Size, path: str = None) -> None:
+        super().__init__(size)
+        self.size = size
+        self.add_layer(Surface(size=self.size, z=0))
         if path:
             self.load_from_json(path)
-
-    def set_size(self, x=None, y=None, height=None):
-        self.height, self.size_x, self.size_y = height, x, y
 
     def get_next_layer(self, z: int) -> Optional[Surface]:
         layers_less = [lay for lay in self.layers if lay.z < z]
@@ -118,7 +99,8 @@ class Shape(ShapeProperty, Subject):
         self.notify()
 
     def calc_intermediate_layers(self):
-        this_layers = [lay for lay in self.layers if lay.size() > 0]
+        self.delete_secondary_surface()
+        this_layers = [lay for lay in self.layers if len(lay.curve[0]) > 0]
 
         if not this_layers:
             return
@@ -140,7 +122,7 @@ class Shape(ShapeProperty, Subject):
             bottom_lay_x, bottom_lay_y = this_layers[i + 1].curve
 
             for loc_z in range(top_z + 1, bottom_z):
-                intermediate_lay = Surface(z=loc_z)
+                intermediate_lay = Surface(z=loc_z, size=self.size)
                 intermediate_lay.primary = False
 
                 for dot_n in range(dot_count):
@@ -166,7 +148,7 @@ class Shape(ShapeProperty, Subject):
 
     def insert_layer(self, index: int, layer: Surface = None) -> Optional[Surface]:
         if not layer:
-            layer = Surface()
+            layer = Surface(size=self.size)
 
         if index <= 0:
             if [lay for lay in self.layers if lay.z <= 0]:
@@ -188,7 +170,6 @@ class Shape(ShapeProperty, Subject):
 
         layer.prev_layer = self.get_prev_layer
         layer.next_layer = self.get_next_layer
-        layer.size_x, layer.size_y = self.size_x, self.size_y
         self.notify()
         return layer
 
@@ -215,13 +196,11 @@ class Shape(ShapeProperty, Subject):
         return dictionary
 
     def set_layer_z(self, index, value):
-        if index >= len(self.layers):
-            return
-
-        if value not in [lay.z for lay in self.layers] and value <= self.height:
+        try:
             self.layers[index].z = value
-        elif value > self.height:
-            self.layers[index].z = self.height
+        except IndexError:
+            print('set_layer_z', IndexError)
+        print(self.layers[index].z)
 
     def set_property(self, settings: dict):
         for name_property in settings:
@@ -233,8 +212,6 @@ class Shape(ShapeProperty, Subject):
                 self.color = settings[name_property]
             elif name_property == 'alpha':
                 self.alpha = settings['alpha']
-            elif name_property == 'height':
-                self.height = settings['height']
 
         self.notify()
 
@@ -244,5 +221,5 @@ class Shape(ShapeProperty, Subject):
     def load_from_dict(self, dictionary: dict):
         self.layers = list()
         for lay in dictionary.get('layers').values():
-            self.layers.append(Surface(lay=lay))
+            self.layers.append(Surface(size=self.size, lay=lay))
         self.set_property(dictionary)

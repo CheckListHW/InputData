@@ -1,12 +1,13 @@
 import os
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QShortcut
 
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.qt_matplotlib_connector import EditorSurfaceController
 from View.surface_choose_view import ViewingLayersWindow
-from resource import string_resource as str_res
+from data_resource.strings import Tips
 
 
 class SurfaceEditWindow(QMainWindow):
@@ -27,6 +28,7 @@ class SurfaceEditWindow(QMainWindow):
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))
         self.moveDot.clicked.connect(lambda: self.change_mode(ModeStatus.MoveDot))
         self.drawCurve.clicked.connect(lambda: self.change_mode(ModeStatus.DrawCurve))
+        self.splitButton.clicked.connect(lambda: self.change_mode(ModeStatus.AddSplit))
         self.updateButton.clicked.connect(lambda: self.surface_editor.update_plot())
 
         self.simplifyButton.clicked.connect(lambda: self.surface_editor.simplify_line())
@@ -39,7 +41,7 @@ class SurfaceEditWindow(QMainWindow):
         self.add_tips()
 
     def add_tips(self):
-        self.simplifyButton.setToolTip(str_res.tool_tip_text_simplifyButton)
+        self.simplifyButton.setToolTip(Tips.SIMPLIFYBUTTON)
 
     def show_layers(self):
         self.view_layers_window.set_surfaces(self.surface_editor.shape.get_figure_as_dict)

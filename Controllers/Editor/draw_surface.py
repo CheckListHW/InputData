@@ -1,3 +1,5 @@
+from typing import Optional
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
@@ -7,9 +9,11 @@ from Tools.draw_polygon_2d import draw_polygon
 
 # x - width, y - length
 from Tools.simplify_line import simplify_line
-
+from Tools.counter import Counter
 
 class EditSurface:
+    __slots__ = 'ax', 'surface', 'grid_off', 'fig', 'nearst_dot_index', 'line_dot_index',
+
     def __init__(self, fig=None, ax=None):
         self.surface = Surface()
         self.grid_off, self.line_dot_index, self.nearst_dot_index = False, 999, 0
@@ -20,14 +24,14 @@ class EditSurface:
         self.plot_prepare()
 
     def plot_prepare(self):
-        self.ax.set_xlim(0, self.surface.size_x)
-        self.ax.set_ylim(0, self.surface.size_y)
+        self.ax.set_xlim(0, self.surface.base_scale)
+        self.ax.set_ylim(0, self.surface.base_scale)
 
         if self.grid_off:
             return
 
-        self.ax.xaxis.set_major_locator(MultipleLocator(self.surface.size_x / 5))
-        self.ax.yaxis.set_major_locator(MultipleLocator(self.surface.size_y / 5))
+        self.ax.xaxis.set_major_locator(MultipleLocator(self.surface.base_scale / 5))
+        self.ax.yaxis.set_major_locator(MultipleLocator(self.surface.base_scale / 5))
 
         self.ax.xaxis.set_minor_locator(AutoMinorLocator(5))
         self.ax.yaxis.set_minor_locator(AutoMinorLocator(5))
@@ -35,15 +39,15 @@ class EditSurface:
         self.ax.grid(which='major', color='#CCCCCC', linestyle='--')
         self.ax.grid(which='minor', color='#CCCCCC', linestyle=':')
 
-    def draw_line(self, x: [float], y: [float]):
+    def draw_line(self, x: [float], y: [float], color='black'):
         if not (x + y).__contains__(None):
-            self.ax.plot(x, y, color='black', marker='.', markersize=6)
+            self.ax.plot(x, y, color=color, marker='.', markersize=6)
 
     def clear_content(self):
         for artist in self.ax.get_lines() + self.ax.collections:
             artist.remove()
 
-        draw_polygon(0, 0, self.ax, size=max(self.surface.size_x, self.surface.size_y), color='white')
+        draw_polygon(0, 0, self.ax, size=self.surface.size.max(), color='white')
 
     def update_plot(self, fast: bool = False):
         if fast:
@@ -66,30 +70,34 @@ class EditSurface:
             x, y = self.surface.prev_layer.curve
             self.ax.plot(x, y, color='red')
             self.ax.fill(x, y, color='red', alpha=0.5)
+        a, b = self.surface.split_line
+        if a and b:
+            self.draw_line([a[0], b[0]], [a[1], b[1]], color='red')
 
     def simplify_line(self, dot_count: int = None):
         x, y = self.surface.curve
         if dot_count:
             x, y = simplify_line(x, y, dot_count)
         else:
-            x, y = simplify_line(x, y, self.surface.size())
+            x, y = simplify_line(x, y)
         self.surface.curve = x, y
         self.update_plot()
 
     def halve_dot_count(self):
-        self.simplify_line(int(self.surface.size() / 2))
+        self.simplify_line(int(len(self.surface.curve[0]) / 2))
         self.update_plot()
 
-    def choose_dot(self, x: float, y: float):
+    def choose_dot(self, x: float, y: float) -> Optional[int]:
         self.update_plot()
         dots_x, dots_y = self.surface.curve
         self.nearst_dot_index = nearst_dot_index(dots_x, dots_y, x, y)
-
-        try:
-            x1, y1 = dots_x[self.nearst_dot_index], dots_y.y[self.nearst_dot_index]
+        print('self.nearst_dot_index', self.nearst_dot_index)
+        if self.nearst_dot_index is None:
+            return None
+        else:
+            x1, y1 = dots_x[self.nearst_dot_index], dots_y[self.nearst_dot_index]
             self.ax.scatter(x1, y1, color='red')
-        except:
-            pass
+            return self.nearst_dot_index
 
     def move_dot(self, x: float, y: float):
         if x and y:
@@ -111,24 +119,36 @@ class EditSurface:
         self.update_plot()
 
     def delete_dot(self, x: float, y: float):
-        self.choose_dot(x, y)
-        self.surface.pop_dot(self.nearst_dot_index)
+        self.surface.pop_dot(self.choose_dot(x, y))
+        print(self.choose_dot(x, y))
+        print('delete dot', Counter.step())
         self.update_plot()
 
     def choose_line(self, x: float, y: float):
-        if self.surface.size() > 1:
+        if self.surface.size.max() > 1:
             self.clear_content()
             dots_x, dots_y = self.surface.curve
             self.draw_curve(dots_x, dots_y)
 
             _, self.line_dot_index = a, b = nearst_line_index(dots_x, dots_y, x, y)
+            try:
+                self.ax.scatter(dots_x[a], dots_y[a], color='red')
+                self.ax.scatter(dots_x[b], dots_y[b], color='red')
+            except (IndexError, TypeError):
+                print(len(dots_x), len(dots_y), a, b)
 
-            self.ax.scatter(dots_x[a], dots_y[a], color='red')
-            self.ax.scatter(dots_x[b], dots_y[b], color='red')
+    def add_split_dot(self, x1: float, y1: float):
+        a, b = self.surface.split_line
+        x, y = self.surface.curve
+        i = nearst_dot_index(x, y, x1, y1)
+        a, b = self.surface.split_line = b, (x[i], y[i])
+        if a and b:
+            self.draw_line([a[0], b[0]], [a[1], b[1]], color='red')
+        self.choose_dot(x1, y1)
 
     def add_dot(self, x, y):
         if x and y:
-            if self.surface.size() < 1:
+            if len(self.surface.x) < 1:
                 self.start_draw_curve(x, y)
                 self.end_draw_curve()
             else:

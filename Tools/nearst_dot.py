@@ -34,3 +34,17 @@ def nearst_line_index(dots_x, dots_y, x, y):
     index = nearst_dot_index(centers_lines_x, centers_lines_y, x, y)
 
     return index, index+1
+
+
+def dot_to_border(x1: float, y1: float, size: int) -> (float, float):
+    if x1 + y1 >= size:
+        if x1 <= y1:
+            y1 = size
+        else:
+            x1 = size
+    elif x1 + y1 < size:
+        if x1 > y1:
+            y1 = 0
+        else:
+            x1 = 0
+    return x1, y1

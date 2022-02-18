@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>963</width>
-    <height>660</height>
+    <width>1001</width>
+    <height>716</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,6 +38,9 @@
            <height>0</height>
           </size>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color:rgb(202, 255, 192)</string>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -56,7 +59,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>200</width>
+           <width>150</width>
            <height>16777215</height>
           </size>
          </property>
@@ -67,12 +70,18 @@
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="modeName">
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>100</height>
+              <height>30</height>
              </size>
             </property>
             <property name="font">
@@ -93,16 +102,18 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="splitButton">
-            <property name="text">
-             <string>Add split</string>
+           <widget class="QLabel" name="label_2">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;Modes&lt;hr&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -114,16 +125,16 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="deleteDot">
+           <widget class="QPushButton" name="addDot">
             <property name="text">
-             <string>Delete dot</string>
+             <string>Add dot</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="addDot">
+           <widget class="QPushButton" name="deleteDot">
             <property name="text">
-             <string>Add dot</string>
+             <string>Delete dot</string>
             </property>
            </widget>
           </item>
@@ -135,22 +146,78 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="updateButton">
-            <property name="minimumSize">
+           <widget class="QFrame" name="frame">
+            <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>0</height>
+              <width>16777215</width>
+              <height>30</height>
              </size>
             </property>
-            <property name="text">
-             <string>Update</string>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="spacing">
+              <number>5</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="addSplitButton">
+               <property name="text">
+                <string>Split</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="splitNumberComboBox">
+               <property name="maximumSize">
+                <size>
+                 <width>35</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <item>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QLabel" name="label_3">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Modify line&lt;hr&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -169,16 +236,25 @@
            </widget>
           </item>
           <item>
-           <widget class="Line" name="line">
+           <widget class="Line" name="line_5">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="viewLayersButton">
+           <widget class="QLabel" name="label">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
+            </property>
             <property name="text">
-             <string>View layers</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Files&lt;hr&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -196,6 +272,40 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="updateButton">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Update</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="viewLayersButton">
+            <property name="text">
+             <string>View layers</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -209,7 +319,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>963</width>
+     <width>1001</width>
      <height>21</height>
     </rect>
    </property>

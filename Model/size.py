@@ -1,9 +1,12 @@
+from Tools.recursive_extraction_of_list import recursive_extraction
+
+
 class AxisConstraints:
-    __slots__ = ['__start', '__end', '__scale']
+    __slots__ = ['_start', '_end']
 
     def __init__(self, start, end):
-        self.__start = start
-        self.__end = end
+        self._start = start
+        self._end = end
 
     def change_constraints(self, start=None, end=None):
         self.start = start
@@ -11,27 +14,39 @@ class AxisConstraints:
 
     @property
     def start(self):
-        return self.__start
+        return self._start
 
     @start.setter
     def start(self, value: int):
         try:
             value = abs(int(value))
-            self.__start = value if type(value) == int else self.__start
+            self._start = value if type(value) == int else self._start
         except:
             pass
 
     @property
     def end(self) -> int:
-        return self.__end
+        return self._end
 
     @end.setter
     def end(self, value: int):
         try:
             value = abs(int(value))
-            self.__end = value if type(value) == int else self.__end
+            self._end = value if type(value) == int else self._end
         except:
             pass
+
+    def get_as_dict(self) -> dict:
+        my_dict = {}
+        this_class = AxisConstraints
+        for slot in this_class.__slots__:
+            my_dict[slot] = recursive_extraction(getattr(self, slot))
+        return my_dict
+
+    def load_from_dict(self, load_dict: dict):
+        for name_property in load_dict:
+            if hasattr(self, name_property):
+                self.__setattr__(name_property, load_dict[name_property])
 
 
 class Size:
@@ -61,3 +76,28 @@ class Size:
 
     def max(self):
         return max([0, self.y, self.x, self.z])
+
+    def get_as_dict(self) -> dict:
+        my_dict = {}
+        for slot in self.__slots__:
+            if hasattr(self, slot):
+                sub_slot = self.__getattribute__(slot)
+                my_dict[slot] = sub_slot.get_as_dict() if hasattr(sub_slot, 'get_as_dict') else sub_slot
+        return my_dict
+
+    def load_from_dict(self, load_dict: dict):
+        for name_property in load_dict:
+            if name_property == 'x_constraints':
+                self.x_constraints = AxisConstraints(None, None)
+                self.x_constraints.load_from_dict(load_dict[name_property])
+            elif name_property == 'y_constraints':
+                self.y_constraints = AxisConstraints(None, None)
+                self.y_constraints.load_from_dict(load_dict[name_property])
+            elif name_property == 'z_constraints':
+                self.z_constraints = AxisConstraints(None, None)
+                self.z_constraints.load_from_dict(load_dict[name_property])
+            else:
+                if hasattr(self, name_property):
+                    self.__setattr__(name_property, load_dict[name_property])
+
+        pass

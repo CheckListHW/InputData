@@ -63,8 +63,10 @@ class EditorController(FigureCanvasQTAgg):
             self.mode = MoveDot(self.plot)
         elif status == ModeStatus.AddSplit:
             self.mode = AddSplit(self.plot)
-        elif status == ModeStatus.Watch:
-            self.mode = Watch(self.plot, self.kwargs.get('watch_click_handler'))
+        elif status == ModeStatus.Empty:
+            self.mode = Empty(self.plot)
+        elif status == ModeStatus.Preview:
+            self.mode = Preview(self.plot, self.kwargs.get('preview_click_handler'))
 
     def on_click(self, event):
         self.handler_move_id = self.mpl_connect('motion_notify_event', self.on_move)
@@ -91,7 +93,7 @@ class EditorSurfaceControllerTight(EditorController):
         self.mainLayout = QtWidgets.QGridLayout(parent)
         self.mainLayout.addWidget(self)
 
-        super().__init__(surf=surf, mode=ModeStatus.Watch)
+        super().__init__(surf=surf, mode=ModeStatus.Preview)
 
 
 class EditorFigureController(FigureCanvasQTAgg):
@@ -159,7 +161,7 @@ class EditorSurfaceController(EditorController):
 
     def save(self):
         if hasattr(self, 'shape'):
-            fig_dict = self.shape.get_figure_as_dict()
+            fig_dict = self.shape.get_as_dict()
             save_dict_as_json(fig_dict)
 
     def simplify_line(self):

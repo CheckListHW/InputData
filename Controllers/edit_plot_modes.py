@@ -12,8 +12,9 @@ class ModeStatus(enum.Enum):
     DeleteDot = 2
     AddDot = 3
     MoveDot = 4
-    Watch = 5
+    Empty = 5
     AddSplit = 6
+    Preview = 7
 
 
 class Mode:
@@ -93,11 +94,11 @@ class MoveDot(Mode):
         self.plot.update_plot()
 
 
-class Watch(Mode):
+class Preview(Mode):
     __slots__ = 'move_handler'
 
     def __init__(self, plot, click_handler: Callable = None):
-        super(Watch, self).__init__(plot)
+        super(Preview, self).__init__(plot)
         self.plot.grid_off = True
         self.plot.update_plot()
         self.move_handler = click_handler
@@ -116,11 +117,23 @@ class Watch(Mode):
 class AddSplit(Mode):
     def on_click(self, event):
         if event.button is MouseButton.LEFT:
-            self.plot.add_split_dot(event.xdata, event.ydata)
+            self.plot.add_split_dot(event.xdata, event.ydata, True)
+        if event.button is MouseButton.RIGHT:
+            self.plot.add_split_dot(event.xdata, event.ydata, False)
 
     def on_move(self, event):
         pass
 
     def on_release(self, event):
         pass
-        # self.plot.update_plot()
+
+
+class Empty(Mode):
+    def on_click(self, event):
+        pass
+
+    def on_move(self, event):
+        pass
+
+    def on_release(self, event):
+        pass

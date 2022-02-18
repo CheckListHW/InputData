@@ -35,3 +35,21 @@ def simplify_line(x: [float], y: [float], dot_count: Optional[int] = None) -> ([
         simplify_y.pop(-2)
 
     return simplify_x, simplify_y
+
+
+def polyline(a: (float, float), b: (float, float), scale_x: int = 1, scale_y: int = 1, accuracy=100) -> ([float], [float]):
+    dots_x, dots_y = [a[0]], [a[1]]
+
+    distance_x, distance_y = b[0] - a[0], b[1] - a[1]
+    step_x, step_y = distance_x / accuracy, distance_y / accuracy
+
+    for i in range(accuracy):
+        new_x = round((a[0] + step_x * i) * scale_x) / scale_x
+        new_y = round((a[1] + step_y * i) * scale_y) / scale_y
+        if new_x != dots_x[-1] and new_y != dots_y[-1]:
+            new_y = dots_y[-1]
+        if not (new_x == dots_x[-1] and new_y == dots_y[-1]):
+            dots_x.append(new_x)
+            dots_y.append(new_y)
+
+    return dots_x, dots_y

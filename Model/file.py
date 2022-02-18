@@ -37,7 +37,7 @@ class FileEdit:
 
 class ShapeFile(FileEdit):
     def save_file(self, data_figure: Shape):
-        data = data_figure.get_figure_as_dict()
+        data = data_figure.get_as_dict()
 
         if not self.file_used:
             self.create_file()
@@ -48,9 +48,9 @@ class MapFile(FileEdit):
     def save_file(self, data_map: Map):
         data, i = {}, 0
         for lay in data_map.get_shapes():
-            lay.get_figure_as_dict()
+            lay.get_as_dict()
             i += 1
-            data[i] = lay.get_figure_as_dict()
+            data[i] = lay.get_as_dict()
         if not self.file_used:
             self.create_file()
         save_dict_as_json(data=data, filename=self.file_used)

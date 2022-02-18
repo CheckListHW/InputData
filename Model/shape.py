@@ -9,47 +9,108 @@ from Tools.filedialog import dict_from_json
 
 # alpha - прозрачнгость от 0 до 1
 from Tools.intersection_point_horizontal_plane import intersection_point_horizontal_plane
+from Tools.recursive_extraction_of_list import recursive_extraction
 from Tools.simplify_line import simplify_line
 from Tools.counter import Counter
 
 
+class Split:
+    __slots__ = 'color', 'name', 'offset'
+
+    def __init__(self, color=None, load_dict: dict = None):
+        self.color = []
+        if color:
+            for col in color:
+                self.color.append(col+random.randint(-10, 10))
+                self.color[-1] = abs(self.color[-1]) if self.color[-1] <= 255 else 255
+
+        self.name: str = '1'
+        self.offset = 0  # from 0 to ...
+
+        if load_dict:
+            self.load_from_dict(load_dict)
+
+    def get_as_dict(self) -> dict:
+        my_dict = {}
+        this_class = Split
+        for slot in this_class.__slots__:
+            my_dict[slot] = recursive_extraction(getattr(self, slot))
+        return my_dict
+
+    def load_from_dict(self, load_dict: dict):
+        for name_property in load_dict:
+            if hasattr(self, name_property):
+                if hasattr(self.__getattribute__(name_property), 'load_from_dict'):
+                    self.__getattribute__(name_property).load_from_dict(load_dict[name_property])
+                else:
+                    self.__setattr__(name_property, load_dict[name_property])
+
+
+class SplitController:
+    __slots__ = 'angle', 'splits', 'depth'
+
+    def __init__(self, load_dict: dict = None, color=None):
+        self.splits: [Split] = [Split(color), Split(color), Split(color), Split(color)]
+        self.depth: float = 0  # from .0 to 1.0
+        self.angle: int = 0  # from
+
+    def change_part_offset(self, part_number: int, value: int):
+        if 0 <= part_number < len(self.splits):
+            self.splits[part_number].offset = value
+
+    def change_part_color(self, part_number: int, value: [int]):
+        if 0 <= part_number <= len(self.splits):
+            self.splits[part_number].color = value
+
+    def get_as_dict(self) -> dict:
+        my_dict = {}
+        this_class = SplitController
+        for slot in this_class.__slots__:
+            my_dict[slot] = recursive_extraction(getattr(self, slot))
+        return my_dict
+
+    def load_from_dict(self, load_dict: dict):
+        for name_property in load_dict:
+            if hasattr(self, name_property):
+                if hasattr(self.__getattribute__(name_property), 'load_from_dict'):
+                    self.__getattribute__(name_property).load_from_dict(load_dict[name_property])
+                elif name_property == 'splits':
+                    for split_number in range(len(load_dict[name_property])):
+                        self.splits[split_number].load_from_dict(load_dict[name_property][split_number])
+                else:
+                    self.__setattr__(name_property, load_dict[name_property])
+
+
 class ShapeProperty(Subject):
-    __slots__ = 'size', 'visible', '__alpha', '__priority', '__color', '__name', '__layers'
+    __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'layers', 'split_controller'
 
     def __init__(self, size: Size):
         super(ShapeProperty, self).__init__()
         self.size = size
-        self.visible, self.__alpha, self.__priority = True, 0.9, 100
-        self.__color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        self.__name: str = 'layer 1'
-        self.__layers: List[Surface] = list()
+        self.visible, self._alpha, self._priority = True, 0.9, 100
+        self._color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.name: str = 'layer 1'
+        self.layers: List[Surface] = list()
+        self.split_controller = SplitController(color=self.color)
 
     @property
     def alpha(self):
-        return self.__alpha
+        return self._alpha
 
     @alpha.setter
     def alpha(self, value: float):
         if 0 <= value <= 1:
-            self.__alpha = value
+            self._alpha = value
 
     @property
     def color(self) -> (int, int, int):
-        return self.__color
+        return self._color
 
     @color.setter
     def color(self, value: (int, int, int)):
         r, g, b = value
         if int(r) in range(256) and int(g) in range(256) and int(b) in range(256):
-            self.__color = (r, g, b)
-
-    @property
-    def name(self) -> str:
-        return self.__name
-
-    @name.setter
-    def name(self, value: str):
-        self.__name = value
+            self._color = [r, g, b]
 
     @property
     def height(self):
@@ -57,30 +118,42 @@ class ShapeProperty(Subject):
 
     @property
     def priority(self):
-        return self.__priority
+        return self._priority
 
     @priority.setter
     def priority(self, value: int):
         value = int(value)
         if value in range(101):
-            self.__priority = value
+            self._priority = value
 
-    @property
-    def layers(self) -> [Surface]:
-        return self.__layers
+    def get_as_dict(self) -> dict:
+        my_dict = {}
+        this_class = ShapeProperty
+        for slot in this_class.__slots__:
+            my_dict[slot] = recursive_extraction(getattr(self, slot))
+        return my_dict
 
-    @layers.setter
-    def layers(self, value: [Surface]):
-        self.__layers = value
+    def load_from_dict(self, settings: dict):
+        for name_property in settings:
+            if name_property.__contains__('layers'):
+                self.layers = []
+                for lay in settings[name_property]:
+                    self.layers.append(Surface(size=self.size, load_dict=lay))
+            else:
+                if hasattr(self, name_property):
+                    if hasattr(self.__getattribute__(name_property), 'load_from_dict'):
+                        self.__getattribute__(name_property).load_from_dict(settings[name_property])
+                    else:
+                        self.__setattr__(name_property, settings[name_property])
+
+        self.notify()
 
 
 class Shape(ShapeProperty):
-    __slots__ = 'size'
-
     def __init__(self, size: Size, path: str = None) -> None:
         super().__init__(size)
-        self.size = size
         self.add_layer(Surface(size=self.size, z=0))
+
         if path:
             self.load_from_json(path)
 
@@ -180,46 +253,8 @@ class Shape(ShapeProperty):
         self.layers.pop(index)
         self.notify()
 
-    def get_figure_as_dict(self) -> dict:
-        dictionary = {
-            'name': self.name,
-            'color': self.color,
-            'priority': self.priority,
-            'height': self.height,
-            'alpha': self.alpha,
-            'layers': {},
-        }
-
-        for i in range(len(self.layers)):
-            dictionary['layers'][str(i)] = self.layers[i].get_surface_as_dict()
-
-        return dictionary
-
     def set_layer_z(self, index, value):
-        try:
-            self.layers[index].z = value
-        except IndexError:
-            print('set_layer_z', IndexError)
-        print(self.layers[index].z)
-
-    def set_property(self, settings: dict):
-        for name_property in settings:
-            if name_property == 'name':
-                self.name = settings[name_property]
-            elif name_property == 'priority':
-                self.priority = settings[name_property]
-            elif name_property == 'color':
-                self.color = settings[name_property]
-            elif name_property == 'alpha':
-                self.alpha = settings['alpha']
-
-        self.notify()
+        self.layers[index].z = value
 
     def load_from_json(self, path: str):
         self.load_from_dict(dict_from_json(path))
-
-    def load_from_dict(self, dictionary: dict):
-        self.layers = list()
-        for lay in dictionary.get('layers').values():
-            self.layers.append(Surface(size=self.size, lay=lay))
-        self.set_property(dictionary)

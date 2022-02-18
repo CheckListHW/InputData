@@ -2,14 +2,20 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
+from numpy.polynomial.polynomial import polyline
 
 from Model.surface import Surface
-from Tools.nearst_dot import nearst_dot_index, nearst_line_index
-from Tools.draw_polygon_2d import draw_polygon
+from Tools.nearst_dot import nearst_dot_index, nearst_line_index, dot_to_border
 
 # x - width, y - length
-from Tools.simplify_line import simplify_line
-from Tools.counter import Counter
+from Tools.simplify_line import simplify_line, polyline
+
+
+def draw_polygon(x, y, ax, size=1, color='brown'):
+    int_x, int_y = int(x), int(y)
+    ax.fill([int_x, int_x + size, int_x + size, int_x, int_x],
+            [int_y, int_y, int_y + size, int_y + size, int_y], color=color)
+
 
 class EditSurface:
     __slots__ = 'ax', 'surface', 'grid_off', 'fig', 'nearst_dot_index', 'line_dot_index',
@@ -70,9 +76,19 @@ class EditSurface:
             x, y = self.surface.prev_layer.curve
             self.ax.plot(x, y, color='red')
             self.ax.fill(x, y, color='red', alpha=0.5)
-        a, b = self.surface.split_line
-        if a and b:
-            self.draw_line([a[0], b[0]], [a[1], b[1]], color='red')
+
+        for split in self.surface.splits:
+            a, b = split[0], split[1]
+            if a:
+                a = (round(a[0] * self.surface.base_scale), round(a[1] * self.surface.base_scale))
+                self.ax.scatter(a[0], a[1], color='red')
+            if b:
+                b = (round(b[0] * self.surface.base_scale), round(b[1] * self.surface.base_scale))
+                self.ax.scatter(b[0], b[1], color='blue')
+            if a and b:
+                x, y = polyline(a, b, scale_x=self.surface.size.x / self.surface.base_scale,
+                                scale_y=self.surface.size.y / self.surface.base_scale)
+                self.draw_line(x, y, color='red')
 
     def simplify_line(self, dot_count: int = None):
         x, y = self.surface.curve
@@ -91,7 +107,6 @@ class EditSurface:
         self.update_plot()
         dots_x, dots_y = self.surface.curve
         self.nearst_dot_index = nearst_dot_index(dots_x, dots_y, x, y)
-        print('self.nearst_dot_index', self.nearst_dot_index)
         if self.nearst_dot_index is None:
             return None
         else:
@@ -120,8 +135,6 @@ class EditSurface:
 
     def delete_dot(self, x: float, y: float):
         self.surface.pop_dot(self.choose_dot(x, y))
-        print(self.choose_dot(x, y))
-        print('delete dot', Counter.step())
         self.update_plot()
 
     def choose_line(self, x: float, y: float):
@@ -135,16 +148,12 @@ class EditSurface:
                 self.ax.scatter(dots_x[a], dots_y[a], color='red')
                 self.ax.scatter(dots_x[b], dots_y[b], color='red')
             except (IndexError, TypeError):
-                print(len(dots_x), len(dots_y), a, b)
+                print('choose_line', len(dots_x), len(dots_y), a, b)
 
-    def add_split_dot(self, x1: float, y1: float):
-        a, b = self.surface.split_line
-        x, y = self.surface.curve
-        i = nearst_dot_index(x, y, x1, y1)
-        a, b = self.surface.split_line = b, (x[i], y[i])
-        if a and b:
-            self.draw_line([a[0], b[0]], [a[1], b[1]], color='red')
-        self.choose_dot(x1, y1)
+    def add_split_dot(self, x1: float, y1: float, start_line: bool = True):
+        x1, y1 = dot_to_border(x1, y1, self.surface.base_scale)
+        self.surface.change_dot_split((x1 / self.surface.base_scale, y1 / self.surface.base_scale), start_line)
+        self.update_plot()
 
     def add_dot(self, x, y):
         if x and y:

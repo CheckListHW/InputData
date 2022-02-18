@@ -2,7 +2,8 @@ from os import environ
 
 from PyQt5 import uic, QtGui
 from PyQt5.QtGui import QColor, QKeySequence
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog, QShortcut, QSpinBox
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog, QShortcut, QSpinBox, QWidget, QDoubleSpinBox, \
+    QComboBox
 
 from Controllers.Editor.draw_shape import Plot3d, DrawVoxels
 from Controllers.qt_matplotlib_connector import EditorFigureController
@@ -64,22 +65,46 @@ class ShapeEditWindow(QMainWindow):
         self.zStartSpinbox.editingFinished.connect(self.accept_size)
         self.zEndSpinbox.editingFinished.connect(self.accept_size)
 
-        self.colorButton.clicked.connect(self.show_palette)
+        self.colorButton.clicked.connect(lambda: self.show_palette(self.set_color_shape))
 
-    def show_palette(self):
+        self.split_handlers_connect()
+
+    def split_handlers_connect(self):
+        self.partNumberComboBox.activated.connect(self.update_layers_info)
+        split_depth_finish: () = lambda: self.layersComboBox.currentData().split_controller \
+            .__setattr__('depth', self.splitDepthSpinBox.value())
+        self.splitDepthSpinBox.editingFinished.connect(split_depth_finish)
+
+        split_angle_finish: () = lambda: self.layersComboBox.currentData().split_controller \
+            .__setattr__('angle', self.splitAngleSpinBox.value())
+        self.splitAngleSpinBox.editingFinished.connect(split_angle_finish)
+
+        split_part_offset_finish: () = lambda: self.layersComboBox.currentData().split_controller. \
+            change_part_offset(int(self.partNumberComboBox.currentText())-1, self.partOffsetSpinBox.value())
+        self.partOffsetSpinBox.editingFinished.connect(split_part_offset_finish)
+
+        self.partColorButton.clicked.connect(lambda: self.show_palette(self.set_color_part))
+
+    def set_color_part(self, color: QColor):
+        r, g, b, _ = color.getRgb()
+
+        self.layersComboBox.currentData().split_controller.\
+            change_part_color(int(self.partNumberComboBox.currentText())-1, [r, g, b])
+
+    def set_color_shape(self, color: QColor):
+        alpha = color.alpha() / 255
+        r, g, b, _ = color.getRgb()
+        self.layersComboBox.currentData().load_from_dict({'color': [r, g, b],
+                                                          'alpha': alpha})
+
+    def show_palette(self, handler):
         if self.layersComboBox.currentData():
             r, g, b = self.layersComboBox.currentData().color
             alpha = self.layersComboBox.currentData().alpha * 255
             cd = QColorDialog(QColor(r, g, b, alpha=alpha), self)
             cd.setOption(QColorDialog.ShowAlphaChannel, on=True)
-            cd.colorSelected.connect(self.set_color)
+            cd.colorSelected.connect(handler)
             cd.show()
-
-    def set_color(self, color: QColor):
-        alpha = color.alpha() / 255
-        r, g, b, _ = color.getRgb()
-        self.layersComboBox.currentData().set_property({'color': (r, g, b),
-                                                        'alpha': alpha})
 
     def accept_size(self):
         x = self.map.height if self.map.height >= int(self.zEndSpinbox.text()) else int(self.zEndSpinbox.text())
@@ -96,19 +121,23 @@ class ShapeEditWindow(QMainWindow):
 
     def update_layers_info(self) -> None:
         current_index = self.layersComboBox.currentIndex() if self.layersComboBox.currentIndex() >= 0 else 0
-
         self.layersComboBox.clear()
+
         for layer in self.map.get_shapes():
             self.layersComboBox.addItem(layer.name, layer)
 
         self.layersComboBox.setCurrentIndex(current_index)
 
-        layer = self.layersComboBox.currentData()
+        layer: Shape = self.layersComboBox.currentData()
         if type(layer) is Shape:
             self.editLabel.setText('Edit ({0})'.format(layer.name))
             self.layerNameLabel.setText(layer.name)
             self.nameLineEdit.setText(layer.name)
             self.priority_spinbox.setValue(layer.priority)
+            self.splitDepthSpinBox.setValue(layer.split_controller.depth)
+            self.splitAngleSpinBox.setValue(layer.split_controller.angle)
+            value_offset = layer.split_controller.splits[int(self.partNumberComboBox.currentText())-1].offset
+            self.partOffsetSpinBox.setValue(value_offset)
 
     def list_displayed_layers(self):
         for i in reversed(range(self.showLayersScrollArea.count())):
@@ -142,9 +171,7 @@ class ShapeEditWindow(QMainWindow):
         self.edit_window.show()
 
     def accept_settings(self):
-        self.layersComboBox.currentData().set_property({'name': self.nameLineEdit.text(),
-                                                        'priority': self.priority_spinbox.text(),
-                                                        'a1': None,
-                                                        'a2': None,
-                                                        })
+        self.layersComboBox.currentData().load_from_dict({'name': self.nameLineEdit.text(),
+                                                          'priority': self.priority_spinbox.text(),
+                                                          })
         self.update_layers_info()

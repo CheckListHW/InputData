@@ -35,11 +35,8 @@ class ViewingLayersWindow(QMainWindow):
         self.surface_editor.shape.delete_secondary_surface()
         self.show()
 
-    def set_surfaces(self, surface: Callable):
-        self.get_surfaces = surface
-
     def add_frame_to_layout(self, index: int) -> QFrame:
-        z = self.get_surfaces().get('layers')[str(index)].get('z')
+        z = self.surface_editor.shape.layers[index].z
         frame = SingleLayWidget(index, z, edit_lay_handler=self.edit_layer)
 
         self.layout_plots.addWidget(frame, index, 0)
@@ -69,15 +66,12 @@ class ViewingLayersWindow(QMainWindow):
 
         self.frames = list()
 
-        if not hasattr(self, 'get_surfaces'):
-            return
-
-        surfaces: [dict] = self.get_surfaces().get('layers')
+        surfaces = self.surface_editor.shape.layers
 
         for i in range(len(surfaces)):
             frame = self.add_frame_to_layout(i)
-            EditorSurfaceControllerTight(frame, tight=True, surf=Surface(lay=surfaces[str(i)]),
-                                         watch_click_handler=lambda j=i: self.change_layer(j))
+            EditorSurfaceControllerTight(frame, tight=True, surf=surfaces[i],
+                                         preview_click_handler=lambda j=i: self.change_layer(j))
 
         self.resize(self.size + 20, self.height())
 

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Callable, Optional, Final
+from typing import Callable, Optional, Final, List, Any, Union
 
 from numpy import array as np_array
 
 from Model.size import Size
+from Tools.recursive_extraction_of_list import recursive_extraction
 from data_resource.digit_value import Limits
 
 
@@ -48,44 +49,36 @@ class SurfacePropertyMemento:
 
 
 class SurfaceProperty:  # z - высота слоя
-    __slots__ = 'pre_x', 'pre_y', 'start_x', 'start_y', '__x', '__y', '__z', 'primary', 'size', 'split_line'
+    __slots__ = 'pre_x', 'pre_y', 'start_x', 'start_y', 'x', 'y', '_z', \
+                'primary', 'size', 'splits', 'current_split'
     base_scale: Final = 10
 
     def __init__(self, size: Size = Size(), z: int = -1):
-        self.pre_x, self.pre_y, self.start_x, self.start_y, self.__z = None, None, None, None, z
-        self.__x: [float] = list()
-        self.__y: [float] = list()
-        self.split_line = (None, None)
+        self.pre_x: Optional[float] = None
+        self.pre_y: Optional[float] = None
+        self.start_x: Optional[float] = None
+        self.start_y: Optional[float] = None
 
+        self.current_split: int = 0
+        self.splits = [[None, None], [None, None]]  # split = [start, end]
+
+        self.x: [float] = list()
+        self.y: [float] = list()
+
+        self._z = z
         self.size = size
         self.primary = True
 
     @property
-    def x(self) -> [float]:
-        return self.__x
-
-    @x.setter
-    def x(self, value: [float]):
-        self.__x = value
-
-    @property
-    def y(self) -> [float]:
-        return self.__y
-
-    @y.setter
-    def y(self, value: [float]):
-        self.__y = value
-
-    @property
     def z(self) -> int:
-        return self.__z
+        return self._z
 
     @z.setter
     def z(self, value: int):
-        if value in range(Limits.MINHEIGHT, Limits.MAXHEIGHT+1):
-            self.__z = value
+        if value in range(Limits.MINHEIGHT, Limits.MAXHEIGHT + 1):
+            self._z = value
         elif value > Limits.MAXHEIGHT:
-            self.__z = Limits.MAXHEIGHT
+            self._z = Limits.MAXHEIGHT
 
     @property
     def curve(self) -> ([float], [float]):
@@ -125,18 +118,51 @@ class SurfaceProperty:  # z - высота слоя
     def set_from_copy(self, copy: SurfaceProperty):
         self.__copying(copy, self)
 
+    def get_as_dict(self) -> dict:
+        my_dict = {}
+        this_class = SurfaceProperty
+        for slot in this_class.__slots__:
+            my_dict[slot] = recursive_extraction(getattr(self, slot))
+        return my_dict
+
+    def load_from_dict(self, load_dict: dict):
+        for name_property in load_dict:
+            if name_property.__contains__('x'):
+                self.x = load_dict[name_property]
+            elif name_property == 'size':
+                self.size = Size()
+                self.size.load_from_dict(load_dict[name_property])
+            # elif name_property.__contains__('splits'):
+            #     for i in range(len(load_dict[name_property])):
+            #         try:
+            #             self.splits[i].load_from_dict(load_dict[name_property][i])
+            #         except IndexError:
+            #             self.splits.append(Split(load_dict[name_property][i]))
+            else:
+                if hasattr(self, name_property):
+                    self.__setattr__(name_property, load_dict[name_property])
+
+    def change_dot_split(self, dot: (float, float), start_line: bool = True):
+        print(self.current_split)
+        if start_line:
+            self.splits[self.current_split][0] = dot
+        else:
+            self.splits[self.current_split][1] = dot
+        if self.splits[self.current_split][0] == self.splits[self.current_split][1]:
+            self.splits[self.current_split][0] = self.splits[self.current_split][1] = None
+
 
 class Surface(SurfaceProperty):
     __slots__ = ['__prev_layer', '__next_layer', 'memento']
 
-    def __init__(self, size: Size = Size(), z: int = -1, lay: dict = None):
+    def __init__(self, size: Size = Size(), z: int = -1, load_dict: dict = None):
         super(Surface, self).__init__(size, z)
         self.__next_layer: () = lambda x: None
         self.__prev_layer: () = lambda x: None
         self.memento = SurfacePropertyMemento(self)
 
-        if lay:
-            self.load_surface_from_dict(lay)
+        if load_dict:
+            self.load_from_dict(load_dict)
 
     @property
     def prev_layer(self) -> Optional[Surface]:
@@ -185,22 +211,11 @@ class Surface(SurfaceProperty):
     def add_dot(self, x1: float, y1: float):
         self.insert_dot(len(self.x), x1, y1)
 
+    def change_dot_split(self, dot: (float, float), start_line: bool = True):
+        super(Surface, self).change_dot_split(dot, start_line)
+        self.primary = True
+        self.memento.add()
+
     def clear(self):
         self.memento.add()
         self.x, self.y = list(), list()
-
-    def get_surface_as_dict(self) -> dict:
-        x, y = self.curve
-        return {'x': x, 'y': y, 'z': self.z, 'primary': self.primary}
-
-    def load_surface_from_dict(self, dictionary: dict):
-        for field_name in dictionary:
-            if field_name == 'x':
-                self.x = dictionary.get('x')
-            elif field_name == 'y':
-                self.y = dictionary.get('y')
-            elif field_name == 'z':
-                self.z = dictionary.get('z')
-            elif field_name == 'primary':
-                self.primary = dictionary.get('primary')
-        self.memento.add()

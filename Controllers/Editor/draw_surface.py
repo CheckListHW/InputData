@@ -5,10 +5,10 @@ from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 from numpy.polynomial.polynomial import polyline
 
 from Model.surface import Surface
-from Tools.nearst_dot import nearst_dot_index, nearst_line_index, dot_to_border
+from Tools.geometry.nearst_dot import nearst_dot_index, nearst_line_index, dot_to_border
 
 # x - width, y - length
-from Tools.simplify_line import simplify_line, polyline
+from Tools.geometry.simplify_line import simplify_line, polyline
 
 
 def draw_polygon(x, y, ax, size=1, color='brown'):
@@ -77,18 +77,19 @@ class EditSurface:
             self.ax.plot(x, y, color='red')
             self.ax.fill(x, y, color='red', alpha=0.5)
 
-        for split in self.surface.splits:
-            a, b = split[0], split[1]
-            if a:
+        for split, color in zip(self.surface.splits, ['red', 'blue']):
+            a, b = (split.a.x, split.a.y), (split.b.x, split.b.y)
+            if a[0] is not None:
                 a = (round(a[0] * self.surface.base_scale), round(a[1] * self.surface.base_scale))
                 self.ax.scatter(a[0], a[1], color='red')
-            if b:
+            if b[0] is not None:
                 b = (round(b[0] * self.surface.base_scale), round(b[1] * self.surface.base_scale))
                 self.ax.scatter(b[0], b[1], color='blue')
-            if a and b:
-                x, y = polyline(a, b, scale_x=self.surface.size.x / self.surface.base_scale,
-                                scale_y=self.surface.size.y / self.surface.base_scale)
-                self.draw_line(x, y, color='red')
+            if a[0] is not None and b[0] is not None:
+                scale_x = self.surface.size.x / self.surface.base_scale
+                scale_y = self.surface.size.y / self.surface.base_scale
+                x, y = polyline(a, b, scale_x=scale_x, scale_y=scale_y)
+                self.draw_line(x, y, color=color)
 
     def simplify_line(self, dot_count: int = None):
         x, y = self.surface.curve
@@ -152,7 +153,7 @@ class EditSurface:
 
     def add_split_dot(self, x1: float, y1: float, start_line: bool = True):
         x1, y1 = dot_to_border(x1, y1, self.surface.base_scale)
-        self.surface.change_dot_split((x1 / self.surface.base_scale, y1 / self.surface.base_scale), start_line)
+        self.surface.change_dot_split(x1 / self.surface.base_scale, y1 / self.surface.base_scale, start_line)
         self.update_plot()
 
     def add_dot(self, x, y):

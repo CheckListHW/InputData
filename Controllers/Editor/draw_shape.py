@@ -1,12 +1,11 @@
-import sys
-import time
+import math
 
 import numpy as np
 from matplotlib import pyplot as plt
 
 from Controllers.qt_matplotlib_connector import EditorController
 from Model.map import Map
-from Tools.point_in_polygon import check_point_in_polygon
+from Tools.geometry.point_in_polygon import check_point_in_polygon
 from Model.shape import Shape
 
 
@@ -43,6 +42,7 @@ class DrawVoxels:
 
     def draw_all_polygon(self):
         self.plot3d.ax.clear()
+        self.map.update_size()
         self.update_limits()
 
         for shape in self.map.get_visible_shapes():
@@ -59,7 +59,7 @@ class DrawVoxels:
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape) -> []:
         if self.all_polygon is None:
-            self.all_polygon = np.zeros([self.map.size.x, self.map.size.y, fig.height+1], dtype=bool)
+            self.all_polygon = np.zeros([self.map.size.x, self.map.size.y, fig.height + 1], dtype=bool)
 
         data = np.zeros([fig.size.x, fig.size.y, fig.height + 1], dtype=bool)
         self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
@@ -69,7 +69,11 @@ class DrawVoxels:
                 x, y = fig.layers[k].scalable_curve
                 z1 = fig.layers[k].z
                 for y2 in range(fig.size.y):
-                    result = check_point_in_polygon(x, y, x1 + 0.5, y2 + 0.5) and not bool(self.all_polygon[x1, y2, z1])
+                    point = check_point_in_polygon(x, y, math.ceil(x1), math.ceil(y2)) or \
+                            check_point_in_polygon(x, y, math.ceil(x1) + 1, math.ceil(y2)) or \
+                            check_point_in_polygon(x, y, math.ceil(x1), math.ceil(y2) + 1) or \
+                            check_point_in_polygon(x, y, math.ceil(x1) + 1, math.ceil(y2) + 1)
+                    result = point and not bool(self.all_polygon[x1, y2, z1])
                     data[x1, y2, z1] = self.all_polygon[x1, y2, z1] = result
 
         return data

@@ -1,5 +1,5 @@
 from os import environ
-from typing import Callable
+from typing import Callable, List
 
 from PyQt5 import QtGui, uic
 from PyQt5.QtWidgets import QMainWindow, QFrame
@@ -14,7 +14,7 @@ class ViewingLayersWindow(QMainWindow):
 
     def __init__(self, surface_editor: EditorSurfaceController):
         super(ViewingLayersWindow, self).__init__()
-        uic.loadUi(environ['project'] + '/ui/surface_choose_view.ui', self)
+        uic.loadUi(environ['project'] + '/ui/surface_choose.ui', self)
         # добавляется для того чтобы сборщик мусора не удалял объекты
         self.aaa = []
         self.surface_editor = surface_editor
@@ -66,7 +66,7 @@ class ViewingLayersWindow(QMainWindow):
 
         self.frames = list()
 
-        surfaces = self.surface_editor.shape.layers
+        surfaces: List[Surface] = self.surface_editor.shape.sorted_layers()
 
         for i in range(len(surfaces)):
             frame = self.add_frame_to_layout(i)

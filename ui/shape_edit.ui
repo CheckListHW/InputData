@@ -1477,6 +1477,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="editSplitButton">
+            <property name="text">
+             <string>Edit Split</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="saveLayerButton">
             <property name="text">
              <string>Save layer</string>

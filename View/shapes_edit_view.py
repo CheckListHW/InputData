@@ -12,6 +12,7 @@ from Model.file import MapFile, ShapeFile
 from Model.map import Map
 from Model.observer import ObjectObserver
 from Tools.filedialog import dict_from_json
+from View.split_edit_view import SplitEditWindow
 from View.surface_draw_view import SurfaceEditWindow
 
 
@@ -50,6 +51,7 @@ class ShapeEditWindow(QMainWindow):
         self.addLayerButton.clicked.connect(lambda: self.map.add_layer())
         self.acceptSettingsButton.clicked.connect(self.accept_settings)
         self.editLayerButton.clicked.connect(self.edit_layer)
+        self.editSplitButton.clicked.connect(self.edit_split)
         self.redrawButton.clicked.connect(self.voxels.draw_all_polygon)
         self.updateButton.clicked.connect(self.update_all)
         self.acceptLayersChange.clicked.connect(self.accept_view)
@@ -71,16 +73,16 @@ class ShapeEditWindow(QMainWindow):
 
     def split_handlers_connect(self):
         self.partNumberComboBox.activated.connect(self.update_layers_info)
-        split_depth_finish: () = lambda: self.layersComboBox.currentData().split_controller \
+        split_depth_finish: () = lambda: self.layersComboBox.currentData()\
             .__setattr__('depth', self.splitDepthSpinBox.value())
         self.splitDepthSpinBox.editingFinished.connect(split_depth_finish)
 
-        split_angle_finish: () = lambda: self.layersComboBox.currentData().split_controller \
+        split_angle_finish: () = lambda: self.layersComboBox.currentData()\
             .__setattr__('angle', self.splitAngleSpinBox.value())
         self.splitAngleSpinBox.editingFinished.connect(split_angle_finish)
 
-        split_part_offset_finish: () = lambda: self.layersComboBox.currentData().split_controller. \
-            change_part_offset(int(self.partNumberComboBox.currentText())-1, self.partOffsetSpinBox.value())
+        split_part_offset_finish: () = lambda: self.layersComboBox.currentData().\
+            set_offset(int(self.partNumberComboBox.currentText())-1, self.partOffsetSpinBox.value())
         self.partOffsetSpinBox.editingFinished.connect(split_part_offset_finish)
 
         self.partColorButton.clicked.connect(lambda: self.show_palette(self.set_color_part))
@@ -134,10 +136,10 @@ class ShapeEditWindow(QMainWindow):
             self.layerNameLabel.setText(layer.name)
             self.nameLineEdit.setText(layer.name)
             self.priority_spinbox.setValue(layer.priority)
-            self.splitDepthSpinBox.setValue(layer.split_controller.depth)
-            self.splitAngleSpinBox.setValue(layer.split_controller.angle)
-            value_offset = layer.split_controller.splits[int(self.partNumberComboBox.currentText())-1].offset
-            self.partOffsetSpinBox.setValue(value_offset)
+            # self.splitDepthSpinBox.setValue(layer.depth)
+            # self.splitAngleSpinBox.setValue(layer.angle)
+            # value_offset = layer.offset_z[int(self.partNumberComboBox.currentText())]
+            # self.partOffsetSpinBox.setValue(value_offset)
 
     def list_displayed_layers(self):
         for i in reversed(range(self.showLayersScrollArea.count())):
@@ -166,9 +168,13 @@ class ShapeEditWindow(QMainWindow):
 
     def edit_layer(self):
         # self.edit_window если оставлять локальной переменной удаляется из памяти!
-        self.edit_window = SurfaceEditWindow()
-        self.edit_window.surface_editor.set_shape(shape=self.layersComboBox.currentData())
-        self.edit_window.show()
+        self.edit_surface_window = SurfaceEditWindow()
+        self.edit_surface_window.surface_editor.set_shape(shape=self.layersComboBox.currentData())
+        self.edit_surface_window.show()
+
+    def edit_split(self):
+        self.edit_plit_window = SplitEditWindow(self.layersComboBox.currentData())
+        self.edit_plit_window.show()
 
     def accept_settings(self):
         self.layersComboBox.currentData().load_from_dict({'name': self.nameLineEdit.text(),

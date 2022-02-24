@@ -146,7 +146,10 @@
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="frame">
+           <widget class="QFrame" name="split_frame">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>

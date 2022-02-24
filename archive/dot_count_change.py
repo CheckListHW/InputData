@@ -30,7 +30,7 @@ def dot_count_minus_one(x: [float], y: [float], pop_dot_count: int = 1) -> ([flo
         distance_bc = ((x[i + 1] - x[i]) ** 2 + (y[i + 1] - y[i]) ** 2) ** 0.5
         dots.append(Dot(i, distance_ab + distance_bc, x[i], y[i]))
 
-    dots.sort(key=lambda j: j.distance)
+    dots.sort(key=lambda j: j.blue_distance)
     for _ in range(pop_dot_count):
         dots.pop(0)
     dots.sort(key=lambda j: j.index)

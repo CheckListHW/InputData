@@ -14,11 +14,8 @@ def intersection_point_horizontal_plane(a: [float, float, float],
         return a[0] - h1 * a1, a[1] - h1 * b1, a[2] - h1 * c1
 
 
-def rand():
-    return random.randint(0, 15)
-
-
 if __name__ == '__main__':
+    rand: () = lambda: random.randint(0, 15)
     random_int: () = lambda: random.randint(0, 15)
 
     x1 = [random_int(), random_int(), random_int()]

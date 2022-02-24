@@ -2,7 +2,7 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QShortcut, QComboBox
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QShortcut, QComboBox, QFrame
 
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.qt_matplotlib_connector import EditorSurfaceController
@@ -24,6 +24,8 @@ class SurfaceEditWindow(QMainWindow):
         if single_surface:
             self.viewLayersButton.hide()
 
+        frame: QFrame = self.split_frame
+        frame.hide()
         self.drawCurve.clicked.connect(lambda: self.change_mode(ModeStatus.DrawCurve))
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))
         self.moveDot.clicked.connect(lambda: self.change_mode(ModeStatus.MoveDot))

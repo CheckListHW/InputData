@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Callable, Optional, Final, List, Any, Union
+from copy import deepcopy
+from typing import Callable, Optional, Final, List
 
-from numpy import array as np_array
-
+from Model.line_segment_and_point import LineSegment, Point
 from Model.size import Size
 from Tools.recursive_extraction_of_list import recursive_extraction
 from data_resource.digit_value import Limits
@@ -60,7 +60,7 @@ class SurfaceProperty:  # z - высота слоя
         self.start_y: Optional[float] = None
 
         self.current_split: int = 0
-        self.splits = [[None, None], [None, None]]  # split = [start, end]
+        self.splits: List[LineSegment] = []  # split = [start, end]
 
         self.x: [float] = list()
         self.y: [float] = list()
@@ -95,11 +95,39 @@ class SurfaceProperty:  # z - высота слоя
     def scalable_curve(self) -> ([float], [float]):
         x, y = self.curve
         if self.size:
-            x, y = np_array(x), np_array(y)
-            x = x * (self.size.x / self.base_scale)
-            y = y * (self.size.y / self.base_scale)
-            x, y = x.tolist(), y.tolist()
+            x = [i * (self.size.x / self.base_scale) for i in x]
+            y = [i * (self.size.y / self.base_scale) for i in y]
         return x, y
+
+    def get_min_x_and_y(self):
+        x, y = None, None
+        if self.x is not None:
+            if len(self.x)>0:
+                x= min(self.x)
+        if self.y is not None:
+            if len(self.y) > 0:
+                y = min(self.y)
+        return x, y
+
+    def get_max_x_and_y(self):
+        x, y = None, None
+        if self.x is not None:
+            if len(self.x)>0:
+                x= max(self.x)
+        if self.y is not None:
+            if len(self.y) > 0:
+                y = max(self.y)
+        return x, y
+
+    @property
+    def scalable_split(self) -> [LineSegment]:
+        scalale_splits: List[LineSegment] = []
+        for split in self.splits:
+            if split.a.x is not None and split.b.x is not None:
+                p_a = Point(split.a.x * self.size.x, split.a.y * self.size.y)
+                p_b = Point(split.b.x * self.size.x, split.b.y * self.size.y)
+                scalale_splits.append(LineSegment(p_a, p_b))
+        return scalale_splits
 
     def get_copy(self) -> SurfaceProperty:
         this_copy = SurfaceProperty()
@@ -111,7 +139,7 @@ class SurfaceProperty:  # z - высота слоя
         for slot in SurfaceProperty.__slots__:
             attribute_name = slot.replace('__', '')
             if hasattr(from_property.__getattribute__(attribute_name), "copy"):
-                to_property.__setattr__(attribute_name, from_property.__getattribute__(attribute_name).copy())
+                to_property.__setattr__(attribute_name, deepcopy(from_property.__getattribute__(attribute_name)))
             else:
                 to_property.__setattr__(attribute_name, from_property.__getattribute__(attribute_name))
 
@@ -123,6 +151,8 @@ class SurfaceProperty:  # z - высота слоя
         this_class = SurfaceProperty
         for slot in this_class.__slots__:
             my_dict[slot] = recursive_extraction(getattr(self, slot))
+            # if slot == 'splits':
+            #     print('ОЧЕНЬ ВАЖНО', slot, my_dict[slot])
         return my_dict
 
     def load_from_dict(self, load_dict: dict):
@@ -132,24 +162,29 @@ class SurfaceProperty:  # z - высота слоя
             elif name_property == 'size':
                 self.size = Size()
                 self.size.load_from_dict(load_dict[name_property])
-            # elif name_property.__contains__('splits'):
-            #     for i in range(len(load_dict[name_property])):
-            #         try:
-            #             self.splits[i].load_from_dict(load_dict[name_property][i])
-            #         except IndexError:
-            #             self.splits.append(Split(load_dict[name_property][i]))
+            elif name_property == 'splits':
+                self.splits = []
+                for split in load_dict[name_property]:
+                    self.splits.append(LineSegment(Point(), Point()))
+                    self.splits[-1].load_from_dict(split)
             else:
                 if hasattr(self, name_property):
                     self.__setattr__(name_property, load_dict[name_property])
 
-    def change_dot_split(self, dot: (float, float), start_line: bool = True):
-        print(self.current_split)
+    def change_dot_split(self, dot_x: float, dot_y: float, start_line: bool = True):
+        while len(self.splits) <= self.current_split:
+            self.splits.append(LineSegment(Point(), Point()))
+
         if start_line:
-            self.splits[self.current_split][0] = dot
+            self.splits[self.current_split].a.set(dot_x, dot_y)
         else:
-            self.splits[self.current_split][1] = dot
-        if self.splits[self.current_split][0] == self.splits[self.current_split][1]:
-            self.splits[self.current_split][0] = self.splits[self.current_split][1] = None
+            self.splits[self.current_split].b.set(dot_x, dot_y)
+        if self.splits[self.current_split].a == self.splits[self.current_split].b:
+            self.splits[self.current_split].a.set(None, None)
+            self.splits[self.current_split].b.set(None, None)
+
+    def clear(self):
+        self.x, self.y = list(), list()
 
 
 class Surface(SurfaceProperty):
@@ -211,11 +246,11 @@ class Surface(SurfaceProperty):
     def add_dot(self, x1: float, y1: float):
         self.insert_dot(len(self.x), x1, y1)
 
-    def change_dot_split(self, dot: (float, float), start_line: bool = True):
-        super(Surface, self).change_dot_split(dot, start_line)
-        self.primary = True
+    def change_dot_split(self, dot_x: float, dot_y: float, start_line: bool = True):
         self.memento.add()
+        self.primary = True
+        super(Surface, self).change_dot_split(dot_x, dot_y, start_line)
 
     def clear(self):
         self.memento.add()
-        self.x, self.y = list(), list()
+        super(Surface, self).clear()

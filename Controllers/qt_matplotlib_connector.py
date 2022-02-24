@@ -83,6 +83,22 @@ class EditorController(FigureCanvasQTAgg):
         self.draw()
 
 
+class EditorSplitController(EditorController):
+    def __init__(self, shape: Shape, parent=None, **kwargs):
+        self.kwargs = kwargs
+        fig = Figure(tight_layout=True)
+        self.shape = shape
+
+        FigureCanvasQTAgg.__init__(self, fig)
+        self.mainLayout = QtWidgets.QGridLayout(parent)
+        self.mainLayout.addWidget(self)
+        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
+
+        surf = Surface(size=self.shape.size)
+        surf.splits = [split_line.line for split_line in shape.splits]
+        super(EditorSplitController, self).__init__(surf=surf, mode=ModeStatus.AddSplit)
+
+
 class EditorSurfaceControllerTight(EditorController):
     def __init__(self, parent=None, surf: Surface = None, **kwargs):
         self.kwargs = kwargs

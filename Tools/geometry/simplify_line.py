@@ -1,6 +1,6 @@
 from typing import Optional
 
-from Tools.intersection_point_horizontal_plane import intersection_point_horizontal_plane
+from Tools.geometry.intersection_point_horizontal_plane import intersection_point_horizontal_plane
 
 
 def simplify_line(x: [float], y: [float], dot_count: Optional[int] = None) -> ([int], [int]):
@@ -37,7 +37,8 @@ def simplify_line(x: [float], y: [float], dot_count: Optional[int] = None) -> ([
     return simplify_x, simplify_y
 
 
-def polyline(a: (float, float), b: (float, float), scale_x: int = 1, scale_y: int = 1, accuracy=100) -> ([float], [float]):
+def polyline(a: (float, float), b: (float, float), scale_x: int = 1, scale_y: int = 1, accuracy=100) \
+        -> ([float], [float]):
     dots_x, dots_y = [a[0]], [a[1]]
 
     distance_x, distance_y = b[0] - a[0], b[1] - a[1]

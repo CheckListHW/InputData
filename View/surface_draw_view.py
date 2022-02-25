@@ -6,16 +6,17 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QShortcut, QComboBox, QFra
 
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.qt_matplotlib_connector import EditorSurfaceController
+from Model.shape import Shape
 from View.surface_choose_view import ViewingLayersWindow
 from data_resource.strings import Tips
 
 
 class SurfaceEditWindow(QMainWindow):
-    def __init__(self, single_surface=False):
+    def __init__(self, single_surface=False, shape: Shape = None):
         super(SurfaceEditWindow, self).__init__()
         uic.loadUi(os.environ['project'] + '/ui/surface_edit.ui', self)
 
-        self.surface_editor = EditorSurfaceController(self.draw_polygon_frame)
+        self.surface_editor = EditorSurfaceController(self.draw_polygon_frame, shape=shape)
         self.view_layers_window = ViewingLayersWindow(self.surface_editor)
 
         self.button_connect(single_surface)
@@ -47,7 +48,7 @@ class SurfaceEditWindow(QMainWindow):
 
     def change_current_split(self):
         x: QComboBox = self.splitNumberComboBox
-        self.surface_editor.plot.surface.current_split = int(x.currentText())-1
+        self.surface_editor.plot.surface.current_split = int(x.currentText()) - 1
 
     def add_tips(self):
         self.simplifyButton.setToolTip(Tips.SIMPLIFYBUTTON)

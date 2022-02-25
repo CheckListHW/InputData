@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QMainWindow, QRadioButton, QComboBox, QSpinBox
 
 from Controllers.qt_matplotlib_connector import EditorSplitController
 from Model.shape import Shape
-from Model.split import Split
 
 
 class SplitEditWindow(QMainWindow):
@@ -47,7 +46,6 @@ class SplitEditWindow(QMainWindow):
         self.depthSpinBox.setValue(split.depth)
         self.offsetASpinBox.setValue(split.a_offset_z)
         self.offsetBSpinBox.setValue(split.b_offset_z)
-
 
     def change_current_split(self):
         self.update_info()

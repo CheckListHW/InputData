@@ -1470,17 +1470,59 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="editLayerButton">
-            <property name="text">
-             <string>Edit layer</string>
+           <widget class="QFrame" name="frame_28">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="editSplitButton">
-            <property name="text">
-             <string>Edit Split</string>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QComboBox" name="editPropertyComboBox">
+               <item>
+                <property name="text">
+                 <string>Layer</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Split</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Roof profile</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editLayerButton">
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Edit</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>

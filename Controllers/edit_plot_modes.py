@@ -12,9 +12,10 @@ class ModeStatus(enum.Enum):
     DeleteDot = 2
     AddDot = 3
     MoveDot = 4
-    Empty = 5
-    AddSplit = 6
-    Preview = 7
+    ChooseDot = 5
+    Empty = 6
+    AddSplit = 7
+    Preview = 8
 
 
 class Mode:

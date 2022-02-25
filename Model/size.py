@@ -53,6 +53,7 @@ class Size:
     __slots__ = ['x_constraints', 'y_constraints', 'z_constraints']
 
     def __init__(self, x_start=0, x_end=10, y_start=0, y_end=10, z_start=0, z_end=10):
+        print(self)
         self.x_constraints = AxisConstraints(x_start, x_end)
         self.y_constraints = AxisConstraints(y_start, y_end)
         self.z_constraints = AxisConstraints(z_start, z_end)

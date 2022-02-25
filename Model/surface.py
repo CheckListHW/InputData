@@ -53,7 +53,7 @@ class SurfaceProperty:  # z - высота слоя
                 'primary', 'size', 'splits', 'current_split'
     base_scale: Final = 10
 
-    def __init__(self, size: Size = Size(), z: int = -1):
+    def __init__(self, size: Size = None, z: int = -1):
         self.pre_x: Optional[float] = None
         self.pre_y: Optional[float] = None
         self.start_x: Optional[float] = None
@@ -66,7 +66,7 @@ class SurfaceProperty:  # z - высота слоя
         self.y: [float] = list()
 
         self._z = z
-        self.size = size
+        self.size = size if size is not None else Size()
         self.primary = True
 
     @property
@@ -95,6 +95,7 @@ class SurfaceProperty:  # z - высота слоя
     def scalable_curve(self) -> ([float], [float]):
         x, y = self.curve
         if self.size:
+            print(self.size.x, self.size.y)
             x = [i * (self.size.x / self.base_scale) for i in x]
             y = [i * (self.size.y / self.base_scale) for i in y]
         return x, y
@@ -190,7 +191,7 @@ class SurfaceProperty:  # z - высота слоя
 class Surface(SurfaceProperty):
     __slots__ = ['__prev_layer', '__next_layer', 'memento']
 
-    def __init__(self, size: Size = Size(), z: int = -1, load_dict: dict = None):
+    def __init__(self, size: Size, z: int = -1, load_dict: dict = None):
         super(Surface, self).__init__(size, z)
         self.__next_layer: () = lambda x: None
         self.__prev_layer: () = lambda x: None

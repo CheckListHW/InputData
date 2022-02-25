@@ -2,11 +2,14 @@ import math
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
 
+from Controllers.Editor.draw_surface import draw_polygon
 from Controllers.qt_matplotlib_connector import EditorController
 from Model.map import Map
 from Tools.geometry.point_in_polygon import check_point_in_polygon
 from Model.shape import Shape
+from Tools.plot_prepare import plot_prepare
 
 
 class Plot3d:
@@ -31,7 +34,8 @@ class DrawVoxels:
         self.map = map_val
         self.all_polygon = None
         self.plot3d = plot3d if plot3d else Plot3d()
-        self.draw_all_polygon()
+        self.i = 0
+        self.repeat = []
 
     def update_limits(self):
         size = self.map.size
@@ -63,17 +67,15 @@ class DrawVoxels:
 
         data = np.zeros([fig.size.x, fig.size.y, fig.height + 1], dtype=bool)
         self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
-
+        # print('data.size', data.shape)
+        # print('self.all_polygon.size', self.all_polygon.shape)
         for k in range(len(fig.layers)):
+            x, y = fig.layers[k].scalable_curve
+            z1 = fig.layers[k].z
             for x1 in range(fig.size.x):
-                x, y = fig.layers[k].scalable_curve
-                z1 = fig.layers[k].z
-                for y2 in range(fig.size.y):
-                    point = check_point_in_polygon(x, y, math.ceil(x1), math.ceil(y2)) or \
-                            check_point_in_polygon(x, y, math.ceil(x1) + 1, math.ceil(y2)) or \
-                            check_point_in_polygon(x, y, math.ceil(x1), math.ceil(y2) + 1) or \
-                            check_point_in_polygon(x, y, math.ceil(x1) + 1, math.ceil(y2) + 1)
-                    result = point and not bool(self.all_polygon[x1, y2, z1])
-                    data[x1, y2, z1] = self.all_polygon[x1, y2, z1] = result
-
+                for y1 in range(fig.size.y):
+                    point = check_point_in_polygon(x, y, math.ceil(x1) + 0.5, math.ceil(y1) + 0.5)
+                    if point and not bool(self.all_polygon[x1, y1, z1]):
+                        data[x1, y1, z1] = self.all_polygon[x1, y1, z1] = True
+                        self.repeat.append((z1, y1, x1))
         return data

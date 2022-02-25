@@ -134,7 +134,9 @@ class Shape(ShapeProperty):
 
                 for lay_main in cur_shape.layers:
                     a_shape.layers.append(lay_main.get_copy())
+                    a_shape.layers[-1].size = self.size
                     b_shape.layers.append(lay_main.get_copy())
+                    b_shape.layers[-1].size = self.size
                     lay_a, lay_b = a_shape.layers[-1], b_shape.layers[-1]
                     lay_a.clear()
                     lay_b.clear()
@@ -164,8 +166,9 @@ class Shape(ShapeProperty):
                     # plt.plot(a_polygon.get_x(), a_polygon.get_y(), color='red')
                     # plt.plot(b_polygon.get_x(), b_polygon.get_y(), color='blue')
                     # plt.plot(split_level.get_x(), split_level.get_y(), color='green')
-                    plt.plot([i + 15 for i in a_polygon.get_x()], a_polygon.get_y(), color='red')
-                    plt.plot([i + 30 for i in b_polygon.get_x()], b_polygon.get_y(), color='blue')
+                    # plt.plot([i + 15 for i in a_polygon.get_x()], a_polygon.get_y(), color='red')
+                    # plt.plot([i + 30 for i in b_polygon.get_x()], b_polygon.get_y(), color='blue')
+                    # plt.show()
 
                     lay_x, lay_y = lay_main.curve
 
@@ -174,8 +177,8 @@ class Shape(ShapeProperty):
 
                     for i, j in zip(lay_x, lay_y):
                         c, d = d, [i, j]
-                        plt.plot(split_level.get_x(), split_level.get_y())
-                        plt.plot([c[0], d[0]], [c[1], d[1]])
+                        # plt.plot(split_level.get_x(), split_level.get_y())
+                        # plt.plot([c[0], d[0]], [c[1], d[1]])
                         if split_level.a.x is not None:
                             x1, y1 = intersection_segment_dot(
                                 split_level.a, split_level.b, Point(c[0], c[1]), Point(d[0], d[1]))

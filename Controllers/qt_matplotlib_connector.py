@@ -111,8 +111,8 @@ class EditorRoofProfileController(EditorController):
         self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
 
         surf = Surface(size=self.shape.size)
-        surf.splits = [split_line.line for split_line in shape.splits]
-        super(EditorRoofProfileController, self).__init__(surf=surf, mode=ModeStatus.AddSplit)
+        # surf.splits = [split_line.line for split_line in shape.splits]
+        super(EditorRoofProfileController, self).__init__(surf=surf, mode=ModeStatus.AddDot)
 
 
 class EditorSurfaceControllerTight(EditorController):

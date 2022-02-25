@@ -103,8 +103,8 @@ class SurfaceProperty:  # z - высота слоя
     def get_min_x_and_y(self):
         x, y = None, None
         if self.x is not None:
-            if len(self.x)>0:
-                x= min(self.x)
+            if len(self.x) > 0:
+                x = min(self.x)
         if self.y is not None:
             if len(self.y) > 0:
                 y = min(self.y)
@@ -113,8 +113,8 @@ class SurfaceProperty:  # z - высота слоя
     def get_max_x_and_y(self):
         x, y = None, None
         if self.x is not None:
-            if len(self.x)>0:
-                x= max(self.x)
+            if len(self.x) > 0:
+                x = max(self.x)
         if self.y is not None:
             if len(self.y) > 0:
                 y = max(self.y)
@@ -191,7 +191,7 @@ class SurfaceProperty:  # z - высота слоя
 class Surface(SurfaceProperty):
     __slots__ = ['__prev_layer', '__next_layer', 'memento']
 
-    def __init__(self, size: Size, z: int = -1, load_dict: dict = None):
+    def __init__(self, size=Size(), z: int = -1, load_dict: dict = None):
         super(Surface, self).__init__(size, z)
         self.__next_layer: () = lambda x: None
         self.__prev_layer: () = lambda x: None

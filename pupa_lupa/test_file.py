@@ -1,36 +1,54 @@
-import math
-import random
-
+import numpy as np
+from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
-from Model.line_segment_and_point import Point, LineSegment
-from Tools.geometry.angle_line import reverse_dot
-from Tools.geometry.calc_offset import calc_offset
-from Tools.geometry.point_in_polygon import check_point_in_polygon
-from Tools.plot_prepare import plot_prepare
-from pupa_lupa.data import x, y
 
-base_scale = 10
+def func(x, y):
+    return x + y
 
-if __name__ == '__main__':
-    fig = plt.figure()
-    ax = fig.add_subplot()
-    plot_prepare(ax, base_scale)
 
-    r: () = lambda: random.randint(0, 10)
+points = [[0, 0], [0, 25], [25, 25], [25, 0]]
+val = [0, 0, 0, 0]
+size = 25
 
-    a, b = [8, 7], [4, 2]
+# points.append([7, 7])
+# val.append(1)
 
-    x1, y1 = reverse_dot(a, b)
-    plt.plot(x1, y1)
-    x, y = [0.18984209816006103, 0.18984209816006103, 9.816186063250708, 9.849, 0.171, 0.18984209816006103,
-            0.18984209816006103], \
-           [9.756219903691814, 9.756219903691814, 9.792335473515248, 5.0, 5.0, 9.756219903691814, 9.756219903691814]
-    x1, y1 = 6, 9
-    print(int(x1) + 0.5)
-    point = check_point_in_polygon(x, y, math.ceil(x1) + 0.5, math.ceil(y1) + 0.5)
-    plt.scatter(math.ceil(x1) + 0.5, math.ceil(y1) + 0.5)
-    print(point)
 
-    plt.plot(x, y)
-    plt.show()
+points.append([5, 5])
+val.append(1)
+
+points.append([5, 15])
+val.append(1)
+
+points.append([15, 5])
+val.append(1)
+
+points.append([15, 15])
+val.append(1)
+
+points.append([10, 10])
+val.append(0)
+
+points = np.array(points)
+val = np.array(val)
+
+
+grid_x, grid_y = np.mgrid[0:size:25j, 0:size:25j]
+grid_z = griddata(points, val, (grid_x, grid_y), method='cubic')
+
+for zz, i1 in zip(grid_z, range(len(grid_z)+1)):
+    for z, j in zip(zz, range(len(zz)+1)):
+        if '{0}, {1}'.format(i1, j) in ['{0}, {1}'.format(i[0], i[1])for i in points]:
+            print(i1, j, round(z * 1000) / 1000)
+
+print([0, 2] in points)
+
+# plt.imshow(grid_z.T, extent=(0, 1, 0, 1), origin='lower')
+# plt.scatter(points[:, 0], points[:, 1], c='k')
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.plot_wireframe(grid_x, grid_y, grid_z)
+
+plt.show()

@@ -2,14 +2,11 @@ import math
 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
 
-from Controllers.Editor.draw_surface import draw_polygon
 from Controllers.qt_matplotlib_connector import EditorController
 from Model.map import Map
-from Tools.geometry.point_in_polygon import check_point_in_polygon
 from Model.shape import Shape
-from Tools.plot_prepare import plot_prepare
+from Tools.geometry.point_in_polygon import check_point_in_polygon
 
 
 class Plot3d:
@@ -32,50 +29,42 @@ class Plot3d:
 class DrawVoxels:
     def __init__(self, map_val: Map, plot3d=None):
         self.map = map_val
-        self.all_polygon = None
+        self.all_polygon = np.zeros([1, 1, 1], dtype=bool)
         self.plot3d = plot3d if plot3d else Plot3d()
-        self.i = 0
-        self.repeat = []
 
     def update_limits(self):
-        size = self.map.size
-        if size:
-            self.plot3d.ax.set_xlim3d(xmin=0.000001, xmax=size.x * 1.1)
-            self.plot3d.ax.set_ylim3d(ymin=0.000001, ymax=size.y * 1.1)
-            self.plot3d.ax.set_zlim3d(zmin=0.000001, zmax=size.z * 1.1)
+        x_size, y_size, z_size = self.all_polygon.shape
+        self.plot3d.ax.set_xlim3d(xmin=0.000001, xmax=x_size * 1.1)
+        self.plot3d.ax.set_ylim3d(ymin=0.000001, ymax=y_size * 1.1)
+        self.plot3d.ax.set_zlim3d(zmin=0.000001, zmax=z_size * 1.1)
 
     def draw_all_polygon(self):
         self.plot3d.ax.clear()
-        self.map.update_size()
-        self.update_limits()
 
         for shape in self.map.get_visible_shapes():
-            z = max(shape.height, shape.height_with_offset) + 1
             data = self.calc_polygon_in_draw(shape)
-            axes = [shape.size.x, shape.size.y, z]
-            colors = np.empty(axes + [4], dtype=np.float32)
+            colors = np.empty(list(data.shape) + [4], dtype=np.float32)
             r, g, b = shape.color
             colors[:] = [r / 255, g / 255, b / 255, shape.alpha]
             self.plot3d.ax.voxels(data, facecolors=colors)
 
-        self.all_polygon = None
+        self.map.update_size()
+        self.update_limits()
         self.plot3d.draw()
+        self.all_polygon = np.zeros([1, 1, 1], dtype=bool)
 
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape) -> []:
-        z = max(fig.height, fig.height_with_offset) + 1
-        if self.all_polygon is None:
-            self.all_polygon = np.zeros([self.map.size.x, self.map.size.y, z], dtype=bool)
-
-        data = np.zeros([fig.size.x, fig.size.y, z], dtype=bool)
-        self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
+        x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, fig.height_with_offset) + 1
         roof_profile_offset = fig.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+        data = np.zeros([x_size, y_size, z_size], dtype=bool)
+
+        self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
         for k in range(len(fig.layers)):
             x, y = fig.layers[k].scalable_curve
-            z1 = fig.layers[k].z
             for x1 in range(fig.size.x):
                 for y1 in range(fig.size.y):
-                    z1_offset = int(round(z1 + roof_profile_offset[x1][y1]))
+                    z1_offset = int(round(fig.layers[k].z + roof_profile_offset[x1][y1]))
                     point = check_point_in_polygon(x, y, math.ceil(x1) + 0.5, math.ceil(y1) + 0.5)
                     if point and not bool(self.all_polygon[x1, y1, z1_offset]):
                         data[x1, y1, z1_offset] = self.all_polygon[x1, y1, z1_offset] = True

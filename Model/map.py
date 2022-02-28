@@ -1,9 +1,6 @@
-from typing import List
-
-from Model.line_segment_and_point import LineSegment
-from Model.size import Size
-from Model.shape import Shape
 from Model.observer import Subject
+from Model.shape import Shape
+from Model.size import Size
 from Model.surface import Surface
 from Tools.filedialog import dict_from_json
 
@@ -41,7 +38,7 @@ class Map(Subject):
     def get_visible_shapes(self) -> [Shape]:
         shapes_with_split = []
         for shape in self.get_shapes():
-            shapes_with_split = shapes_with_split + shape.spliting_shape()
+            shapes_with_split = shapes_with_split + shape.splitting_shape()
         return sorted(filter(lambda i: i.visible is True, shapes_with_split), key=lambda i: i.priority).__reversed__()
 
     def load_from_dict(self, dictionary: dict):

@@ -10,7 +10,6 @@ class RoofPoint(JsonInOut):
     __slots__ = 'x', 'y', 'z'
 
     def __init__(self, x: float = None, y: float = None, z: float = None, load_dict: dict = None):
-        super().__init__(RoofPoint)
         self.x = x
         self.y = y
         self.z = z
@@ -28,7 +27,6 @@ class RoofProfile(JsonInOut):
     __slots__ = 'points', 'interpolate_method'
 
     def __init__(self):
-        super().__init__(RoofProfile)
         self.interpolate_method = 'cubic'
         self.points: [RoofPoint] = list()
 

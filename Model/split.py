@@ -1,18 +1,21 @@
 from Model.json_in_out import JsonInOut
-from Model.line_segment_and_point import LineSegment, Point
+from Model.line_segment import LineSegment
+from Model.point import Point
 
 
 class Split(JsonInOut):
     __slots__ = 'depth', 'angle', '_line', 'from_start', 'a_offset_z', 'b_offset_z'
 
-    def __init__(self):
-        super().__init__(Split)
+    def __init__(self, load_dict=None):
         self.depth: float = 0  # from .0 to 1.0
         self.angle: int = 0  # from
         self._line: LineSegment = LineSegment(Point(), Point())
         self.a_offset_z = 1
         self.b_offset_z = 2
         self.from_start = True
+
+        if load_dict:
+            self.load_from_dict(load_dict)
 
     @property
     def line(self) -> LineSegment:

@@ -2,14 +2,9 @@ from Tools.recursive_extraction_of_list import recursive_extraction
 
 
 class JsonInOut:
-    __slots__ = 'this_class'
-
-    def __init__(self, class_name):
-        self.this_class = class_name
-
     def get_as_dict(self) -> dict:
         my_dict = {}
-        this_class = self.this_class
+        this_class = self.__class__
         for slot in this_class.__slots__:
             if hasattr(self, slot):
                 my_dict[slot] = recursive_extraction(getattr(self, slot))

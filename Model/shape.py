@@ -6,7 +6,8 @@ from typing import List, Optional
 
 import matplotlib.pyplot as plt
 
-from Model.line_segment_and_point import LineSegment, Point
+from Model.line_segment import LineSegment
+from Model.point import Point
 from Model.roof_profile import RoofProfile, RoofPoint
 from Model.split import Split
 from Tools.geometry.calc_offset import calc_offset
@@ -88,14 +89,9 @@ class ShapeProperty(Subject):
     def load_from_dict(self, settings: dict):
         for name_property in settings:
             if name_property.__contains__('layers'):
-                self.layers = []
-                for lay in settings[name_property]:
-                    self.layers.append(Surface(size=self.size, load_dict=lay))
+                self.layers = [Surface(size=self.size, load_dict=lay_dict) for lay_dict in settings[name_property]]
             elif name_property == 'splits':
-                self.splits = []
-                for split in settings[name_property]:
-                    self.splits.append(Split())
-                    self.splits[-1].load_from_dict(split)
+                self.splits = [Split(load_dict=split_dict) for split_dict in settings[name_property]]
             else:
                 if hasattr(self, name_property):
                     if hasattr(self.__getattribute__(name_property), 'load_from_dict'):
@@ -118,7 +114,7 @@ class Shape(ShapeProperty):
         if layers_less:
             return sorted(layers_less, key=lambda i: i.z)[-1]
 
-    def spliting_shape(self, ) -> [Shape]:
+    def splitting_shape(self, ) -> [Shape]:
         local_splits: [Split] = []
         for split in [split for split in self.splits if not split.line.is_empty()]:
             a = Point(round(split.line.a.x * self.size.x), round(split.line.a.y * self.size.y))
@@ -132,8 +128,6 @@ class Shape(ShapeProperty):
 
         for split in local_splits:
             x_offset, y_offset = calc_offset(split.angle, split.line)
-            # print(x_offset, y_offset, split.line.get_x(), split.line.get_y())
-            # plt.plot(split.line.get_x(), split.line.get_y())
             copy_split_shapes = split_shapes.copy()
             split_shapes = []
             for cur_shape in copy_split_shapes:
@@ -163,21 +157,6 @@ class Shape(ShapeProperty):
                     if a_sum < 0 or b_sum > 0:
                         a_polygon, b_polygon = b_polygon, a_polygon
 
-                    # print(lay_a.z, split.line.a.x, split.line.a.y, split.line.b.x, split.line.b.y)
-                    # print(lay_a.z, a_x, a_y, b_x, b_y)
-                    # print(lay_a.z, 'x_offset, y_offset', x_offset, y_offset)
-                    # print(lay_a.z, split_level.get_x(), split_level.get_y())
-                    # print(lay_a.z, a_polygon.get_x(), a_polygon.get_y())
-                    # print(lay_a.z, b_polygon.get_x(), b_polygon.get_y())
-                    # print('------')
-
-                    # plt.plot(a_polygon.get_x(), a_polygon.get_y(), color='red')
-                    # plt.plot(b_polygon.get_x(), b_polygon.get_y(), color='blue')
-                    # plt.plot(split_level.get_x(), split_level.get_y(), color='green')
-                    # plt.plot([i + 15 for i in a_polygon.get_x()], a_polygon.get_y(), color='red')
-                    # plt.plot([i + 30 for i in b_polygon.get_x()], b_polygon.get_y(), color='blue')
-                    # plt.show()
-
                     lay_x, lay_y = lay_main.curve
 
                     if len(lay_x) > 0:
@@ -185,35 +164,21 @@ class Shape(ShapeProperty):
 
                     for i, j in zip(lay_x, lay_y):
                         c, d = d, [i, j]
-                        # plt.plot(split_level.get_x(), split_level.get_y())
-                        # plt.plot([c[0], d[0]], [c[1], d[1]])
                         if split_level.a.x is not None:
                             x1, y1 = intersection_segment_dot(
                                 split_level.a, split_level.b, Point(c[0], c[1]), Point(d[0], d[1]))
                             if x1 is not None and y1 is not None:
-                                lay_a.x.append(x1)
-                                lay_a.y.append(y1)
-                                lay_b.x.append(x1)
-                                lay_b.y.append(y1)
+                                lay_a.add_dot(x1, y1)
+                                lay_b.add_dot(x1, y1)
                         if check_point_in_polygon(a_polygon.get_x(), a_polygon.get_y(), i, j):
-                            lay_a.x.append(i)
-                            lay_a.y.append(j)
+                            lay_a.add_dot(i, j)
                         if check_point_in_polygon(b_polygon.get_x(), b_polygon.get_y(), i, j):
-                            lay_b.x.append(i)
-                            lay_b.y.append(j)
-
-                    # plt.fill(lay_a.x, lay_a.y, color='red')
-                    # plt.fill(lay_b.x, lay_b.y, color='blue')
-                    # plt.fill([i + 15 for i in a_polygon.get_x()], a_polygon.get_y(), color='red')
-                    # plt.fill([i + 30 for i in b_polygon.get_x()], b_polygon.get_y(), color='blue')
-                    # plt.show()
+                            lay_b.add_dot(i, j)
 
                     if len(lay_a.x) > 0:
-                        lay_a.x.append(lay_a.x[0])
-                        lay_a.y.append(lay_a.y[0])
+                        lay_a.add_dot(lay_a.x[0], lay_a.y[0])
                     if len(lay_b.x) > 0:
-                        lay_b.x.append(lay_b.x[0])
-                        lay_b.y.append(lay_b.y[0])
+                        lay_b.add_dot(lay_b.x[0], lay_b.y[0])
 
                 split_shapes = split_shapes + [a_shape, b_shape]
 

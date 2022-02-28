@@ -3,28 +3,13 @@ from __future__ import annotations
 from typing import List
 
 from Model.json_in_out import JsonInOut
-
-
-class Point(JsonInOut):
-    __slots__ = 'x', 'y'
-
-    def __init__(self, x=None, y=None):
-        super().__init__(Point)
-        self.set(x, y)
-
-    def set(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+from Model.point import Point
 
 
 class LineSegment(JsonInOut):
     __slots__ = 'a', 'b'
 
     def __init__(self, a: Point, b: Point):
-        super().__init__(LineSegment)
         self.a = a
         self.b = b
 
@@ -43,11 +28,9 @@ class LineSegment(JsonInOut):
     def load_from_dict(self, load_dict: dict):
         for name_property in load_dict:
             if name_property == 'a':
-                self.a = Point()
-                self.a.load_from_dict(load_dict[name_property])
+                self.a = Point(load_dict=load_dict[name_property])
             elif name_property == 'b':
-                self.b = Point()
-                self.b.load_from_dict(load_dict[name_property])
+                self.b = Point(load_dict=load_dict[name_property])
             else:
                 if hasattr(self, name_property):
                     self.__setattr__(name_property, load_dict[name_property])
@@ -64,7 +47,6 @@ class PolygonalChain:
 
     def is_empty(self) -> bool:
         return True if len(self.dots) < 1 else False
-
 
     def add_dot(self, x: float, y: float):
         self.dots.append(Point(x, y))

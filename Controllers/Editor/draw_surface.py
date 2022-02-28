@@ -30,14 +30,12 @@ class EditSurface:
     def __init__(self, surf: Surface, fig=None, ax=None):
         self.surface = surf
         self.grid_off, self.line_dot_index, self.nearst_dot_index = False, 999, 0
-
         self.fig = fig if fig else plt.figure()
         self.ax = ax if ax else self.fig.add_subplot(111)
 
         self.plot_prepare()
 
     def plot_prepare(self):
-
         self.ax.set_xlim(0, Limits.BASEPLOTSCALE)
         self.ax.set_ylim(0, Limits.BASEPLOTSCALE)
 
@@ -205,7 +203,7 @@ class EditRoofProfileSurface(EditSurface):
 
     def move_dot(self, x: float, y: float):
         if x and y:
-            self.roof_profile.points[self.nearst_dot_index].change(x, y, None)
+            self.roof_profile.points[self.nearst_dot_index].set(x, y, None)
             self.update_plot(fast=True)
 
     def get_points_val(self, roof_profile: RoofProfile, base=Limits.BASEPLOTSCALE):

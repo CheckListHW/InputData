@@ -1,7 +1,7 @@
 import math
 from typing import Tuple, List, Optional
 
-from Model.line_segment_and_point import Point
+from Model.point import Point
 
 
 def reverse_dot(a: List[float], b: List[float]) -> Tuple[List[float], List[float]]:

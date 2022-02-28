@@ -3,7 +3,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Callable, Optional, Final, List
 
-from Model.line_segment_and_point import LineSegment, Point
+from Model.line_segment import LineSegment
+from Model.point import Point
 from Model.size import Size
 from Tools.recursive_extraction_of_list import recursive_extraction
 from data_resource.digit_value import Limits

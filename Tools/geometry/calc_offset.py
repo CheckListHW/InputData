@@ -1,6 +1,6 @@
 import math
 
-from Model.line_segment_and_point import LineSegment
+from Model.line_segment import LineSegment
 from Tools.geometry.angle_line import line_angle_x_y
 
 

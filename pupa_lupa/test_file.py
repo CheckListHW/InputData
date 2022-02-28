@@ -7,10 +7,14 @@ def func(x, y):
     return x + y
 
 
+a = np.zeros([1, 1, 1], dtype=bool)
+aa,b,c = a.shape
+
+print(aa,b,c)
+
 points = [[0, 0], [0, 25], [25, 25], [25, 0]]
 val = [0, 0, 0, 0]
 size = 25
-
 
 points.append([5, 5])
 val.append(1)
@@ -18,13 +22,12 @@ val.append(1)
 points = np.array(points)
 val = np.array(val)
 
-
 grid_x, grid_y = np.mgrid[0:size:25j, 0:size:25j]
 grid_z = griddata(points, val, (grid_x, grid_y), method='cubic')
 
-for zz, i1 in zip(grid_z, range(len(grid_z)+1)):
-    for z, j in zip(zz, range(len(zz)+1)):
-        if '{0}, {1}'.format(i1, j) in ['{0}, {1}'.format(i[0], i[1])for i in points]:
+for zz, i1 in zip(grid_z, range(len(grid_z) + 1)):
+    for z, j in zip(zz, range(len(zz) + 1)):
+        if '{0}, {1}'.format(i1, j) in ['{0}, {1}'.format(i[0], i[1]) for i in points]:
             print(i1, j, round(z * 1000) / 1000)
 
 print([0, 2] in points)

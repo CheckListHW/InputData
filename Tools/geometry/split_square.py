@@ -1,4 +1,5 @@
-from Model.line_segment_and_point import PolygonalChain, LineSegment, Point
+from Model.line_segment import PolygonalChain, LineSegment
+from Model.point import Point
 from Tools.geometry.angle_line import intersection_segment_dot
 
 

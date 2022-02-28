@@ -129,6 +129,18 @@ class AddSplit(Mode):
         pass
 
 
+class ChooseDot(Mode):
+    def on_click(self, event):
+        if event.button is MouseButton.LEFT or event.button is MouseButton.RIGHT:
+            self.plot.choose_dot(event.xdata, event.ydata)
+
+    def on_move(self, event):
+        pass
+
+    def on_release(self, event):
+        pass
+
+
 class Empty(Mode):
     def on_click(self, event):
         pass

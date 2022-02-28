@@ -50,8 +50,9 @@ class DrawVoxels:
         self.update_limits()
 
         for shape in self.map.get_visible_shapes():
+            z = max(shape.height, shape.height_with_offset) + 1
             data = self.calc_polygon_in_draw(shape)
-            axes = [shape.size.x, shape.size.y, shape.height + 1]
+            axes = [shape.size.x, shape.size.y, z]
             colors = np.empty(axes + [4], dtype=np.float32)
             r, g, b = shape.color
             colors[:] = [r / 255, g / 255, b / 255, shape.alpha]
@@ -62,20 +63,20 @@ class DrawVoxels:
 
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape) -> []:
+        z = max(fig.height, fig.height_with_offset) + 1
         if self.all_polygon is None:
-            self.all_polygon = np.zeros([self.map.size.x, self.map.size.y, fig.height + 1], dtype=bool)
+            self.all_polygon = np.zeros([self.map.size.x, self.map.size.y, z], dtype=bool)
 
-        data = np.zeros([fig.size.x, fig.size.y, fig.height + 1], dtype=bool)
+        data = np.zeros([fig.size.x, fig.size.y, z], dtype=bool)
         self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
-        # print('data.size', data.shape)
-        # print('self.all_polygon.size', self.all_polygon.shape)
+        roof_profile_offset = fig.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
         for k in range(len(fig.layers)):
             x, y = fig.layers[k].scalable_curve
             z1 = fig.layers[k].z
             for x1 in range(fig.size.x):
                 for y1 in range(fig.size.y):
+                    z1_offset = int(round(z1 + roof_profile_offset[x1][y1]))
                     point = check_point_in_polygon(x, y, math.ceil(x1) + 0.5, math.ceil(y1) + 0.5)
-                    if point and not bool(self.all_polygon[x1, y1, z1]):
-                        data[x1, y1, z1] = self.all_polygon[x1, y1, z1] = True
-                        self.repeat.append((z1, y1, x1))
+                    if point and not bool(self.all_polygon[x1, y1, z1_offset]):
+                        data[x1, y1, z1_offset] = self.all_polygon[x1, y1, z1_offset] = True
         return data

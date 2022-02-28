@@ -30,6 +30,10 @@ class ShapeEditWindow(QMainWindow):
         self.load_default_shape()
         self.handlers_connect()
         self.update()
+        self.debug()
+
+    def debug(self):
+        self.edit_layer()
 
     def load_default_shape(self):
         base_dict = dict_from_json(environ['project'] + '/base.json')
@@ -111,8 +115,9 @@ class ShapeEditWindow(QMainWindow):
     def accept_size(self):
         x = self.map.height if self.map.height >= int(self.zEndSpinbox.text()) else int(self.zEndSpinbox.text())
         self.zEndSpinbox.setValue(x)
-        x_end, y_end = self.xEndSpinbox.text(), self.yEndSpinbox.text()
-        z_start, z_end = self.zStartSpinbox.text(), self.zEndSpinbox.text()
+        # abcd: QSpinBox = self.zEndSpinbox
+        x_end, y_end = self.xEndSpinbox.value(), self.yEndSpinbox.value()
+        z_start, z_end = self.zStartSpinbox.value(), self.zEndSpinbox.value()
         self.map.size.change_constraints(None, x_end, None, y_end, z_start, z_end)
 
     def update_all(self):

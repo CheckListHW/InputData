@@ -5,7 +5,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationTool
 from matplotlib.figure import Figure
 
 from Controllers.edit_plot_modes import *
-from Controllers.Editor.draw_surface import EditSurface
+from Controllers.Editor.draw_surface import EditSurface, EditRoofProfileSurface
 from Model.shape import Shape
 from Model.size import Size
 from Model.surface import Surface
@@ -13,14 +13,12 @@ from Tools.filedialog import save_dict_as_json
 
 
 class EditorController(FigureCanvasQTAgg):
-    def __init__(self, mode: ModeStatus, surf: Surface = None):
+    def __init__(self, mode: ModeStatus, surf: Surface):
         # при добавлении 'super().__init__()' крашится
 
         self.ax = self.figure.add_subplot()
-        self.plot = EditSurface(fig=self.figure, ax=self.ax)
+        self.plot = EditSurface(fig=self.figure, ax=self.ax, surf=surf)
 
-        if surf:
-            self.plot.surface = surf
         self.plot.update_plot()
         self.set_mode(mode)
 
@@ -65,6 +63,8 @@ class EditorController(FigureCanvasQTAgg):
             self.mode = AddSplit(self.plot)
         elif status == ModeStatus.Empty:
             self.mode = Empty(self.plot)
+        elif status == ModeStatus.ChooseDot:
+            self.mode = ChooseDot(self.plot)
         elif status == ModeStatus.Preview:
             self.mode = Preview(self.plot, self.kwargs.get('preview_click_handler'))
 
@@ -111,8 +111,10 @@ class EditorRoofProfileController(EditorController):
         self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
 
         surf = Surface(size=self.shape.size)
-        # surf.splits = [split_line.line for split_line in shape.splits]
         super(EditorRoofProfileController, self).__init__(surf=surf, mode=ModeStatus.AddDot)
+        self.plot = EditRoofProfileSurface(fig=self.figure, ax=self.ax,
+                                           roof_profile=shape.roof_profile)
+        self.set_mode(ModeStatus.AddDot)
 
 
 class EditorSurfaceControllerTight(EditorController):
@@ -140,7 +142,7 @@ class EditorFigureController(FigureCanvasQTAgg):
 
 
 class EditorSurfaceController(EditorController):
-    def __init__(self, parent=None, surf: Surface = None, shape: Shape = None, **kwargs):
+    def __init__(self, parent, shape: Shape, **kwargs):
         self.kwargs = kwargs
         fig = Figure(tight_layout=True)
         self.shape: Shape
@@ -151,8 +153,8 @@ class EditorSurfaceController(EditorController):
         self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
 
         self.select_layer = 0
-        self.set_shape(shape)
-        super().__init__(surf=surf, mode=ModeStatus.DrawCurve)
+        super().__init__(surf=shape.layers[0], mode=ModeStatus.DrawCurve)
+        self.set_shape(shape=shape)
 
     def set_shape(self, path: str = None, shape: Shape = None):
         if path:

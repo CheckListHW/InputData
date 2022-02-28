@@ -7,6 +7,7 @@ from typing import List, Optional
 import matplotlib.pyplot as plt
 
 from Model.line_segment_and_point import LineSegment, Point
+from Model.roof_profile import RoofProfile, RoofPoint
 from Model.split import Split
 from Tools.geometry.calc_offset import calc_offset
 from Tools.geometry.point_in_polygon import check_point_in_polygon
@@ -25,7 +26,8 @@ from Tools.geometry.simplify_line import simplify_line
 
 
 class ShapeProperty(Subject):
-    __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'layers', 'split_parts', 'splits'
+    __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', \
+                'layers', 'split_parts', 'splits', 'roof_profile'
 
     def __init__(self, size: Size):
         super(ShapeProperty, self).__init__()
@@ -35,6 +37,7 @@ class ShapeProperty(Subject):
         self._color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.name: str = 'layer 1'
         self.layers: List[Surface] = list()
+        self.roof_profile = RoofProfile()
         self.size = size
 
     @property
@@ -57,11 +60,16 @@ class ShapeProperty(Subject):
             self._color = [r, g, b]
 
     @property
-    def height(self):
+    def height(self) -> int:
         return max(self.layers, key=lambda i: i.z).z
 
     @property
-    def priority(self):
+    def height_with_offset(self) -> int:
+        max_offset = int(max(self.roof_profile.points + [RoofPoint(x=0, z=0, y=0)], key=lambda i: i.z).z + 1)
+        return max(self.layers, key=lambda i: i.z).z + max_offset
+
+    @property
+    def priority(self) -> int:
         return self._priority
 
     @priority.setter
@@ -236,12 +244,6 @@ class Shape(ShapeProperty):
             return
 
         dot_count = len(min(this_layers, key=lambda layer: len(layer.x)).x)
-
-        for lay in this_layers:
-            x, y = lay.curve
-            lay.curve = simplify_line(x, y, dot_count)
-            if len(lay.x) != dot_count:
-                return
 
         new_layers = [this_layers[0]]
         for i in range(len(this_layers) - 1):

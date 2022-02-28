@@ -13,7 +13,7 @@ class Map(Subject):
 
     def __init__(self):
         super().__init__()
-        self.size = Size()
+        self.size = Size(message='map')
         self.shapes: [Shape] = list()
 
     def add_layer(self, figure: Shape = None) -> Shape:

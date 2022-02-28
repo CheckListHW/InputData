@@ -51,7 +51,6 @@ class SurfacePropertyMemento:
 class SurfaceProperty:  # z - высота слоя
     __slots__ = 'pre_x', 'pre_y', 'start_x', 'start_y', 'x', 'y', '_z', \
                 'primary', 'size', 'splits', 'current_split'
-    base_scale: Final = 10
 
     def __init__(self, size: Size = None, z: int = -1):
         self.pre_x: Optional[float] = None
@@ -66,7 +65,7 @@ class SurfaceProperty:  # z - высота слоя
         self.y: [float] = list()
 
         self._z = z
-        self.size = size if size is not None else Size()
+        self.size = size
         self.primary = True
 
     @property
@@ -95,30 +94,31 @@ class SurfaceProperty:  # z - высота слоя
     def scalable_curve(self) -> ([float], [float]):
         x, y = self.curve
         if self.size:
-            print(self.size.x, self.size.y)
-            x = [i * (self.size.x / self.base_scale) for i in x]
-            y = [i * (self.size.y / self.base_scale) for i in y]
+            x = [i * (self.size.x / Limits.BASEPLOTSCALE) for i in x]
+            y = [i * (self.size.y / Limits.BASEPLOTSCALE) for i in y]
         return x, y
 
     def get_min_x_and_y(self):
-        x, y = None, None
+        min_x, min_y = None, None
+        x, y = self.scalable_curve
         if self.x is not None:
             if len(self.x) > 0:
-                x = min(self.x)
+                min_x = min(x)
         if self.y is not None:
             if len(self.y) > 0:
-                y = min(self.y)
-        return x, y
+                min_y = min(y)
+        return min_x, min_y
 
     def get_max_x_and_y(self):
-        x, y = None, None
+        max_x, max_y = None, None
+        x, y = self.scalable_curve
         if self.x is not None:
             if len(self.x) > 0:
-                x = max(self.x)
+                max_x = max(x)
         if self.y is not None:
             if len(self.y) > 0:
-                y = max(self.y)
-        return x, y
+                max_y = max(y)
+        return max_x, max_y
 
     @property
     def scalable_split(self) -> [LineSegment]:
@@ -161,8 +161,7 @@ class SurfaceProperty:  # z - высота слоя
             if name_property.__contains__('x'):
                 self.x = load_dict[name_property]
             elif name_property == 'size':
-                self.size = Size()
-                self.size.load_from_dict(load_dict[name_property])
+                pass
             elif name_property == 'splits':
                 self.splits = []
                 for split in load_dict[name_property]:
@@ -191,7 +190,7 @@ class SurfaceProperty:  # z - высота слоя
 class Surface(SurfaceProperty):
     __slots__ = ['__prev_layer', '__next_layer', 'memento']
 
-    def __init__(self, size=Size(), z: int = -1, load_dict: dict = None):
+    def __init__(self, size: Size, z: int = -1, load_dict: dict = None):
         super(Surface, self).__init__(size, z)
         self.__next_layer: () = lambda x: None
         self.__prev_layer: () = lambda x: None

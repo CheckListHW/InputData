@@ -9,8 +9,8 @@ class AxisConstraints:
         self._end = end
 
     def change_constraints(self, start=None, end=None):
-        self.start = start
-        self.end = end
+        self.start = start if start is not None else self.start
+        self.end = end if end is not None else self.end
 
     @property
     def start(self):
@@ -18,11 +18,7 @@ class AxisConstraints:
 
     @start.setter
     def start(self, value: int):
-        try:
-            value = abs(int(value))
-            self._start = value if type(value) == int else self._start
-        except:
-            pass
+        self._start = abs(int(value))
 
     @property
     def end(self) -> int:
@@ -30,11 +26,7 @@ class AxisConstraints:
 
     @end.setter
     def end(self, value: int):
-        try:
-            value = abs(int(value))
-            self._end = value if type(value) == int else self._end
-        except:
-            pass
+        self._end = abs(int(value))
 
     def get_as_dict(self) -> dict:
         my_dict = {}
@@ -52,13 +44,14 @@ class AxisConstraints:
 class Size:
     __slots__ = ['x_constraints', 'y_constraints', 'z_constraints']
 
-    def __init__(self, x_start=0, x_end=10, y_start=0, y_end=10, z_start=0, z_end=10):
-        print(self)
+    def __init__(self, x_start: int = 0, x_end: int = 25, y_start: int = 0, y_end: int = 25, z_start: int = 0,
+                 z_end: int = 25, message=None):
         self.x_constraints = AxisConstraints(x_start, x_end)
         self.y_constraints = AxisConstraints(y_start, y_end)
         self.z_constraints = AxisConstraints(z_start, z_end)
 
-    def change_constraints(self, x_start=None, x_end=None, y_start=None, y_end=None, z_start=None, z_end=None):
+    def change_constraints(self, x_start: int = None, x_end: int = None, y_start: int = None, y_end: int = None,
+                           z_start: int = None, z_end: int = None):
         self.x_constraints.change_constraints(x_start, x_end)
         self.y_constraints.change_constraints(y_start, y_end)
         self.z_constraints.change_constraints(z_start, z_end)

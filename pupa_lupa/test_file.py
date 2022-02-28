@@ -11,24 +11,9 @@ points = [[0, 0], [0, 25], [25, 25], [25, 0]]
 val = [0, 0, 0, 0]
 size = 25
 
-# points.append([7, 7])
-# val.append(1)
-
 
 points.append([5, 5])
 val.append(1)
-
-points.append([5, 15])
-val.append(1)
-
-points.append([15, 5])
-val.append(1)
-
-points.append([15, 15])
-val.append(1)
-
-points.append([10, 10])
-val.append(0)
 
 points = np.array(points)
 val = np.array(val)
@@ -44,7 +29,7 @@ for zz, i1 in zip(grid_z, range(len(grid_z)+1)):
 
 print([0, 2] in points)
 
-# plt.imshow(grid_z.T, extent=(0, 1, 0, 1), origin='lower')
+plt.imshow(grid_z.T, extent=(0, 1, 0, 1), origin='lower')
 # plt.scatter(points[:, 0], points[:, 1], c='k')
 
 fig = plt.figure()

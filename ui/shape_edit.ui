@@ -963,6 +963,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QTabWidget" name="descriptionTabWidget">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="font">
              <font>
               <pointsize>9</pointsize>
@@ -996,7 +999,7 @@
               <item row="2" column="1">
                <widget class="QPushButton" name="partColorButton">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Select color</string>
@@ -1494,17 +1497,17 @@
               <widget class="QComboBox" name="editPropertyComboBox">
                <item>
                 <property name="text">
+                 <string>Roof profile</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
                  <string>Layer</string>
                 </property>
                </item>
                <item>
                 <property name="text">
                  <string>Split</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Roof profile</string>
                 </property>
                </item>
               </widget>
@@ -1578,22 +1581,6 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QFrame" name="frame_3">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>188</y>
-            <width>341</width>
-            <height>331</height>
-           </rect>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-         </widget>
         </widget>
        </item>
        <item>

@@ -46,12 +46,12 @@ class SurfaceEditWindow(QMainWindow):
 
         self.add_tips()
 
+    def add_tips(self):
+        self.simplifyButton.setToolTip(Tips.SIMPLIFYBUTTON)
+
     def change_current_split(self):
         x: QComboBox = self.splitNumberComboBox
         self.surface_editor.plot.surface.current_split = int(x.currentText()) - 1
-
-    def add_tips(self):
-        self.simplifyButton.setToolTip(Tips.SIMPLIFYBUTTON)
 
     def load_from_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, '', os.getcwd(), 'Json Files (*.json)')

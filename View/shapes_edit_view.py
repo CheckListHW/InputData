@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog, QShortcut, QSp
 
 from Controllers.Editor.draw_shape import Plot3d, DrawVoxels
 from Controllers.qt_matplotlib_connector import EditorFigureController
+from Model.file import FileEdit
 from Model.shape import Shape
-from Model.file import MapFile, ShapeFile
 from Model.map import Map
 from Model.observer import ObjectObserver
 from Tools.filedialog import dict_from_json
@@ -22,7 +22,7 @@ class ShapeEditWindow(QMainWindow):
         super(ShapeEditWindow, self).__init__()
         uic.loadUi(environ['project'] + '/ui/shape_edit.ui', self)
 
-        self.map, self.file_map, self.file_shape = Map(), MapFile(self), ShapeFile(self)
+        self.map, self.file_edit = Map(), FileEdit(self)
         self.map.attach(ObjectObserver([self.update_all]))
 
         self.connector = EditorFigureController(self.viewFrame)
@@ -30,7 +30,7 @@ class ShapeEditWindow(QMainWindow):
         self.load_default_shape()
         self.handlers_connect()
         self.update()
-        self.debug()
+        # self.debug()
 
     def debug(self):
         self.edit_layer()
@@ -44,10 +44,12 @@ class ShapeEditWindow(QMainWindow):
         self.create_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_map.create_file()))
 
         self.open_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_map.open_file()))
-        self.save_file_action.triggered.connect(lambda: self.file_map.save_file(self.map))
-        self.saveLayerButton.clicked.connect(lambda: self.file_shape.save_file(self.layersComboBox.currentData()))
+        self.save_file_action.triggered.connect(lambda: self.file_edit.save_file(self.map.get_as_dict()))
 
-        load_layer: () = lambda: self.layersComboBox.currentData().load_from_json(self.file_shape.open_file())
+        save_shape: () = lambda: self.file_edit.save_file(self.layersComboBox.currentData().get_as_dict)
+        self.saveLayerButton.clicked.connect(save_shape)
+
+        load_layer: () = lambda: self.layersComboBox.currentData().load_from_json(self.file_edit.open_file())
         self.loadLayerButton.clicked.connect(load_layer)
 
         del_def: () = lambda: self.map.delete_layer(figure=self.layersComboBox.currentData())
@@ -73,21 +75,30 @@ class ShapeEditWindow(QMainWindow):
 
         self.colorButton.clicked.connect(lambda: self.show_palette(self.set_color_shape))
 
+        self.shapePartNameComboBox.activated.connect(self.update_part_info)
+
         self.split_handlers_connect()
 
+    def change_part_offset(self):
+        layer: Shape = self.layersComboBox.currentData()
+        part_name: str = self.shapePartNameComboBox.currentText()
+        layer.parts_property.get(part_name).offset = self.partOffsetSpinBox.value()
+
     def split_handlers_connect(self):
-        self.partNumberComboBox.activated.connect(self.update_layers_info)
-        split_depth_finish: () = lambda: self.layersComboBox.currentData() \
-            .__setattr__('depth', self.splitDepthSpinBox.value())
-        self.splitDepthSpinBox.editingFinished.connect(split_depth_finish)
+        self.partOffsetSpinBox.editingFinished.connect(self.change_part_offset)
 
-        split_angle_finish: () = lambda: self.layersComboBox.currentData() \
-            .__setattr__('angle', self.splitAngleSpinBox.value())
-        self.splitAngleSpinBox.editingFinished.connect(split_angle_finish)
-
-        split_part_offset_finish: () = lambda: self.layersComboBox.currentData(). \
-            set_offset(int(self.partNumberComboBox.currentText()) - 1, self.partOffsetSpinBox.value())
-        self.partOffsetSpinBox.editingFinished.connect(split_part_offset_finish)
+        # self.partNumberComboBox.activated.connect(self.update_layers_info)
+        # split_depth_finish: () = lambda: self.layersComboBox.currentData() \
+        #     .__setattr__('depth', self.splitDepthSpinBox.value())
+        # self.splitDepthSpinBox.editingFinished.connect(split_depth_finish)
+        #
+        # split_angle_finish: () = lambda: self.layersComboBox.currentData() \
+        #     .__setattr__('angle', self.splitAngleSpinBox.value())
+        # self.splitAngleSpinBox.editingFinished.connect(split_angle_finish)
+        #
+        # split_part_offset_finish: () = lambda: self.layersComboBox.currentData(). \
+        #     set_offset(int(self.partNumberComboBox.currentText()) - 1, self.partOffsetSpinBox.value())
+        # self.partOffsetSpinBox.editingFinished.connect(split_part_offset_finish)
 
         self.partColorButton.clicked.connect(lambda: self.show_palette(self.set_color_part))
 
@@ -115,7 +126,6 @@ class ShapeEditWindow(QMainWindow):
     def accept_size(self):
         x = self.map.height if self.map.height >= int(self.zEndSpinbox.text()) else int(self.zEndSpinbox.text())
         self.zEndSpinbox.setValue(x)
-        # abcd: QSpinBox = self.zEndSpinbox
         x_end, y_end = self.xEndSpinbox.value(), self.yEndSpinbox.value()
         z_start, z_end = self.zStartSpinbox.value(), self.zEndSpinbox.value()
         self.map.size.change_constraints(None, x_end, None, y_end, z_start, z_end)
@@ -141,19 +151,29 @@ class ShapeEditWindow(QMainWindow):
             self.layerNameLabel.setText(layer.name)
             self.nameLineEdit.setText(layer.name)
             self.priority_spinbox.setValue(layer.priority)
-            # self.splitDepthSpinBox.setValue(layer.depth)
-            # self.splitAngleSpinBox.setValue(layer.angle)
-            # value_offset = layer.offset_z[int(self.partNumberComboBox.currentText())]
-            # self.partOffsetSpinBox.setValue(value_offset)
+            self.shapePartNameComboBox.clear()
+
+            for part in layer.parts_property:
+                self.shapePartNameComboBox.addItem(part)
+
+        self.update_part_info()
+
+    def update_part_info(self):
+        layer: Shape = self.layersComboBox.currentData()
+        part_name: str = self.shapePartNameComboBox.currentText()
+        try:
+            self.partOffsetSpinBox.setValue(layer.parts_property.get(part_name).offset)
+        except AttributeError:
+            print('AttributeError')
 
     def list_displayed_layers(self):
         for i in reversed(range(self.showLayersScrollArea.count())):
             self.showLayersScrollArea.itemAt(i).widget().setParent(None)
 
-        layers = self.map.get_shapes()
+        layers = self.map.get_shape_with_part()
 
         for i in range(len(layers)):
-            widget = QCheckBox(layers[i].name)
+            widget = QCheckBox(layers[i].name + layers[i].sub_name)
             widget.setChecked(layers[i].visible)
             widget.setProperty('figure', layers[i])
             widget.stateChanged.connect(self.accept_view)
@@ -169,6 +189,7 @@ class ShapeEditWindow(QMainWindow):
             check_box = self.showLayersScrollArea.itemAt(i).widget()
             if type(check_box) is QCheckBox:
                 check_box.property('figure').visible = True if check_box.checkState() else False
+
         self.update_all()
 
     def edit_layer(self):
@@ -179,7 +200,7 @@ class ShapeEditWindow(QMainWindow):
         elif edit_text.__contains__('Split'):
             self.edit_window = SplitEditWindow(self.layersComboBox.currentData())
         elif edit_text.__contains__('Roof'):
-            self.edit_window = RoofProfileEditWindow(self.layersComboBox.currentData())
+            self.edit_window = RoofProfileEditWindow(self.map)
         else:
             return
         self.edit_window.show()

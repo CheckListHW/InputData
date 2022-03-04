@@ -6,6 +6,7 @@ from matplotlib.figure import Figure
 
 from Controllers.edit_plot_modes import *
 from Controllers.Editor.draw_surface import EditSurface, EditRoofProfileSurface
+from Model.map import Map
 from Model.shape import Shape
 from Model.size import Size
 from Model.surface import Surface
@@ -100,20 +101,20 @@ class EditorSplitController(EditorController):
 
 
 class EditorRoofProfileController(EditorController):
-    def __init__(self, shape: Shape, parent=None, **kwargs):
+    def __init__(self, map: Map, parent=None, **kwargs):
         self.kwargs = kwargs
         fig = Figure(tight_layout=True)
-        self.shape = shape
+        self.map = map
 
         FigureCanvasQTAgg.__init__(self, fig)
         self.mainLayout = QtWidgets.QGridLayout(parent)
         self.mainLayout.addWidget(self)
         self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
 
-        surf = Surface(size=self.shape.size)
+        surf = Surface(size=self.map.size)
         super(EditorRoofProfileController, self).__init__(surf=surf, mode=ModeStatus.AddDot)
         self.plot = EditRoofProfileSurface(fig=self.figure, ax=self.ax,
-                                           roof_profile=shape.roof_profile)
+                                           roof_profile=self.map.roof_profile)
         self.set_mode(ModeStatus.AddDot)
 
 

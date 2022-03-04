@@ -1,25 +1,21 @@
 import os
 
-import numpy as np
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QComboBox
-from matplotlib import pyplot as plt
-from scipy.interpolate import griddata
+from PyQt5.QtWidgets import QMainWindow
 
 from Controllers.edit_plot_modes import ModeStatus
 from Controllers.qt_matplotlib_connector import EditorRoofProfileController
-from Model.shape import Shape
+from Model.map import Map
 from View.surface_choose_view import ViewingLayersWindow
-from data_resource.digit_value import Limits
 
 
 class RoofProfileEditWindow(QMainWindow):
-    def __init__(self, shape: Shape):
+    def __init__(self, map: Map):
         super(RoofProfileEditWindow, self).__init__()
         uic.loadUi(os.environ['project'] + '/ui/roof_profile_edit.ui', self)
 
-        self.shape = shape
-        self.surface_editor = EditorRoofProfileController(shape=shape, parent=self.draw_polygon_frame)
+        self.map = map
+        self.surface_editor = EditorRoofProfileController(map=self.map, parent=self.draw_polygon_frame)
         self.view_layers_window = ViewingLayersWindow(self.surface_editor)
 
         self.button_connect()
@@ -35,12 +31,12 @@ class RoofProfileEditWindow(QMainWindow):
         self.heightSpinBox.editingFinished.connect(self.change_height)
 
     def method_change(self):
-        self.shape.roof_profile.interpolate_method = self.interpolateMethodComboBox.currentText()
+        self.map.roof_profile.interpolate_method = self.interpolateMethodComboBox.currentText()
         self.surface_editor.update_plot()
 
     def change_height(self):
         if self.surface_editor.plot.nearst_dot_index is not None:
-            self.shape.roof_profile.points[self.surface_editor.plot.nearst_dot_index].z \
+            self.map.roof_profile.points[self.surface_editor.plot.nearst_dot_index].z \
                 = self.heightSpinBox.value()
         self.surface_editor.update_plot()
 

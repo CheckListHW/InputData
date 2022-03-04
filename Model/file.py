@@ -18,6 +18,11 @@ class FileEdit:
     def __init__(self, parent: QMainWindow):
         self.parent = parent
 
+    def save_file(self, data: dict):
+        if not self.file_used:
+            self.create_file()
+        save_dict_as_json(data=data, filename=self.file_used)
+
     def open_file(self):
         self.file_used, _ = QFileDialog.getOpenFileName(self.parent, '', getcwd(), 'Json Files (*.json)')
         return self.file_used
@@ -33,24 +38,3 @@ class FileEdit:
             return self.file_used
 
         return None
-
-
-class ShapeFile(FileEdit):
-    def save_file(self, data_figure: Shape):
-        data = data_figure.get_as_dict()
-
-        if not self.file_used:
-            self.create_file()
-        save_dict_as_json(data=data, filename=self.file_used)
-
-
-class MapFile(FileEdit):
-    def save_file(self, data_map: Map):
-        data, i = {}, 0
-        for lay in data_map.get_shapes():
-            lay.get_as_dict()
-            i += 1
-            data[i] = lay.get_as_dict()
-        if not self.file_used:
-            self.create_file()
-        save_dict_as_json(data=data, filename=self.file_used)

@@ -1,30 +1,33 @@
+from functools import reduce
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-from Model.line_segment_and_point import LineSegment, Point
-
+from Model.point import Point
 from Tools.geometry.angle_line import intersection_segment_dot
-from Tools.geometry.split_square import rectangle
+
+
+class a:
+    def __init__(self, val):
+        self.val = [val]
+
 
 if __name__ == '__main__':
-    a_1 = -0.008705447393006271
-    a_2 = 3.087054473930063
-    b_1 = 9.991294552606993
-    b_2 = 4.087054473930063
-    line = LineSegment(Point(a_1, a_2), Point(b_1, b_2))
-    line1 = LineSegment(Point(-22, 10), Point(-22, 0))
-    rect = rectangle(10, 10)
-    b = rect.dots[0]
-    xxx, yyy = [], []
-    for a in rect.dots:
-        xx, yy = intersection_segment_dot(line.a, line.b, a, b, vector=True)
-        plt.scatter(xx, yy)
+    a = [24.668028141137512,
+         24.43569422150883]
+    b = [24.668028141137512,
+         0.32855136436597054]
 
-        print(xx, yy)
+    c = [18.0, 0.0]
+    d = [25.0, 15.0]
 
-        if xx is not None and yy is not None:
-            xxx.append(xx)
-            yyy.append(yy)
-        b = a
-    plt.plot(xxx, yyy)
-    plt.plot(rect.get_x(), rect.get_y())
+    plt.plot([a[0], b[0]], [a[1], b[1]])
+    plt.plot([c[0], d[0]], [c[1], d[1]])
+
+    x1, y1 = intersection_segment_dot(
+        Point(a[0], a[1]), Point(b[0], b[1]), Point(c[0], c[1]), Point(d[0], d[1]))
+    plt.scatter(x1, y1)
+
+    print(x1, y1)
+
     plt.show()

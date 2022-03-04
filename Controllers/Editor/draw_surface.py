@@ -5,14 +5,11 @@ import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
-from numpy.polynomial.polynomial import polyline
 from scipy.interpolate import griddata
 
 from Model.roof_profile import RoofProfile
-from Model.size import Size
 from Model.surface import Surface
 from Tools.geometry.nearst_dot import nearst_dot_index, nearst_line_index, dot_to_border
-
 # x - width, y - length
 from Tools.geometry.simplify_line import simplify_line, polyline
 from data_resource.digit_value import Limits
@@ -58,8 +55,6 @@ class EditSurface:
     def clear_content(self):
         for artist in self.ax.get_lines() + self.ax.collections:
             artist.remove()
-
-        draw_polygon(0, 0, self.ax, size=self.surface.size.max(), color='white')
 
     def update_plot(self, fast: bool = False):
         if fast:
@@ -155,7 +150,7 @@ class EditSurface:
                 self.ax.scatter(dots_x[a], dots_y[a], color='red')
                 self.ax.scatter(dots_x[b], dots_y[b], color='red')
             except (IndexError, TypeError):
-                print('choose_line', len(dots_x), len(dots_y), a, b)
+                print('error choose line', len(dots_x), len(dots_y), a, b)
 
     def add_split_dot(self, x1: float, y1: float, start_line: bool = True):
         x1, y1 = dot_to_border(x1, y1, Limits.BASEPLOTSCALE)

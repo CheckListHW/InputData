@@ -172,6 +172,10 @@ class SurfaceProperty:  # z - высота слоя
                 if hasattr(self, name_property):
                     self.__setattr__(name_property, load_dict[name_property])
 
+    def add_dot(self, x1: float, y1: float):
+        self.x.append(x1)
+        self.y.append(y1)
+
     def change_dot_split(self, dot_x: float, dot_y: float, start_line: bool = True):
         while len(self.splits) <= self.current_split:
             self.splits.append(LineSegment(Point(), Point()))

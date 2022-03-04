@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 from Controllers.qt_matplotlib_connector import EditorController
 from Model.map import Map
 from Model.shape import Shape
+from Tools.filedialog import save_dict_as_json
 from Tools.geometry.point_in_polygon import check_point_in_polygon
 
 
@@ -40,23 +41,27 @@ class DrawVoxels:
 
     def draw_all_polygon(self):
         self.plot3d.ax.clear()
+        self.repeat = {}
 
         for shape in self.map.get_visible_shapes():
             data = self.calc_polygon_in_draw(shape)
+
             colors = np.empty(list(data.shape) + [4], dtype=np.float32)
             r, g, b = shape.color
             colors[:] = [r / 255, g / 255, b / 255, shape.alpha]
             self.plot3d.ax.voxels(data, facecolors=colors)
 
+        self.repeat = {}
         self.map.update_size()
         self.update_limits()
         self.plot3d.draw()
         self.all_polygon = np.zeros([1, 1, 1], dtype=bool)
 
+
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape) -> []:
-        x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, fig.height_with_offset) + 1
-        roof_profile_offset = fig.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+        x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, self.map.height_with_offset) + 1
+        roof_profile_offset = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
         data = np.zeros([x_size, y_size, z_size], dtype=bool)
 
         self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
@@ -66,6 +71,9 @@ class DrawVoxels:
                 for y1 in range(fig.size.y):
                     z1_offset = int(round(fig.layers[k].z + roof_profile_offset[x1][y1]))
                     point = check_point_in_polygon(x, y, math.ceil(x1) + 0.5, math.ceil(y1) + 0.5)
-                    if point and not bool(self.all_polygon[x1, y1, z1_offset]):
-                        data[x1, y1, z1_offset] = self.all_polygon[x1, y1, z1_offset] = True
+                    if point:
+                        rep_name = "{0},{1},{2}".format(x1, y1, z1_offset)
+                        if self.repeat.get(rep_name) is None:
+                            self.repeat[rep_name] = data[x1, y1, z1_offset] = True
+
         return data

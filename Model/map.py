@@ -1,23 +1,27 @@
+import sys
+from typing import Optional
+
+from Model.json_in_out import JsonInOut
 from Model.observer import Subject
+from Model.roof_profile import RoofProfile, RoofPoint
 from Model.shape import Shape
 from Model.size import Size
 from Model.surface import Surface
 from Tools.filedialog import dict_from_json
 
 
-class Map(Subject):
-    __slots__ = 'size', 'shapes'
+class Map(Subject, JsonInOut):
+    __slots__ = 'size', 'shapes', 'roof_profile',
 
     def __init__(self):
         super().__init__()
-        self.size = Size(message='map')
+        self.size = Size()
+        self.roof_profile = RoofProfile()
         self.shapes: [Shape] = list()
 
     def add_layer(self, figure: Shape = None) -> Shape:
         if not figure:
             figure = Shape(size=self.size)
-        if not figure.size:
-            figure.size = self.size
         if not figure._observers:
             figure._observers = self._observers
 
@@ -37,18 +41,35 @@ class Map(Subject):
 
     def get_visible_shapes(self) -> [Shape]:
         shapes_with_split = []
-        for shape in self.get_shapes():
+        for shape in self.shapes:
             shapes_with_split = shapes_with_split + shape.splitting_shape()
         return sorted(filter(lambda i: i.visible is True, shapes_with_split), key=lambda i: i.priority).__reversed__()
 
-    def load_from_dict(self, dictionary: dict):
-        self.shapes = list()
-        for lay in dictionary:
-            fig = Shape(size=self.size)
-            fig.load_from_dict(dictionary[lay])
-            self.add_layer(fig)
+    def get_shape_with_part(self) -> [Shape]:
+        layers = []
+        for layer in self.get_shapes():
+            layers.append(layer)
+            for part_name in layer.parts_property:
+                layers.append(layer.parts_property[part_name])
 
-        self.notify()
+        return layers
+
+    def load_from_dict(self, load_dict: dict):
+        for name_property in load_dict:
+            if name_property == 'shapes':
+                for lay in load_dict[name_property]:
+                    self.add_layer(Shape(size=self.size, load_dict=lay))
+            elif name_property == 'roof_profile':
+                self.roof_profile.load_from_dict(load_dict[name_property])
+            elif hasattr(self, name_property):
+                if hasattr(getattr(self, name_property), 'load_from_dict'):
+                    getattr(self, name_property).load_from_dict(load_dict[name_property])
+                else:
+                    self.__setattr__(name_property, load_dict[name_property])
+
+    def get_as_dict(self) -> dict:
+        d = super(Map, self).get_as_dict()
+        return d
 
     def load_from_json(self, path: str):
         self.load_from_dict(dict_from_json(path))
@@ -81,3 +102,8 @@ class Map(Subject):
     @property
     def height(self) -> int:
         return max(self.shapes, key=lambda i: i.height).height
+
+    @property
+    def height_with_offset(self) -> int:
+        max_offset = int(max(self.roof_profile.points + [RoofPoint(x=0, z=0, y=0)], key=lambda i: i.z).z + 1)
+        return max(self.shapes, key=lambda i: i.height_with_offset).height_with_offset + max_offset

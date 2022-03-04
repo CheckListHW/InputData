@@ -25,8 +25,7 @@ class SurfaceEditWindow(QMainWindow):
         if single_surface:
             self.viewLayersButton.hide()
 
-        frame: QFrame = self.split_frame
-        frame.hide()
+        self.split_frame.hide()
         self.drawCurve.clicked.connect(lambda: self.change_mode(ModeStatus.DrawCurve))
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))
         self.moveDot.clicked.connect(lambda: self.change_mode(ModeStatus.MoveDot))

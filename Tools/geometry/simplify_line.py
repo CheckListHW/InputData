@@ -37,7 +37,7 @@ def simplify_line(x: [float], y: [float], dot_count: Optional[int] = None) -> ([
     return simplify_x, simplify_y
 
 
-def polyline(a: (float, float), b: (float, float), scale_x: int = 1, scale_y: int = 1, accuracy=100) \
+def polyline(a: (float, float), b: (float, float), scale_x: int = 1, scale_y: int = 1, accuracy=10000) \
         -> ([float], [float]):
     dots_x, dots_y = [a[0]], [a[1]]
 

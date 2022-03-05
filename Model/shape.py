@@ -23,23 +23,23 @@ from data_resource.digit_value import Limits
 
 # alpha - прозрачность от 0 до 1
 class ShapeProperty(Subject):
-    __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'offset', \
-                'layers', 'split_parts', 'splits', 'split_shapes', 'sub_name', 'parts_property', 'id'
+    __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'offset', 'x_offset', 'y_offset', \
+                'layers', 'splits', 'split_shapes', 'sub_name', 'parts_property'
 
     def __init__(self, size: Size):
         super(ShapeProperty, self).__init__()
-        self.id = random.randint(0, 10000)
-        self.offset = 0
-        self.parts_property = {}  # name: ShapeProperty
-        self.split_parts: [Shape] = None
-        self.split_shapes = []
-        self.splits: [Split] = [Split(), Split()]
+        self.offset, self.x_offset, self.y_offset = 0, 0, 0
         self.visible, self._alpha, self._priority = True, 0.9, 100
-        self._color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.name: str = 'layer 1'
         self.sub_name = ''
-        self.layers: List[Surface] = list()
+        self._color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.size = size
+
+        self.parts_property = {}  # name: ShapeProperty
+        self.split_shapes: [Shape] = []
+        self.splits: [Split] = [Split(), Split()]
+
+        self.layers: List[Surface] = list()
 
     @property
     def alpha(self):
@@ -144,6 +144,11 @@ class Shape(ShapeProperty):
                 a_shape.sub_name = cur_shape.sub_name + '_a'
                 b_shape.sub_name = cur_shape.sub_name + '_b'
 
+                a_shape.x_offset = cur_shape.x_offset + x_offset
+                a_shape.y_offset = cur_shape.y_offset + y_offset
+                b_shape.x_offset = cur_shape.x_offset + x_offset
+                b_shape.y_offset = cur_shape.y_offset + y_offset
+
                 a_shape.layers.pop()
                 b_shape.layers.pop()
 
@@ -162,8 +167,6 @@ class Shape(ShapeProperty):
                     old_split_level = LineSegment(Point(a_x, a_y), Point(b_x, b_y))
                     a_polygon, b_polygon, split_level \
                         = split_square(rectangle(Limits.BASEPLOTSCALE, Limits.BASEPLOTSCALE), old_split_level)
-
-
 
                     x1, x2, y1, y2 = old_split_level.a.x, old_split_level.b.x, old_split_level.a.y, old_split_level.b.y
                     a_sum = sum([(a.x - x1) * (y2 - y1) - (a.y - y1) * (x2 - x1) for a in a_polygon.dots])
@@ -188,11 +191,22 @@ class Shape(ShapeProperty):
                             lay_a.add_dot(i, j)
                         if check_point_in_polygon(b_polygon.get_x(), b_polygon.get_y(), i, j):
                             lay_b.add_dot(i, j)
-
                     if len(lay_a.x) > 0:
                         lay_a.add_dot(lay_a.x[0], lay_a.y[0])
                     if len(lay_b.x) > 0:
                         lay_b.add_dot(lay_b.x[0], lay_b.y[0])
+
+                    if len(a_shape.sub_name) == 4:
+                        p_prop, a_name, b_name = self.parts_property, a_shape.sub_name, b_shape.sub_name
+                        a_offset = p_prop.get(a_name).offset if p_prop.get(a_name) is not None else 0
+                        b_offset = p_prop.get(b_name).offset if p_prop.get(b_name) is not None else 0
+                        lay_a.x = [x + a_offset * a_shape.x_offset for x in lay_a.x]
+                        lay_a.y = [y + a_offset * a_shape.y_offset for y in lay_a.y]
+                        lay_b.x = [x + b_offset * b_shape.x_offset for x in lay_b.x]
+                        lay_b.y = [y + b_offset * b_shape.y_offset for y in lay_b.y]
+
+                    plt.show()
+
                 self.split_shapes = self.split_shapes + [a_shape, b_shape]
 
         for shape in self.split_shapes:
@@ -210,10 +224,6 @@ class Shape(ShapeProperty):
             self.split_shapes = []
             return copy_split_shapes
 
-        # for shape in self.split_shapes:
-        #     if len(shape.layers)>1:
-        #         plt.plot(shape.layers[-1].x, shape.layers[-1].y)
-        # plt.show()
         return self.split_shapes
 
     def add_part_property(self, shape: Shape):

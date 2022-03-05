@@ -18,7 +18,6 @@ def save_dict_as_json(data: dict, path: str = os.getcwd(), filename: str = 'lay_
         json_file = open(path_save, mode='x')
     except FileExistsError:
         json_file = open(path_save, mode='w')
-    print(data)
     json.dump(data, json_file)
     json_file.close()
     return path_save

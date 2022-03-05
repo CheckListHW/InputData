@@ -329,7 +329,7 @@
        <item>
         <widget class="QFrame" name="frame_4">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="maximumSize">
           <size>
@@ -362,7 +362,7 @@
           <item>
            <widget class="QLabel" name="label_5">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="text">
              <string>offset b</string>

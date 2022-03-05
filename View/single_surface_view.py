@@ -11,6 +11,7 @@ class SingleLayWidget(QWidget):
         uic.loadUi(environ['project']+'/ui/mini_surface.ui', self)
         self.edit_lay: () = edit_lay_handler
         self.index = index
+        print('z', z)
         self.heightLineEdit.setText(str(z))
         self.pre_value_height = z
         self.handlers_connect()

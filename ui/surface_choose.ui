@@ -99,6 +99,13 @@
               <number>0</number>
              </property>
              <item>
+              <widget class="QCheckBox" name="showSublayerCheckBox">
+               <property name="text">
+                <string>Show sub layer</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QPushButton" name="removeSubLayersButton">

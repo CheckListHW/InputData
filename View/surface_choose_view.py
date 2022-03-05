@@ -2,7 +2,7 @@ from os import environ
 from typing import Callable, List
 
 from PyQt5 import QtGui, uic
-from PyQt5.QtWidgets import QMainWindow, QFrame
+from PyQt5.QtWidgets import QMainWindow, QFrame, QCheckBox
 
 from Controllers.qt_matplotlib_connector import EditorSurfaceControllerTight, EditorSurfaceController
 from Model.surface import Surface
@@ -26,6 +26,7 @@ class ViewingLayersWindow(QMainWindow):
         self.accept.clicked.connect(self.change_size)
         self.addSubLayersButton.clicked.connect(self.calc_intermediate_layers)
         self.removeSubLayersButton.clicked.connect(self.delete_secondary_surface)
+        self.showSublayerCheckBox.stateChanged.connect(self.change_size)
 
     def calc_intermediate_layers(self):
         self.surface_editor.shape.calc_intermediate_layers()
@@ -65,13 +66,14 @@ class ViewingLayersWindow(QMainWindow):
                 children.setParent(None)
 
         self.frames = list()
-
+        show_sub = not bool(self.showSublayerCheckBox.checkState())
         surfaces: List[Surface] = self.surface_editor.shape.sorted_layers()
-
+        # surfaces = [s for s in surfaces if s.primary is True or s.primary is show_sub]
         for i in range(len(surfaces)):
-            frame = self.add_frame_to_layout(i)
-            EditorSurfaceControllerTight(frame, tight=True, surf=surfaces[i],
-                                         preview_click_handler=lambda j=i: self.change_layer(j))
+            if surfaces[i].primary is True or surfaces[i].primary is show_sub:
+                frame = self.add_frame_to_layout(i)
+                EditorSurfaceControllerTight(frame, tight=True, surf=surfaces[i],
+                                             preview_click_handler=lambda j=i: self.change_layer(j))
 
         self.resize(self.size + 20, self.height())
 

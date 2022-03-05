@@ -20,7 +20,7 @@ class RoofPoint(JsonInOut):
     def change(self, x: float, y: float, z: float = None):
         self.x = x
         self.y = y
-        self.z = z
+        self.z = z if z is not None else self.z
 
 
 class RoofProfile(JsonInOut):

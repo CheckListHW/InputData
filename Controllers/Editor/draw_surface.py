@@ -80,11 +80,16 @@ class EditSurface:
 
         for split, color in zip(self.surface.splits, ['red', 'blue']):
             a, b = (split.a.x, split.a.y), (split.b.x, split.b.y)
+
+            def size_round(value: float, step: float) -> float:
+                return round(value * (Limits.BASEPLOTSCALE / step)) * step
+
+            step_x, step_y = Limits.BASEPLOTSCALE / self.surface.size.x, Limits.BASEPLOTSCALE / self.surface.size.y
             if a[0] is not None:
-                a = (round(a[0] * Limits.BASEPLOTSCALE), round(a[1] * Limits.BASEPLOTSCALE))
+                a = (size_round(a[0], step_x), size_round(a[1], step_y))
                 self.ax.scatter(a[0], a[1], color='red')
             if b[0] is not None:
-                b = (round(b[0] * Limits.BASEPLOTSCALE), round(b[1] * Limits.BASEPLOTSCALE))
+                b = (size_round(b[0], step_x), size_round(b[1], step_y))
                 self.ax.scatter(b[0], b[1], color='blue')
             if a[0] is not None and b[0] is not None:
                 scale_x = self.surface.size.x / Limits.BASEPLOTSCALE
@@ -198,7 +203,7 @@ class EditRoofProfileSurface(EditSurface):
 
     def move_dot(self, x: float, y: float):
         if x and y:
-            self.roof_profile.points[self.nearst_dot_index].set(x, y, None)
+            self.roof_profile.points[self.nearst_dot_index].change(x, y, None)
             self.update_plot(fast=True)
 
     def get_points_val(self, roof_profile: RoofProfile, base=Limits.BASEPLOTSCALE):

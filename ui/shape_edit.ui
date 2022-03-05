@@ -933,7 +933,7 @@
                 <number>0</number>
                </property>
                <property name="maximum">
-                <number>100</number>
+                <number>600</number>
                </property>
                <property name="value">
                 <number>10</number>
@@ -1428,7 +1428,7 @@
             </widget>
             <widget class="QWidget" name="tab_2">
              <attribute name="title">
-              <string>Tab 2</string>
+              <string>Part edit</string>
              </attribute>
              <widget class="QComboBox" name="shapePartNameComboBox">
               <property name="geometry">

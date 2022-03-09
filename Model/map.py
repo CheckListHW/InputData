@@ -60,6 +60,8 @@ class Map(Subject, JsonInOut):
         return layers
 
     def load_from_dict(self, load_dict: dict):
+        self.shapes = []
+        self.roof_profile = RoofProfile()
         for name_property in load_dict:
             if name_property == 'shapes':
                 for lay in load_dict[name_property]:
@@ -75,10 +77,7 @@ class Map(Subject, JsonInOut):
     def get_as_dict(self) -> dict:
         map_dict = super(Map, self).get_as_dict()
         for d in map_dict:
-            if d == 'size':
-                print(map_dict[d])
-                pass
-            elif d == 'shapes':
+            if d == 'shapes':
                 for shape in map_dict[d]:
                     pop_from_dict(shape, 'size')
                     pop_from_dict(shape, 'split_shapes')
@@ -96,18 +95,19 @@ class Map(Subject, JsonInOut):
                             pop_from_dict(lay, 'pre_y')
                             pop_from_dict(lay, 'start_x')
                             pop_from_dict(lay, 'start_y')
+                            pop_from_dict(lay, 'splits')
+                            pop_from_dict(lay, 'current_split')
                         elif lay.get('primary') is False:
                             pop_layer_number.append(i)
                     for i in pop_layer_number.__reversed__():
                         shape['layers'].pop(i)
 
-            elif d == 'roof_profile':
-                print(map_dict[d])
-                pass
         return map_dict
 
     def load_from_json(self, path: str):
-        self.load_from_dict(dict_from_json(path))
+        map_dict = dict_from_json(path)
+        print(map_dict)
+        self.load_from_dict(map_dict)
 
     def update_size(self):
         x_start, x_finish = self.size.x_constraints.start, self.size.x_constraints.end

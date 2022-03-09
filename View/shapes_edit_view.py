@@ -43,7 +43,7 @@ class ShapeEditWindow(QMainWindow):
     def handlers_connect(self) -> None:
         self.create_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.create_file()))
 
-        self.open_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_map.open_file()))
+        self.open_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.open_file()))
         self.save_file_action.triggered.connect(lambda: self.file_edit.save_file(self.map.get_as_dict()))
 
         save_shape: () = lambda: self.file_edit.save_file(self.layersComboBox.currentData().get_as_dict)
@@ -86,21 +86,6 @@ class ShapeEditWindow(QMainWindow):
 
     def split_handlers_connect(self):
         self.partOffsetSpinBox.editingFinished.connect(self.change_part_offset)
-
-        # self.partNumberComboBox.activated.connect(self.update_layers_info)
-        # split_depth_finish: () = lambda: self.layersComboBox.currentData() \
-        #     .__setattr__('depth', self.splitDepthSpinBox.value())
-        # self.splitDepthSpinBox.editingFinished.connect(split_depth_finish)
-        #
-        # split_angle_finish: () = lambda: self.layersComboBox.currentData() \
-        #     .__setattr__('angle', self.splitAngleSpinBox.value())
-        # self.splitAngleSpinBox.editingFinished.connect(split_angle_finish)
-        #
-        # split_part_offset_finish: () = lambda: self.layersComboBox.currentData(). \
-        #     set_offset(int(self.partNumberComboBox.currentText()) - 1, self.partOffsetSpinBox.value())
-        # self.partOffsetSpinBox.editingFinished.connect(split_part_offset_finish)
-
-        self.partColorButton.clicked.connect(lambda: self.show_palette(self.set_color_part))
 
     def set_color_part(self, color: QColor):
         r, g, b, _ = color.getRgb()

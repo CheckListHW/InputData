@@ -16,4 +16,6 @@ def recursive_extraction(obj: [Any]) -> Any:
         if hasattr(obj, 'get_as_dict'):
             return obj.get_as_dict()
         else:
+            if type(obj) in [float]:
+                return round(obj, 5)
             return obj

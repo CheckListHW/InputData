@@ -7,7 +7,6 @@ from Controllers.qt_matplotlib_connector import EditorController
 from Model.map import Map
 from Model.shape import Shape
 from Tools.geometry.point_in_polygon import check_polygon_in_polygon, check_point_in_polygon
-from Tools.time_work import MyTimer
 
 
 class Plot3d:
@@ -43,21 +42,14 @@ class DrawVoxels:
         self.plot3d.ax.clear()
         self.repeat = {}
 
-        MyTimer.start()
-        MyTimer.chek_start('shapes')
         shapes = self.map.get_visible_shapes()
-        MyTimer.chek_finish('shapes')
 
         for shape in shapes:
-            MyTimer.chek_start('calc_polygon_in_draw')
             data = self.calc_polygon_in_draw(shape)
-            MyTimer.chek_finish('calc_polygon_in_draw')
             colors = np.empty(list(data.shape) + [4], dtype=np.float32)
             r, g, b = shape.color
             colors[:] = [r / 255, g / 255, b / 255, shape.alpha]
-            # self.plot3d.ax.voxels(data, facecolors=colors)
-
-        MyTimer.finish()
+            self.plot3d.ax.voxels(data, facecolors=colors)
 
         self.repeat = {}
         self.map.update_size()
@@ -80,15 +72,11 @@ class DrawVoxels:
                 xx = [math.ceil(x1), math.ceil(x1) + 1, math.ceil(x1), math.ceil(x1) + 1]
                 roof_profile_offset_x = roof_profile_offset[x1]
                 for y1 in range(fig.size.y):
-                    MyTimer.chek_start('z1_offset')
                     z1_offset = int(lay_z + roof_profile_offset_x[y1])
-                    MyTimer.chek_finish('z1_offset')
                     yy = [math.ceil(y1), math.ceil(y1), math.ceil(y1) + 1, math.ceil(y1) + 1]
-                    MyTimer.chek_start('a')
                     if check_polygon_in_polygon(x, y, xx, yy):
                         rep_name = "{0},{1},{2}".format(x1, y1, z1_offset)
                         if self.repeat.get(rep_name) is None:
                             self.repeat[rep_name] = data[x1, y1, z1_offset] = True
-                    MyTimer.chek_finish('a')
 
         return data

@@ -41,7 +41,7 @@ class ShapeEditWindow(QMainWindow):
             self.map.load_from_dict(base_dict)
 
     def handlers_connect(self) -> None:
-        self.create_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_map.create_file()))
+        self.create_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.create_file()))
 
         self.open_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_map.open_file()))
         self.save_file_action.triggered.connect(lambda: self.file_edit.save_file(self.map.get_as_dict()))
@@ -164,7 +164,8 @@ class ShapeEditWindow(QMainWindow):
         try:
             self.partOffsetSpinBox.setValue(layer.parts_property.get(part_name).offset)
         except AttributeError:
-            print('AttributeError')
+            pass
+            # print('AttributeError')
 
     def list_displayed_layers(self):
         for i in reversed(range(self.showLayersScrollArea.count())):

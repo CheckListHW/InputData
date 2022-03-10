@@ -10,6 +10,11 @@ from Model.surface import Surface
 from Tools.filedialog import dict_from_json
 
 
+def pop_from_dict(dict_value: dict, name: str):
+    dict_value[name] = False
+    dict_value.pop(name)
+
+
 class Map(Subject, JsonInOut):
     __slots__ = 'size', 'shapes', 'roof_profile',
 
@@ -55,6 +60,8 @@ class Map(Subject, JsonInOut):
         return layers
 
     def load_from_dict(self, load_dict: dict):
+        self.shapes = []
+        self.roof_profile = RoofProfile()
         for name_property in load_dict:
             if name_property == 'shapes':
                 for lay in load_dict[name_property]:
@@ -68,11 +75,39 @@ class Map(Subject, JsonInOut):
                     self.__setattr__(name_property, load_dict[name_property])
 
     def get_as_dict(self) -> dict:
-        d = super(Map, self).get_as_dict()
-        return d
+        map_dict = super(Map, self).get_as_dict()
+        for d in map_dict:
+            if d == 'shapes':
+                for shape in map_dict[d]:
+                    pop_from_dict(shape, 'size')
+                    pop_from_dict(shape, 'split_shapes')
+                    for name in shape.get('parts_property'):
+                        pop_from_dict(shape['parts_property'][name], 'size')
+                        pop_from_dict(shape['parts_property'][name], 'layers')
+                        pop_from_dict(shape['parts_property'][name], 'splits')
+                        pop_from_dict(shape['parts_property'][name], 'split_shapes')
+                        pop_from_dict(shape['parts_property'][name], 'parts_property')
+                    pop_layer_number = []
+                    for lay, i in zip(shape['layers'], range(len(shape['layers']))):
+                        if lay.get('primary') is True:
+                            pop_from_dict(lay, 'size')
+                            pop_from_dict(lay, 'pre_x')
+                            pop_from_dict(lay, 'pre_y')
+                            pop_from_dict(lay, 'start_x')
+                            pop_from_dict(lay, 'start_y')
+                            pop_from_dict(lay, 'splits')
+                            pop_from_dict(lay, 'current_split')
+                        elif lay.get('primary') is False:
+                            pop_layer_number.append(i)
+                    for i in pop_layer_number.__reversed__():
+                        shape['layers'].pop(i)
+
+        return map_dict
 
     def load_from_json(self, path: str):
-        self.load_from_dict(dict_from_json(path))
+        map_dict = dict_from_json(path)
+        print(map_dict)
+        self.load_from_dict(map_dict)
 
     def update_size(self):
         x_start, x_finish = self.size.x_constraints.start, self.size.x_constraints.end
@@ -101,7 +136,10 @@ class Map(Subject, JsonInOut):
 
     @property
     def height(self) -> int:
-        return max(self.shapes, key=lambda i: i.height).height
+        if len(self.shapes) > 0:
+            return max(self.shapes, key=lambda i: i.height).height
+        else:
+            return 0
 
     @property
     def height_with_offset(self) -> int:

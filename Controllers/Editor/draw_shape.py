@@ -55,7 +55,7 @@ class DrawVoxels:
             colors = np.empty(list(data.shape) + [4], dtype=np.float32)
             r, g, b = shape.color
             colors[:] = [r / 255, g / 255, b / 255, shape.alpha]
-            # self.plot3d.ax.voxels(data, facecolors=colors)
+            self.plot3d.ax.voxels(data, facecolors=colors)
 
         MyTimer.finish()
 
@@ -67,7 +67,7 @@ class DrawVoxels:
 
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape, ) -> []:
-        x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, self.map.height_with_offset) + 1
+        x_size, y_size, z_size = self.map.size.x+1, self.map.size.y+1, max(fig.height, self.map.height_with_offset) + 1
         roof_profile_offset = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
         data = np.zeros([x_size, y_size, z_size], dtype=bool)
 
@@ -85,7 +85,8 @@ class DrawVoxels:
                     MyTimer.chek_finish('z1_offset')
                     yy = [math.ceil(y1), math.ceil(y1), math.ceil(y1) + 1, math.ceil(y1) + 1]
                     MyTimer.chek_start('a')
-                    if check_polygon_in_polygon(x, y, xx, yy):
+                    # if check_polygon_in_polygon(x, y, xx, yy):
+                    if check_point_in_polygon(x, y,  math.ceil(y1) + 0.5,  math.ceil(y1) + 0.5):
                         rep_name = "{0},{1},{2}".format(x1, y1, z1_offset)
                         if self.repeat.get(rep_name) is None:
                             self.repeat[rep_name] = data[x1, y1, z1_offset] = True

@@ -24,12 +24,13 @@ from data_resource.digit_value import Limits
 # alpha - прозрачность от 0 до 1
 class ShapeProperty(Subject):
     __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'offset', 'x_offset', 'y_offset', \
-                'layers', 'splits', 'split_shapes', 'sub_name', 'parts_property'
+                'layers', 'splits', 'split_shapes', 'sub_name', 'parts_property', 'presence_intermediate_layers'
 
     def __init__(self, size: Size):
         super(ShapeProperty, self).__init__()
         self.offset, self.x_offset, self.y_offset = 0, 0, 0
         self.visible, self._alpha, self._priority = True, 0.9, 100
+        self.presence_intermediate_layers = False
         self.name: str = 'layer 1'
         self.sub_name = ''
         self._color: (int, int, int) = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -91,7 +92,7 @@ class ShapeProperty(Subject):
 
     def load_from_dict(self, settings: dict):
         for name_property in settings:
-            if name_property.__contains__('layers'):
+            if name_property == 'layers':
                 self.layers = [Surface(size=self.size, load_dict=lay_dict) for lay_dict in settings[name_property]]
             elif name_property == 'splits':
                 self.splits = [Split(load_dict=split_dict) for split_dict in settings[name_property]]
@@ -196,7 +197,9 @@ class Shape(ShapeProperty):
                     if len(lay_b.x) > 0:
                         lay_b.add_dot(lay_b.x[0], lay_b.y[0])
 
-                    if len(a_shape.sub_name) == 4:
+                    target_len = len(list(filter(lambda i: i.line.a.x is not None, self.splits)))
+
+                    if len(a_shape.sub_name) == target_len*2:
                         p_prop, a_name, b_name = self.parts_property, a_shape.sub_name, b_shape.sub_name
                         a_offset = p_prop.get(a_name).offset if p_prop.get(a_name) is not None else 0
                         b_offset = p_prop.get(b_name).offset if p_prop.get(b_name) is not None else 0
@@ -233,10 +236,12 @@ class Shape(ShapeProperty):
         if self.parts_property.get(shape.sub_name) is None:
             self.parts_property[shape.sub_name] = shape
         else:
-            self.parts_property[shape.sub_name].name = self.name
+            shape.name = self.parts_property[shape.sub_name].name = self.name
             shape.visible = self.parts_property.get(shape.sub_name).visible
             shape.offset = int(round(self.parts_property.get(shape.sub_name).offset))
             shape.color = self.parts_property.get(shape.sub_name).color
+            shape.alpha = self.alpha
+            shape.priority = self.priority
 
     def sorted_layers(self):
         self.layers = sorted(self.layers, key=lambda lay: lay.z)
@@ -248,6 +253,7 @@ class Shape(ShapeProperty):
             return sorted(layers_bigger, key=lambda i: i.z)[0]
 
     def delete_secondary_surface(self):
+        self.presence_intermediate_layers = False
         self.layers = [lay for lay in self.layers if lay.primary is True]
         self.notify()
 
@@ -282,6 +288,7 @@ class Shape(ShapeProperty):
 
             new_layers.append(this_layers[i + 1])
 
+        self.presence_intermediate_layers = True
         self.layers = new_layers
 
     def swap_layer(self, index_a: int, index_b: int):
@@ -332,3 +339,8 @@ class Shape(ShapeProperty):
 
     def load_from_json(self, path: str):
         self.load_from_dict(dict_from_json(path))
+        
+    def load_from_dict(self, settings: dict):
+        super(Shape, self).load_from_dict(settings)
+        if self.presence_intermediate_layers:
+            self.calc_intermediate_layers()

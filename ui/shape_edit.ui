@@ -1510,6 +1510,11 @@
               </layout>
              </widget>
             </widget>
+            <widget class="QWidget" name="tab">
+             <attribute name="title">
+              <string>Functions</string>
+             </attribute>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -2221,7 +2226,14 @@
     <addaction name="save_file_action"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Экспорт</string>
+    </property>
+    <addaction name="exportMapAction"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="open_file_action">
@@ -2237,6 +2249,16 @@
   <action name="create_file_action">
    <property name="text">
     <string>Создать</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Экспорт</string>
+   </property>
+  </action>
+  <action name="exportMapAction">
+   <property name="text">
+    <string>Экспортировать карту</string>
    </property>
   </action>
  </widget>

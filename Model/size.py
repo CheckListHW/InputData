@@ -1,7 +1,8 @@
+from Model.json_in_out import JsonInOut
 from Tools.recursive_extraction_of_list import recursive_extraction
 
 
-class AxisConstraints:
+class AxisConstraints(JsonInOut):
     __slots__ = ['_start', '_end']
 
     def __init__(self, start, end):
@@ -28,20 +29,8 @@ class AxisConstraints:
     def end(self, value: int):
         self._end = abs(int(value))
 
-    def get_as_dict(self) -> dict:
-        my_dict = {}
-        this_class = AxisConstraints
-        for slot in this_class.__slots__:
-            my_dict[slot] = recursive_extraction(getattr(self, slot))
-        return my_dict
 
-    def load_from_dict(self, load_dict: dict):
-        for name_property in load_dict:
-            if hasattr(self, name_property):
-                self.__setattr__(name_property, load_dict[name_property])
-
-
-class Size:
+class Size(JsonInOut):
     __slots__ = ['x_constraints', 'y_constraints', 'z_constraints']
 
     def __init__(self, x_start: int = 0, x_end: int = 25, y_start: int = 0, y_end: int = 25, z_start: int = 0,
@@ -70,28 +59,3 @@ class Size:
 
     def max(self):
         return max([0, self.y, self.x, self.z])
-
-    def get_as_dict(self) -> dict:
-        my_dict = {}
-        for slot in self.__slots__:
-            if hasattr(self, slot):
-                sub_slot = self.__getattribute__(slot)
-                my_dict[slot] = sub_slot.get_as_dict() if hasattr(sub_slot, 'get_as_dict') else sub_slot
-        return my_dict
-
-    def load_from_dict(self, load_dict: dict):
-        for name_property in load_dict:
-            if name_property == 'x_constraints':
-                self.x_constraints = AxisConstraints(None, None)
-                self.x_constraints.load_from_dict(load_dict[name_property])
-            elif name_property == 'y_constraints':
-                self.y_constraints = AxisConstraints(None, None)
-                self.y_constraints.load_from_dict(load_dict[name_property])
-            elif name_property == 'z_constraints':
-                self.z_constraints = AxisConstraints(None, None)
-                self.z_constraints.load_from_dict(load_dict[name_property])
-            else:
-                if hasattr(self, name_property):
-                    self.__setattr__(name_property, load_dict[name_property])
-
-        pass

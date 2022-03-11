@@ -1,6 +1,3 @@
-import sys
-from typing import Optional
-
 from Model.json_in_out import JsonInOut
 from Model.observer import Subject
 from Model.roof_profile import RoofProfile, RoofPoint
@@ -16,10 +13,11 @@ def pop_from_dict(dict_value: dict, name: str):
 
 
 class Map(Subject, JsonInOut):
-    __slots__ = 'size', 'shapes', 'roof_profile',
+    __slots__ = 'size', 'shapes', 'roof_profile', 'data'
 
     def __init__(self):
         super().__init__()
+        self.data = {}
         self.size = Size()
         self.roof_profile = RoofProfile()
         self.shapes: [Shape] = list()
@@ -81,6 +79,7 @@ class Map(Subject, JsonInOut):
                 for shape in map_dict[d]:
                     pop_from_dict(shape, 'size')
                     pop_from_dict(shape, 'split_shapes')
+                    pop_from_dict(shape, 'data')
                     for name in shape.get('parts_property'):
                         pop_from_dict(shape['parts_property'][name], 'size')
                         pop_from_dict(shape['parts_property'][name], 'layers')
@@ -106,7 +105,6 @@ class Map(Subject, JsonInOut):
 
     def load_from_json(self, path: str):
         map_dict = dict_from_json(path)
-        print(map_dict)
         self.load_from_dict(map_dict)
 
     def update_size(self):

@@ -11,7 +11,7 @@ from Model.file import FileEdit
 from Model.shape import Shape
 from Model.map import Map
 from Model.observer import ObjectObserver
-from Tools.filedialog import dict_from_json
+from Tools.filedialog import dict_from_json, save_dict_as_json
 from View.roof_profile_view import RoofProfileEditWindow
 from View.split_edit_view import SplitEditWindow
 from View.surface_draw_view import SurfaceEditWindow
@@ -23,13 +23,13 @@ class ShapeEditWindow(QMainWindow):
         uic.loadUi(environ['project'] + '/ui/shape_edit.ui', self)
 
         self.map, self.file_edit = Map(), FileEdit(self)
-        self.map.attach(ObjectObserver([self.update_all]))
-
         self.connector = EditorFigureController(self.viewFrame)
         self.voxels = DrawVoxels(self.map, Plot3d(self.connector))
         self.load_default_shape()
         self.handlers_connect()
-        self.update()
+
+        self.map.attach(ObjectObserver([self.update_all, self.save_map]))
+        self.update_all()
         # self.debug()
 
     def debug(self):
@@ -38,13 +38,19 @@ class ShapeEditWindow(QMainWindow):
     def load_default_shape(self):
         base_dict = dict_from_json(environ['project'] + '/base.json')
         if base_dict != {}:
+            self.file_edit.file_used = environ['project'] + '/base.json'
             self.map.load_from_dict(base_dict)
+
+    def save_map(self):
+        print('save_map')
+        self.file_edit.save_file(self.map.get_as_dict())
 
     def handlers_connect(self) -> None:
         self.create_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.create_file()))
 
         self.open_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.open_file()))
-        self.save_file_action.triggered.connect(lambda: self.file_edit.save_file(self.map.get_as_dict()))
+        self.exportMapAction.triggered.connect(lambda: save_dict_as_json(self.map.data))
+        self.save_file_action.triggered.connect(self.save_map)
 
         save_shape: () = lambda: self.file_edit.save_file(self.layersComboBox.currentData().get_as_dict)
         self.saveLayerButton.clicked.connect(save_shape)
@@ -69,7 +75,11 @@ class ShapeEditWindow(QMainWindow):
         self.priority_spinbox.editingFinished.connect(self.accept_settings)
 
         self.xEndSpinbox.editingFinished.connect(self.accept_size)
+        self.xEndSpinbox.setValue(self.map.size.x_constraints.end)
+
         self.yEndSpinbox.editingFinished.connect(self.accept_size)
+        self.yEndSpinbox.setValue(self.map.size.y_constraints.end)
+
         self.zStartSpinbox.editingFinished.connect(self.accept_size)
         self.zEndSpinbox.editingFinished.connect(self.accept_size)
 

@@ -10,11 +10,11 @@ from View.surface_choose_view import ViewingLayersWindow
 
 
 class RoofProfileEditWindow(QMainWindow):
-    def __init__(self, map: Map):
+    def __init__(self, map_value: Map):
         super(RoofProfileEditWindow, self).__init__()
         uic.loadUi(os.environ['project'] + '/ui/roof_profile_edit.ui', self)
 
-        self.map = map
+        self.map = map_value
         self.surface_editor = EditorRoofProfileController(map=self.map, parent=self.draw_polygon_frame)
         self.view_layers_window = ViewingLayersWindow(self.surface_editor)
 

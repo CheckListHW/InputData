@@ -1,33 +1,38 @@
-from functools import reduce
-
-import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import pyplot as plt
 
-from Model.point import Point
-from Tools.geometry.angle_line import intersection_segment_dot
+from Tools.filedialog import dict_from_json
 
 
-class a:
-    def __init__(self, val):
-        self.val = [val]
+class Body:
+
+    def __init__(self, name):
+        self.name = name
+        self.columns = {}
+
+    def add_dot(self, x, y, z):
+        if self.columns.get('{0}_{1}'.format(x, y)):
+            self.columns['{0}_{1}'.format(x, y)].append(z)
+        else:
+            self.columns['{0}_{1}'.format(x, y)] = [z]
 
 
 if __name__ == '__main__':
-    a = [24.668028141137512,
-         24.43569422150883]
-    b = [24.668028141137512,
-         0.32855136436597054]
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    data_voxel = np.zeros([25, 25, 51], dtype=bool)
+    data: dict = dict_from_json('C:/Users/KosachevIV/PycharmProjects/InputData/lay_name133.json')
 
-    c = [18.0, 0.0]
-    d = [25.0, 15.0]
-
-    plt.plot([a[0], b[0]], [a[1], b[1]])
-    plt.plot([c[0], d[0]], [c[1], d[1]])
-
-    x1, y1 = intersection_segment_dot(
-        Point(a[0], a[1]), Point(b[0], b[1]), Point(c[0], c[1]), Point(d[0], d[1]))
-    plt.scatter(x1, y1)
-
-    print(x1, y1)
+    bodys = {}
+    for body_name in data:
+        bodys[body_name] = Body(body_name)
+        for x in data[body_name]:
+            for y in data[body_name][x]:
+                for s_e in data[body_name][x][y]:
+                    for z in range(s_e['s'], s_e['e']+1):
+                        bodys[body_name].add_dot(x, y, z)
+                        data_voxel[int(x)][int(y)][int(z)] = True
+        ax.voxels(data_voxel)
 
     plt.show()
+

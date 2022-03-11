@@ -3,20 +3,17 @@ from typing import Final, Optional
 
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QInputDialog
 
-from Model.shape import Shape
-from Model.map import Map
 from Tools.filedialog import save_dict_as_json
 
 
 class FileEdit:
-    file_used = ''
-
     # Messages
     create_file_default: Final = 'Введите название файла:'
     create_file_error: Final = 'Не удалось создать файл,  \nфайл с таким именем уже существует'
 
-    def __init__(self, parent: QMainWindow):
+    def __init__(self, parent: QMainWindow, file_used=''):
         self.parent = parent
+        self.file_used = file_used
 
     def save_file(self, data: dict):
         if not self.file_used:

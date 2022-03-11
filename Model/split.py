@@ -10,8 +10,8 @@ class Split(JsonInOut):
         self.depth: float = 0  # from .0 to 1.0
         self.angle: int = 0  # from
         self._line: LineSegment = LineSegment(Point(), Point())
-        self.a_offset_z = 1
-        self.b_offset_z = 2
+        self.a_offset_z = 0
+        self.b_offset_z = 0
         self.from_start = True
 
         if load_dict:

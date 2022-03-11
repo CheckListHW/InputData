@@ -13,4 +13,7 @@ class JsonInOut:
     def load_from_dict(self, load_dict: dict):
         for name_property in load_dict:
             if hasattr(self, name_property):
-                self.__setattr__(name_property, load_dict[name_property])
+                if hasattr(getattr(self, name_property), 'load_from_dict'):
+                    getattr(self, name_property).load_from_dict(load_dict[name_property])
+                else:
+                    self.__setattr__(name_property, load_dict[name_property])

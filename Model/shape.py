@@ -255,7 +255,7 @@ class Shape(ShapeProperty):
     def delete_secondary_surface(self):
         self.presence_intermediate_layers = False
         self.layers = [lay for lay in self.layers if lay.primary is True]
-        self.notify()
+        # self.notify()
 
     def calc_intermediate_layers(self):
         self.delete_secondary_surface()
@@ -324,7 +324,7 @@ class Shape(ShapeProperty):
 
         layer.prev_layer = self.get_prev_layer
         layer.next_layer = self.get_next_layer
-        self.notify()
+        # self.notify()
         return layer
 
     def pop_layer(self, index: int):
@@ -332,7 +332,7 @@ class Shape(ShapeProperty):
             return
         index = index if index in range(0, self.height + 1) else 0 if index <= 0 else len(self.layers) - 1
         self.layers.pop(index)
-        self.notify()
+        # self.notify()
 
     def set_layer_z(self, index, value):
         self.layers[index].z = value

@@ -47,7 +47,6 @@ class DrawVoxels:
                 start = False
                 map_dict[i][j] = []
                 for k in range(len(data[i][j])):
-
                     if data[i][j][k] and not start:
                         start = True
                         map_dict[i][j].append({'s': k, 'e': len(data[i][j])})
@@ -56,8 +55,6 @@ class DrawVoxels:
                         map_dict[i][j][-1]['e'] = k - 1
                 if not map_dict[i][j]:
                     map_dict[i].pop(j)
-                # if i == 15 and j == 14:
-                #     print(map_dict[i][j])
             if map_dict[i] == {}:
                 map_dict.pop(i)
         return map_dict
@@ -71,12 +68,6 @@ class DrawVoxels:
                             old[i] += new[i]
                         else:
                             self.dict_update(old[i], new[i])
-                        # for j in set(list(old[i].keys()) + list(new[i].keys())):
-                        #     if old[i].get(j) is not None:
-                        #         if new[i].get(j) is not None:
-                        #             old[i][j] += new[i][j]
-                        #     else:
-                        #         old[i][j] = new[i][j]
                 else:
                     old[i] = new[i]
             return old
@@ -96,7 +87,7 @@ class DrawVoxels:
             colors = np.empty(list(data.shape) + [4], dtype=np.float32)
             r, g, b = shape.color
             colors[:] = [r / 255, g / 255, b / 255, shape.alpha]
-            self.plot3d.ax.voxels(data, facecolors=colors)
+            # self.plot3d.ax.voxels(data, facecolors=colors)
 
         self.repeat = {}
         self.map.update_size()

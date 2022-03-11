@@ -74,12 +74,12 @@ class Map(Subject, JsonInOut):
 
     def get_as_dict(self) -> dict:
         map_dict = super(Map, self).get_as_dict()
+        pop_from_dict(map_dict, 'data')
         for d in map_dict:
             if d == 'shapes':
                 for shape in map_dict[d]:
                     pop_from_dict(shape, 'size')
                     pop_from_dict(shape, 'split_shapes')
-                    pop_from_dict(shape, 'data')
                     for name in shape.get('parts_property'):
                         pop_from_dict(shape['parts_property'][name], 'size')
                         pop_from_dict(shape['parts_property'][name], 'layers')
@@ -100,7 +100,6 @@ class Map(Subject, JsonInOut):
                             pop_layer_number.append(i)
                     for i in pop_layer_number.__reversed__():
                         shape['layers'].pop(i)
-
         return map_dict
 
     def load_from_json(self, path: str):

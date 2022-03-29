@@ -38,10 +38,12 @@ def split_shape_with_start_param(cur_shape: Shape, x_off, y_off) -> (Shape, Shap
 # alpha - прозрачность от 0 до 1
 class ShapeProperty(Subject):
     __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'offset', 'x_offset', 'y_offset', \
-                'layers', 'splits', 'split_shapes', 'sub_name', 'parts_property', 'presence_intermediate_layers'
+                'layers', 'splits', 'split_shapes', 'sub_name', 'parts_property', 'presence_intermediate_layers', \
+                '_filler'
 
     def __init__(self, size: Size):
         super(ShapeProperty, self).__init__()
+        self._filler = False
         self.offset, self.x_offset, self.y_offset = 0, 0, 0
         self.visible, self._alpha, self._priority = True, 0.9, 100
         self.presence_intermediate_layers = False
@@ -55,6 +57,16 @@ class ShapeProperty(Subject):
         self.splits: [Split] = [Split(), Split()]
 
         self.layers: List[Surface] = list()
+
+    @property
+    def filler(self):
+        return self._filler
+
+    @filler.setter
+    def filler(self, value: bool):
+        self._filler = value
+        if self._filler:
+            self.priority = 1
 
     @property
     def alpha(self):

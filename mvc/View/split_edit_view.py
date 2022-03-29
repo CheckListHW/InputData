@@ -25,10 +25,6 @@ class SplitEditWindow(QMainWindow):
         self.splitNumberComboBox.activated.connect(self.change_current_split)
         self.angleSpinBox.valueChanged.connect(
             lambda: self.splits[self.current_split_number()].__setattr__('angle', self.angleSpinBox.value()))
-        self.offsetASpinBox.valueChanged.connect(
-            lambda: self.splits[self.current_split_number()].__setattr__('a_offset_z', self.offsetASpinBox.value()))
-        self.offsetBSpinBox.valueChanged.connect(
-            lambda: self.splits[self.current_split_number()].__setattr__('b_offset_z', self.offsetBSpinBox.value()))
         self.depthSpinBox.valueChanged.connect(
             lambda: self.splits[self.current_split_number()].__setattr__('depth', self.depthSpinBox.value()))
         self.depthStartRadioButton.clicked.connect(
@@ -44,8 +40,6 @@ class SplitEditWindow(QMainWindow):
         self.depthEndRadioButton.setChecked(not split.from_start)
         self.angleSpinBox.setValue(split.angle)
         self.depthSpinBox.setValue(split.depth)
-        self.offsetASpinBox.setValue(split.a_offset_z)
-        self.offsetBSpinBox.setValue(split.b_offset_z)
 
     def change_current_split(self):
         self.update_info()

@@ -71,6 +71,7 @@ class ShapeEditWindow(QMainWindow):
 
         self.nameLineEdit.editingFinished.connect(self.accept_settings)
         self.priority_spinbox.editingFinished.connect(self.accept_settings)
+        self.fillerCheckBox.stateChanged.connect(self.accept_filler)
 
         self.xEndSpinbox.editingFinished.connect(self.accept_size)
         self.xEndSpinbox.setValue(self.map.size.x_constraints.end)
@@ -92,7 +93,6 @@ class ShapeEditWindow(QMainWindow):
         self.map.draw_speed = self.speedPlotDrawComboBox.currentText()
         if self.map.draw_speed != 'Polygon':
             self.voxels.redraw()
-
 
     def change_part_offset(self):
         layer: Shape = self.layersComboBox.currentData()
@@ -151,6 +151,7 @@ class ShapeEditWindow(QMainWindow):
             self.layerNameLabel.setText(layer.name)
             self.nameLineEdit.setText(layer.name)
             self.priority_spinbox.setValue(layer.priority)
+            self.fillerCheckBox.setChecked(layer.filler)
             self.shapePartNameComboBox.clear()
 
             for part in layer.parts_property:
@@ -207,5 +208,10 @@ class ShapeEditWindow(QMainWindow):
 
     def accept_settings(self):
         self.layersComboBox.currentData().load_from_dict({'name': self.nameLineEdit.text(),
+                                                          'filler': self.fillerCheckBox.isChecked(),
                                                           'priority': self.priority_spinbox.text()})
+        self.update_layers_info()
+
+    def accept_filler(self):
+        self.layersComboBox.currentData().load_from_dict({'filler': self.fillerCheckBox.isChecked()})
         self.update_layers_info()

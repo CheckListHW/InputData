@@ -85,7 +85,7 @@ class Map(Subject, JsonInOut):
 
     def get_as_dict(self) -> dict:
         map_dict = super(Map, self).get_as_dict()
-        pop_from_dict(map_dict, 'data')
+        pop_from_dict_many(map_dict, ['data', 'draw_speed'])
         for d in map_dict:
             if d == 'shapes':
                 for shape in map_dict[d]:

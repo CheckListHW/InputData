@@ -1996,7 +1996,7 @@
               <item>
                <widget class="QFrame" name="frame_15">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="minimumSize">
                  <size>
@@ -2018,30 +2018,9 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_18">
                  <item>
-                  <widget class="QLabel" name="priority_lbl_8">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
+                  <widget class="QCheckBox" name="fillerCheckBox">
                    <property name="text">
-                    <string>Priority</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="priority_spinbox_8">
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="maximum">
-                    <number>100</number>
-                   </property>
-                   <property name="value">
-                    <number>100</number>
+                    <string>Filler</string>
                    </property>
                   </widget>
                  </item>

@@ -55,10 +55,12 @@ class DrawVoxels:
 
         self.map.data = {}
         for fig in shapes:
-            r_p_o = roof_profile_offset = self.map.roof_profile.get_x_y_offset(
+            # roof_profile_offset
+            r_p_o = self.map.roof_profile.get_x_y_offset(
                 base=max(self.map.size.x, self.map.size.y))
 
-            i_n_t = include_not_primary = True if self.map.draw_speed == 'Simple' else False
+            # include_not_primary
+            i_n_t = True if self.map.draw_speed == 'Simple' else False
 
             layers = [lay for lay in fig.layers if (lay.primary or i_n_t) and lay.x != []]
             layers_x = [lay.scalable_curve[0] for lay in layers]
@@ -80,6 +82,7 @@ class DrawVoxels:
         self.plot3d.ax.clear()
         self.repeat, self.map.data, main_data, self.all_polygon = {}, {}, [], np.zeros([1, 1, 1], dtype=bool)
         for shape in self.map.get_visible_shapes():
+            shape.calc_intermediate_layers()
             data = self.calc_polygon_in_draw(shape)
             self.map.data[f'{shape.name}|{shape.sub_name}'] = dict_update(self.map.data.get(shape.name),
                                                                           transform_data(data))
@@ -97,7 +100,8 @@ class DrawVoxels:
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape) -> []:
         x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, self.map.height_with_offset) + 1
-        roof_profile_offset = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+        roof_profile = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+        roof_profile = [[0 if fig.filler else j for j in i] for i in roof_profile]
         data = np.zeros([x_size, y_size, z_size], dtype=bool)
 
         self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
@@ -107,12 +111,13 @@ class DrawVoxels:
             (x, y), lay_z = lay.scalable_curve, lay.z
             for x1 in range(fig.size.x):
                 x1_c = math.ceil(x1)
-                xx, rpo_x = [x1_c, x1_c + 1, x1_c, x1_c + 1], roof_profile_offset[x1]
+                xx, rpo_x = [x1_c, x1_c + 1, x1_c, x1_c + 1], roof_profile[x1]
                 for y1 in range(fig.size.y):
                     y1_c = math.ceil(y1)
                     z1_offset, yy = int(lay_z + rpo_x[y1]), [y1_c, y1_c, y1_c + 1, y1_c + 1]
                     if check_polygon_in_polygon(x, y, xx, yy):
                         rep_name = lay_size * z1_offset + x1 * fig.size.y + y1
-                        if self.repeat.get(rep_name) is None:
-                            self.repeat[rep_name] = data[x1, y1, z1_offset] = True
+                        if self.repeat.get(rep_name) is None and z1_offset >= 0:
+                            self.repeat[rep_name] = True
+                            data[x1, y1, z1_offset] = True
         return data

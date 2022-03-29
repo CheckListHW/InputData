@@ -20,6 +20,7 @@ class RoofProfileEditWindow(QMainWindow):
 
         self.button_connect()
         self.surface_editor.update_plot()
+        self.addDot.click()
 
     def button_connect(self):
         self.addDot.clicked.connect(lambda: self.change_mode(ModeStatus.AddDot))
@@ -41,6 +42,6 @@ class RoofProfileEditWindow(QMainWindow):
         self.surface_editor.update_plot()
 
     def change_mode(self, mode: ModeStatus):
-        self.modeName.setText(str(mode).replace('ModeStatus.', ''))
+        self.modeNameLabel.setText(f": {str(mode).replace('ModeStatus.', '')}")
         self.surface_editor.set_mode(mode)
         self.surface_editor.update_plot()

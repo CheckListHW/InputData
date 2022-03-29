@@ -89,15 +89,18 @@ class ShapeEditWindow(QMainWindow):
         self.split_handlers_connect()
         self.speedPlotDrawComboBox.activated.connect(self.change_draw_speed)
 
+        self.funcFrame.hide()
+
     def change_draw_speed(self):
         self.map.draw_speed = self.speedPlotDrawComboBox.currentText()
         if self.map.draw_speed != 'Polygon':
             self.voxels.redraw()
 
     def change_part_offset(self):
-        layer: Shape = self.layersComboBox.currentData()
         part_name: str = self.shapePartNameComboBox.currentText()
-        layer.parts_property.get(part_name).offset = self.partOffsetSpinBox.value()
+        for layer in self.map.get_shapes():
+            if layer.parts_property.get(part_name):
+                layer.parts_property.get(part_name).offset = self.partOffsetSpinBox.value()
 
     def split_handlers_connect(self):
         self.partOffsetSpinBox.editingFinished.connect(self.change_part_offset)
@@ -154,8 +157,8 @@ class ShapeEditWindow(QMainWindow):
             self.fillerCheckBox.setChecked(layer.filler)
             self.shapePartNameComboBox.clear()
 
-            for part in layer.parts_property:
-                self.shapePartNameComboBox.addItem(part)
+        for part in {a for b in [list(layer.parts_property.keys()) for layer in self.map.get_shapes()] for a in b}:
+            self.shapePartNameComboBox.addItem(part)
 
         self.update_part_info()
 
@@ -199,7 +202,7 @@ class ShapeEditWindow(QMainWindow):
         if edit_text.__contains__('Layer'):
             self.edit_window = SurfaceEditWindow(shape=self.layersComboBox.currentData())
         elif edit_text.__contains__('Split'):
-            self.edit_window = SplitEditWindow(self.layersComboBox.currentData())
+            self.edit_window = SplitEditWindow(self.map)
         elif edit_text.__contains__('Roof'):
             self.edit_window = RoofProfileEditWindow(self.map)
         else:

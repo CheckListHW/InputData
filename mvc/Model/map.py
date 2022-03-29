@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 
+from mvc.Model.split import Split
 from utils.json_in_out import JsonInOut
 from utils.observer import Subject
 from mvc.Model.roof_profile import RoofProfile, RoofPoint
@@ -23,7 +24,7 @@ def pop_from_dict_many(dict_value: dict, names: [str]):
 
 
 class Map(Subject, JsonInOut):
-    __slots__ = 'size', 'shapes', 'roof_profile', 'data', 'draw_speed'
+    __slots__ = 'size', 'shapes', 'roof_profile', 'data', 'draw_speed', 'splits'
 
     def __init__(self):
         super().__init__()
@@ -31,6 +32,7 @@ class Map(Subject, JsonInOut):
         self.data = {}
         self.size = Size()
         self.roof_profile = RoofProfile()
+        self.splits: [Split] = [Split(), Split()]
         self.shapes: [Shape] = list()
 
     def add_layer(self, figure: Shape = None) -> Shape:
@@ -56,7 +58,7 @@ class Map(Subject, JsonInOut):
     def get_visible_shapes(self) -> [Shape]:
         shapes_with_split = []
         for shape in [i for i in self.shapes if i.visible]:
-            shapes_with_split = shapes_with_split + shape.splitting_shape()
+            shapes_with_split = shapes_with_split + shape.splitting_shape(self.splits)
         return sorted(filter(lambda i: i.visible is True, shapes_with_split), key=lambda i: i.priority).__reversed__()
 
     def get_shape_with_part(self) -> [Shape]:
@@ -73,8 +75,9 @@ class Map(Subject, JsonInOut):
         self.roof_profile = RoofProfile()
         for name_property in load_dict:
             if name_property == 'shapes':
-                for lay in load_dict[name_property]:
-                    self.add_layer(Shape(size=self.size, load_dict=lay))
+                [self.add_layer(Shape(size=self.size, load_dict=lay)) for lay in load_dict['shapes']]
+            elif name_property == 'splits':
+                self.splits = [Split(split) for split in load_dict['splits']]
             elif name_property == 'roof_profile':
                 self.roof_profile.load_from_dict(load_dict[name_property])
             elif hasattr(self, name_property):
@@ -149,12 +152,16 @@ class ExportMap:
             data = self.calc_polygon_in_draw(shape)
             self.map.data[f'{shape.name}|{shape.sub_name}'] = dict_update(self.map.data.get(shape.name),
                                                                           transform_data(data))
-
+        # for shape_name in list(self.map.data.keys()):
+        #     if self.map.data[shape_name] == {}:
+        #         self.map.data.pop(shape_name)
+        self.map.data = {k: v for k, v in self.map.data.items() if v}
         return self.map.data
 
     def calc_polygon_in_draw(self, fig: Shape) -> []:
-        x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, self.map.height_with_offset) + 1
-        roof_profile_offset = self.map.roof_profile.get_x_y_offset(base=max(x_size, y_size))
+        roof = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+        roof = [[0 if fig.filler else j for j in i] for i in roof]
+        x_size, y_size, z_size = self.map.size.x, self.map.size.y, int(fig.height + max(a for b in roof for a in b) + 1)
         data = np.zeros([x_size, y_size, z_size], dtype=bool)
 
         lay_size = fig.size.x * fig.size.y
@@ -162,13 +169,16 @@ class ExportMap:
             (x, y), lay_z = lay.scalable_curve, lay.z
             for x1 in range(fig.size.x):
                 x1_c = math.ceil(x1)
-                xx, rpo_x = [x1_c, x1_c + 1, x1_c, x1_c + 1], roof_profile_offset[x1]
+                xx, rpo_x = [x1_c, x1_c + 1, x1_c, x1_c + 1], roof[x1]
                 for y1 in range(fig.size.y):
                     y1_c = math.ceil(y1)
                     z1_offset, yy = int(lay_z + rpo_x[y1]), [y1_c, y1_c, y1_c + 1, y1_c + 1]
                     if check_polygon_in_polygon(x, y, xx, yy):
                         rep_name = lay_size * z1_offset + x1 * fig.size.y + y1
                         if self.repeat.get(rep_name) is None:
-                            self.repeat[rep_name] = data[x1, y1, z1_offset] = True
+                            try:
+                                self.repeat[rep_name] = data[x1, y1, z1_offset] = True
+                            except IndexError:
+                                pass
 
         return data

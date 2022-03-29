@@ -85,18 +85,18 @@ class EditorController(FigureCanvasQTAgg):
 
 
 class EditorSplitController(EditorController):
-    def __init__(self, shape: Shape, parent=None, **kwargs):
+    def __init__(self, map: Map, parent=None, **kwargs):
         self.kwargs = kwargs
         fig = Figure(tight_layout=True)
-        self.shape = shape
+        self.map = map
 
         FigureCanvasQTAgg.__init__(self, fig)
         self.mainLayout = QtWidgets.QGridLayout(parent)
         self.mainLayout.addWidget(self)
-        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
+        # self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
 
-        surf = Surface(size=self.shape.size)
-        surf.splits = [split_line.line for split_line in shape.splits]
+        surf = Surface(size=self.map.size)
+        surf.splits = [split_line.line for split_line in map.splits]
         super(EditorSplitController, self).__init__(surf=surf, mode=ModeStatus.AddSplit)
 
 
@@ -109,7 +109,6 @@ class EditorRoofProfileController(EditorController):
         FigureCanvasQTAgg.__init__(self, fig)
         self.mainLayout = QtWidgets.QGridLayout(parent)
         self.mainLayout.addWidget(self)
-        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
 
         surf = Surface(size=self.map.size)
         super(EditorRoofProfileController, self).__init__(surf=surf, mode=ModeStatus.AddDot)
@@ -138,7 +137,7 @@ class EditorFigureController(FigureCanvasQTAgg):
         FigureCanvasQTAgg.__init__(self, fig)
         self.mainLayout = QtWidgets.QGridLayout(parent)
         self.mainLayout.addWidget(self)
-        self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
+        # self.mainLayout.addWidget(NavigationToolbar2QT(self, parent))
         self.ax = self.figure.add_subplot(111, projection='3d')
 
 

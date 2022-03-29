@@ -30,6 +30,9 @@ def split_shape_with_start_param(cur_shape: Shape, x_off, y_off) -> (Shape, Shap
     b_shape.x_offset = cur_shape.x_offset + x_off
     b_shape.y_offset = cur_shape.y_offset + y_off
 
+    a_shape.color = cur_shape.color
+    b_shape.color = cur_shape.color
+
     a_shape.layers.pop()
     b_shape.layers.pop()
     return a_shape, b_shape
@@ -38,7 +41,7 @@ def split_shape_with_start_param(cur_shape: Shape, x_off, y_off) -> (Shape, Shap
 # alpha - прозрачность от 0 до 1
 class ShapeProperty(Subject):
     __slots__ = 'size', 'visible', '_alpha', '_priority', '_color', 'name', 'offset', 'x_offset', 'y_offset', \
-                'layers', 'splits', 'split_shapes', 'sub_name', 'parts_property', 'presence_intermediate_layers', \
+                'layers', 'split_shapes', 'sub_name', 'parts_property', 'presence_intermediate_layers', \
                 '_filler'
 
     def __init__(self, size: Size):
@@ -54,7 +57,6 @@ class ShapeProperty(Subject):
 
         self.parts_property = {}  # name: ShapeProperty
         self.split_shapes: [Shape] = []
-        self.splits: [Split] = [Split(), Split()]
 
         self.layers: List[Surface] = list()
 
@@ -89,7 +91,10 @@ class ShapeProperty(Subject):
 
     @property
     def height(self) -> int:
-        return max(self.layers, key=lambda i: i.z).z
+        if self.layers:
+            return max(self.layers, key=lambda i: i.z).z
+        else:
+            return 0
 
     @property
     def height_with_offset(self) -> int:
@@ -120,8 +125,6 @@ class ShapeProperty(Subject):
         for name_property in settings:
             if name_property == 'layers':
                 self.layers = [Surface(size=self.size, load_dict=lay_dict) for lay_dict in settings[name_property]]
-            elif name_property == 'splits':
-                self.splits = [Split(load_dict=split_dict) for split_dict in settings[name_property]]
             elif name_property == 'parts_property':
                 self.parts_property = {}
                 for part_name in settings[name_property]:
@@ -156,9 +159,12 @@ class Shape(ShapeProperty):
         if layers_bigger:
             return sorted(layers_bigger, key=lambda i: i.z)[0]
 
-    def splitting_shape(self) -> [Shape]:
+    def splitting_shape(self, splits: [Split]) -> [Shape]:
+        if self.filler:
+            return [self]
+
         local_splits = [split.scale_split(Limits.BASEPLOTSCALE) for split in
-                        [split for split in self.splits if not split.line.is_empty()]]
+                        [split for split in splits if not split.line.is_empty()]]
 
         self.split_shapes = [self]
 
@@ -189,7 +195,7 @@ class Shape(ShapeProperty):
                         if check_point_in_polygon(b_poly_x, b_poly_y, i, j):
                             lay_b.add_dot(i, j)
 
-                    target_len = len([i for i in self.splits if i.line.a.x is not None]) * 2
+                    target_len = len([i for i in splits if i.line.a.x is not None]) * 2
 
                     if len(a_shape.sub_name) == target_len:
                         self.__add_offset_x_y(a_shape)
@@ -198,7 +204,6 @@ class Shape(ShapeProperty):
                 self.split_shapes = self.split_shapes + [a_shape, b_shape]
 
         self.__shapes_set_offsets(self.split_shapes)
-
         for s in self.parts_property.copy():
             if len(s) != len(self.split_shapes[0].sub_name):
                 self.parts_property.pop(s)
@@ -245,9 +250,11 @@ class Shape(ShapeProperty):
     def __add_offset_x_y(self, shape: Shape):
         p_prop, a_name = self.parts_property, shape.sub_name
         a_offset = p_prop.get(a_name).offset if p_prop.get(a_name) is not None else 0
-        lay = shape.layers[-1]
-        lay.x = [x + a_offset * shape.x_offset for x in lay.x]
-        lay.y = [y + a_offset * shape.y_offset for y in lay.y]
+        if len(shape.layers):
+            lay = shape.layers[-1]
+
+            lay.x = [x + a_offset * shape.x_offset for x in lay.x]
+            lay.y = [y + a_offset * shape.y_offset for y in lay.y]
 
     def __shapes_set_offsets(self, shapes: [Shape]):
         for shape in shapes:
@@ -267,7 +274,7 @@ class Shape(ShapeProperty):
             shape.name = self.parts_property[shape.sub_name].name = self.name
             shape.visible = self.parts_property.get(shape.sub_name).visible
             shape.offset = int(round(self.parts_property.get(shape.sub_name).offset))
-            shape.color = self.parts_property.get(shape.sub_name).color
+            # shape.color = self.parts_property.get(shape.sub_name).color
             shape.alpha = self.alpha
             shape.priority = self.priority
 

@@ -69,9 +69,10 @@ class DrawVoxels:
                 continue
             layers_y = [lay.scalable_curve[1] for lay in layers]
 
-            layers_z = [
-                [lay.z + r_p_o[int(x1)][int(y1)] for x1, y1 in zip(lay.scalable_curve[0], lay.scalable_curve[1])] for
-                lay in layers]
+            ceil: () = lambda i, m: int(i if 0 <= i <= m else 0 if i < 0 else m - 1)
+
+            layers_z = [[lay.z + r_p_o[ceil(x1, self.map.size.x)][ceil(y1, self.map.size.y)]
+                         for x1, y1 in zip(lay.scalable_curve[0], lay.scalable_curve[1])] for lay in layers]
 
             layers_x, layers_y, layers_z = data_for_plot_3d(layers_x, layers_y, layers_z)
             x, y, z = np.array(layers_x), np.array(layers_y), np.array(layers_z)
@@ -99,9 +100,9 @@ class DrawVoxels:
 
     # set visible polygon
     def calc_polygon_in_draw(self, fig: Shape) -> []:
-        x_size, y_size, z_size = self.map.size.x, self.map.size.y, max(fig.height, self.map.height_with_offset) + 1
-        roof_profile = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
-        roof_profile = [[0 if fig.filler else j for j in i] for i in roof_profile]
+        roof = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+        roof = [[0 if fig.filler else j for j in i] for i in roof]
+        x_size, y_size, z_size = self.map.size.x, self.map.size.y, int(fig.height + max(a for b in roof for a in b) + 1)
         data = np.zeros([x_size, y_size, z_size], dtype=bool)
 
         self.all_polygon.resize([max(x) for x in zip(data.shape, self.all_polygon.shape)])
@@ -111,7 +112,7 @@ class DrawVoxels:
             (x, y), lay_z = lay.scalable_curve, lay.z
             for x1 in range(fig.size.x):
                 x1_c = math.ceil(x1)
-                xx, rpo_x = [x1_c, x1_c + 1, x1_c, x1_c + 1], roof_profile[x1]
+                xx, rpo_x = [x1_c, x1_c + 1, x1_c, x1_c + 1], roof[x1]
                 for y1 in range(fig.size.y):
                     y1_c = math.ceil(y1)
                     z1_offset, yy = int(lay_z + rpo_x[y1]), [y1_c, y1_c, y1_c + 1, y1_c + 1]
@@ -119,5 +120,9 @@ class DrawVoxels:
                         rep_name = lay_size * z1_offset + x1 * fig.size.y + y1
                         if self.repeat.get(rep_name) is None and z1_offset >= 0:
                             self.repeat[rep_name] = True
-                            data[x1, y1, z1_offset] = True
+                            try:
+                                data[x1, y1, z1_offset] = True
+                            except IndexError:
+                                pass
+
         return data

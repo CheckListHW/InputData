@@ -4,19 +4,20 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow
 
 from mvc.Controller.qt_matplotlib_connector import EditorSplitController
-from mvc.Model.shape import Shape
+from mvc.Model.map import Map
 
 
 class SplitEditWindow(QMainWindow):
-    def __init__(self, shape: Shape):
+    def __init__(self, map: Map):
         super(SplitEditWindow, self).__init__()
         uic.loadUi(os.environ['project'] + '/ui/split_edit.ui', self)
 
-        self.splits = shape.splits
-        self.surface_editor = EditorSplitController(shape, parent=self.draw_polygon_frame)
+        self.splits = map.splits
+        self.surface_editor = EditorSplitController(map, parent=self.draw_polygon_frame)
 
         self.update_info()
         self.button_connect()
+        self.toolsFrame.hide()
 
     def current_split_number(self) -> int:
         return int(self.splitNumberComboBox.currentText()) - 1

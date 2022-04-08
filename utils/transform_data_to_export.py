@@ -8,7 +8,7 @@ def transform_data(data: []) -> dict:
             for k in range(len(data[i][j])):
                 if data[i][j][k] and not start:
                     start = True
-                    map_dict[i][j].append({'s': k, 'e': len(data[i][j])})
+                    map_dict[i][j].append({'s': k, 'e': len(data[i][j])-1})
                 elif not data[i][j][k] and start:
                     start = False
                     map_dict[i][j][-1]['e'] = k - 1

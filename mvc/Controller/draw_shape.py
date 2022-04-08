@@ -56,8 +56,8 @@ class DrawVoxels:
         self.map.data = {}
         for fig in shapes:
             # roof_profile_offset
-            r_p_o = self.map.roof_profile.get_x_y_offset(
-                base=max(self.map.size.x, self.map.size.y))
+            r_p_o = self.map.roof_profile.get_x_y_offset(base=max(self.map.size.x, self.map.size.y))
+            r_p_o = [[0 if fig.filler else j for j in i] for i in r_p_o]
 
             # include_not_primary
             i_n_t = True if self.map.draw_speed == 'Simple' else False
@@ -83,7 +83,7 @@ class DrawVoxels:
         self.plot3d.ax.clear()
         self.repeat, self.map.data, main_data, self.all_polygon = {}, {}, [], np.zeros([1, 1, 1], dtype=bool)
         for shape in self.map.get_visible_shapes():
-            shape.calc_intermediate_layers()
+            # shape.calc_intermediate_layers()
             data = self.calc_polygon_in_draw(shape)
             self.map.data[f'{shape.name}|{shape.sub_name}'] = dict_update(self.map.data.get(shape.name),
                                                                           transform_data(data))
@@ -94,7 +94,6 @@ class DrawVoxels:
         self.draw(main_data)
 
     def draw(self, main_data: []):
-
         for (data, colors), i in zip(main_data, range(len(main_data))):
             self.plot3d.ax.voxels(data, facecolors=colors)
 
@@ -118,11 +117,8 @@ class DrawVoxels:
                     z1_offset, yy = int(lay_z + rpo_x[y1]), [y1_c, y1_c, y1_c + 1, y1_c + 1]
                     if check_polygon_in_polygon(x, y, xx, yy):
                         rep_name = lay_size * z1_offset + x1 * fig.size.y + y1
-                        if self.repeat.get(rep_name) is None and z1_offset >= 0:
+                        if self.repeat.get(rep_name) is None and 0 <= z1_offset <= fig.size.z:
                             self.repeat[rep_name] = True
-                            try:
-                                data[x1, y1, z1_offset] = True
-                            except IndexError:
-                                pass
+                            data[x1, y1, z1_offset] = True
 
         return data

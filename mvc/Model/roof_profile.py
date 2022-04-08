@@ -24,11 +24,12 @@ class RoofPoint(JsonInOut):
 
 
 class RoofProfile(JsonInOut):
-    __slots__ = 'points', 'interpolate_method'
+    __slots__ = 'points', 'interpolate_method', 'values_corner_points'
 
     def __init__(self):
         self.interpolate_method = 'cubic'
         self.points: [RoofPoint] = list()
+        self.values_corner_points = {'ll': 0, 'lr': 0, 'ul': 0, 'ur': 0}
 
     def add(self, x: float, y: float, z: float):
         self.points.append(RoofPoint(x, y, z))
@@ -49,7 +50,8 @@ class RoofProfile(JsonInOut):
 
     def get_x_y_offset(self, base: float) -> [[float]]:
         points = np.array([[0, 0], [0, base], [base, 0], [base, base]] +
-                          [[p.x/Limits.BASEPLOTSCALE*base, p.y/Limits.BASEPLOTSCALE*base] for p in self.points])
-        val = np.array([0, 0, 0, 0] + [p.z for p in self.points])
+                          [[p.x / Limits.BASEPLOTSCALE * base, p.y / Limits.BASEPLOTSCALE * base] for p in self.points])
+        ll, lr, ul, ur = self.values_corner_points.values()
+        val = np.array([ll, lr, ul, ur] + [p.z for p in self.points])
         grid_x, grid_y = np.mgrid[0:base:1, 0:base:1]
         return griddata(points, val, (grid_x, grid_y), method=self.interpolate_method)

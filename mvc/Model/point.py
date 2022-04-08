@@ -4,7 +4,6 @@ from typing import Optional
 
 from utils.json_in_out import JsonInOut
 
-
 class Point(JsonInOut):
     __slots__ = 'x', 'y', 'z'
 

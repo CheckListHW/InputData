@@ -1,14 +1,16 @@
 from os import environ
+from os.path import isfile
 
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QColorDialog, QWidget, QInputDialog
 
 from mvc.Controller.draw_shape import Plot3d, DrawVoxels
 from mvc.Controller.qt_matplotlib_connector import EditorFigureController
+from mvc.View.roof_export_dialog import RoofExportDialog
 from utils.file import FileEdit
 from mvc.Model.shape import Shape
-from mvc.Model.map import Map, ExportMap
+from mvc.Model.map import Map, ExportMap, ExportRoof
 from utils.observer import ObjectObserver
 from utils.filedialog import dict_from_json
 from mvc.View.roof_profile_view import RoofProfileEditWindow
@@ -27,8 +29,9 @@ class ShapeEditWindow(QMainWindow):
         self.load_default_shape()
         self.handlers_connect()
 
-        self.map.attach(ObjectObserver([self.update_all, self.save_map]))
+        # self.map.attach(ObjectObserver([self.update_all]))
         self.update_all()
+        self.zEndSpinbox.setValue(self.map.size.z)
         # self.debug()
 
     def debug(self):
@@ -43,10 +46,25 @@ class ShapeEditWindow(QMainWindow):
     def save_map(self):
         self.file_edit.save_file(self.map.get_as_dict())
 
-    def handlers_connect(self) -> None:
-        self.create_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.create_file()))
+    def create_map(self):
+        self.change_map(self.file_edit.create_file())
 
-        self.open_file_action.triggered.connect(lambda: self.map.load_from_json(self.file_edit.open_file()))
+    def open_map(self):
+        self.change_map(self.file_edit.open_file())
+
+    def change_map(self, data_map_path: str):
+        if isfile(data_map_path):
+            self.map.load_from_json(data_map_path)
+            self.update_all()
+
+    def export_roof(self):
+        self.roof_export = RoofExportDialog(self.map)
+        self.roof_export.open()
+
+    def handlers_connect(self) -> None:
+        self.create_file_action.triggered.connect(self.create_map)
+        self.open_file_action.triggered.connect(self.open_map)
+        self.exportRoofAction.triggered.connect(self.export_roof)
         self.exportMapAction.triggered.connect(lambda: FileEdit(self).save_file(ExportMap(self.map)()))
         self.save_file_action.triggered.connect(self.save_map)
 
@@ -56,10 +74,9 @@ class ShapeEditWindow(QMainWindow):
         load_layer: () = lambda: self.layersComboBox.currentData().load_from_json(self.file_edit.open_file())
         self.loadLayerButton.clicked.connect(load_layer)
 
-        del_def: () = lambda: self.map.delete_layer(figure=self.layersComboBox.currentData())
-        self.deleteLayerButton.clicked.connect(del_def)
+        self.deleteLayerButton.clicked.connect(self.delete_layer)
 
-        self.addLayerButton.clicked.connect(lambda: self.map.add_layer())
+        self.addLayerButton.clicked.connect(self.add_layer)
         self.acceptSettingsButton.clicked.connect(self.accept_settings)
         self.editLayerButton.clicked.connect(self.edit_layer)
         self.redrawButton.clicked.connect(self.voxels.redraw)
@@ -80,7 +97,7 @@ class ShapeEditWindow(QMainWindow):
         self.yEndSpinbox.setValue(self.map.size.y_constraints.end)
 
         self.zStartSpinbox.editingFinished.connect(self.accept_size)
-        self.zEndSpinbox.editingFinished.connect(self.accept_size)
+        self.zEndSpinbox.editingFinished.connect(self.accept_z_size)
 
         self.colorButton.clicked.connect(lambda: self.show_palette(self.set_color_shape))
 
@@ -90,6 +107,20 @@ class ShapeEditWindow(QMainWindow):
         self.speedPlotDrawComboBox.activated.connect(self.change_draw_speed)
 
         self.funcFrame.hide()
+
+    def delete_layer(self):
+        self.map.delete_layer(figure=self.layersComboBox.currentData())
+        self.update_all()
+
+    def add_layer(self):
+        self.map.add_layer()
+        self.update_all()
+
+    def accept_z_size(self):
+        self.accept_size()
+        for shape in [shape for shape in self.map.shapes if shape.filler]:
+            shape.set_filler(True)
+        self.update_all()
 
     def change_draw_speed(self):
         self.map.draw_speed = self.speedPlotDrawComboBox.currentText()
@@ -101,6 +132,7 @@ class ShapeEditWindow(QMainWindow):
         for layer in self.map.get_shapes():
             if layer.parts_property.get(part_name):
                 layer.parts_property.get(part_name).offset = self.partOffsetSpinBox.value()
+        self.update_all()
 
     def split_handlers_connect(self):
         self.partOffsetSpinBox.editingFinished.connect(self.change_part_offset)
@@ -114,8 +146,10 @@ class ShapeEditWindow(QMainWindow):
     def set_color_shape(self, color: QColor):
         alpha = color.alpha() / 255
         r, g, b, _ = color.getRgb()
-        self.layersComboBox.currentData().load_from_dict({'color': [r, g, b],
-                                                          'alpha': alpha})
+        shape: Shape = self.layersComboBox.currentData()
+        shape.color = [r, g, b]
+        shape.alpha = alpha
+        self.update_all()
 
     def show_palette(self, handler):
         if self.layersComboBox.currentData():
@@ -127,10 +161,8 @@ class ShapeEditWindow(QMainWindow):
             cd.show()
 
     def accept_size(self):
-        x = self.map.height if self.map.height >= int(self.zEndSpinbox.text()) else int(self.zEndSpinbox.text())
-        self.zEndSpinbox.setValue(x)
         x_end, y_end = self.xEndSpinbox.value(), self.yEndSpinbox.value()
-        z_start, z_end = self.zStartSpinbox.value(), self.zEndSpinbox.value()
+        z_start, z_end = self.zStartSpinbox.value(), int(self.zEndSpinbox.text())
         self.map.size.change_constraints(None, x_end, None, y_end, z_start, z_end)
 
     def update_all(self):
@@ -216,5 +248,6 @@ class ShapeEditWindow(QMainWindow):
         self.update_layers_info()
 
     def accept_filler(self):
-        self.layersComboBox.currentData().load_from_dict({'filler': self.fillerCheckBox.isChecked()})
-        self.update_layers_info()
+        self.layersComboBox.currentData().set_filler(self.fillerCheckBox.isChecked())
+        self.update_all()
+

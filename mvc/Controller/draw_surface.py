@@ -206,7 +206,9 @@ class EditRoofProfileSurface(EditSurface):
     def get_points_val(self, roof_profile: RoofProfile, base=Limits.BASEPLOTSCALE):
         points = np.array([[0, 0], [0, base], [base, 0], [base, base]] +
                           [[p.x, p.y] for p in roof_profile.points])
-        val = np.array([0, 0, 0, 0] + [p.z for p in roof_profile.points])
+
+        ll, lr, ul, ur = roof_profile.values_corner_points.values()
+        val = np.array([ll, lr, ul, ur] + [p.z for p in roof_profile.points])
         return points, val
 
     def update_plot(self):

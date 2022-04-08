@@ -248,3 +248,11 @@ class Surface(SurfaceProperty):
     def clear(self):
         self.memento.add()
         super(Surface, self).clear()
+
+
+def get_square_surface(size: Size, z: int, s: float = 24.99) -> Surface:
+    surf = Surface(size)
+    for i, j in [(0.1, 0.1), (0.1, s), (s, s), (s, 0.1), (0, 0.1)]:
+        surf.add_dot(i, j)
+    surf.z = z
+    return surf

@@ -48,11 +48,11 @@ def intersection_segment_dot(a: Point, b: Point, c: Point, d: Point, vector=Fals
         x, y = round(x * 1000) / 1000, round(y * 1000) / 1000
         # print(min(a.x, b.x) <= x <= max(a.x, b.x), min(a.x, b.x), x, max(a.x, b.x))
         # print(min(a.y, b.y) <= y <= max(a.y, b.y), min(a.y, b.y), y, max(a.y, b.y))
-        # print(min(c.x, d.x) <= x <= max(c.x, d.x))
-        # print(min(c.y, d.y) <= y <= max(c.y, d.y))
+        # print(min(c.x, d.x) <= x <= max(c.x, d.x), min(c.x, d.x), x, max(c.x, d.x))
+        # print(min(c.y, d.y) <= y <= max(c.y, d.y), min(c.y, d.y), y, max(c.y, d.y))
         # print(x, y)
-        if min(a.x, b.x)-0.01 <= x <= max(a.x, b.x)+0.01 and min(a.y, b.y)-0.01 <= y <= max(a.y, b.y)+0.01 and \
-                min(c.x, d.x)-0.01 <= x <= max(c.x, d.x)+0.01 and min(c.y, d.y)-0.01 <= y <= max(c.y, d.y)+0.01:
+        if min(a.x, b.x) - 0.01 <= x <= max(a.x, b.x) + 0.01 and min(a.y, b.y) - 0.01 <= y <= max(a.y, b.y) + 0.01 and \
+                min(c.x, d.x) - 0.01 <= x <= max(c.x, d.x) + 0.01 and min(c.y, d.y) - 0.01 <= y <= max(c.y, d.y) + 0.01:
             return x, y
         if vector:
             return x, y

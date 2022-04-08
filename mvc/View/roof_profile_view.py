@@ -1,7 +1,8 @@
 import os
+from functools import partial
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QSpinBox
 
 from mvc.Controller.edit_plot_modes import ModeStatus
 from mvc.Controller.qt_matplotlib_connector import EditorRoofProfileController
@@ -30,6 +31,16 @@ class RoofProfileEditWindow(QMainWindow):
         self.interpolateMethodComboBox.currentTextChanged.connect(self.method_change)
         self.threeDButton.clicked.connect(self.surface_editor.plot.show3d)
         self.heightSpinBox.editingFinished.connect(self.change_height)
+
+        self.llCornerSpinBox.editingFinished.connect(partial(self.change_high_corner_point, 'll', self.llCornerSpinBox))
+        self.ulCornerSpinBox.editingFinished.connect(partial(self.change_high_corner_point, 'ul', self.ulCornerSpinBox))
+        self.lrCornerSpinBox.editingFinished.connect(partial(self.change_high_corner_point, 'lr', self.lrCornerSpinBox))
+        self.urCornerSpinBox.editingFinished.connect(partial(self.change_high_corner_point, 'ur', self.urCornerSpinBox))
+
+    def change_high_corner_point(self, corner: str, spinbox: QSpinBox):
+        if self.map.roof_profile.values_corner_points.get(corner) is not None:
+            self.map.roof_profile.values_corner_points[corner] = spinbox.value()
+        self.surface_editor.update_plot()
 
     def method_change(self):
         self.map.roof_profile.interpolate_method = self.interpolateMethodComboBox.currentText()

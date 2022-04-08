@@ -2459,6 +2459,7 @@
      <string>Экспорт</string>
     </property>
     <addaction name="exportMapAction"/>
+    <addaction name="exportRoofAction"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -2487,6 +2488,11 @@
   <action name="exportMapAction">
    <property name="text">
     <string>Экспортировать карту</string>
+   </property>
+  </action>
+  <action name="exportRoofAction">
+   <property name="text">
+    <string>Экспортировать кровлю</string>
    </property>
   </action>
  </widget>

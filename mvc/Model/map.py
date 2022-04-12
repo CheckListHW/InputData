@@ -163,6 +163,7 @@ class ExportMap:
     def export(self) -> dict:
         self.__init__(self.map)
         for shape in self.map.get_visible_shapes():
+            print(f'{shape.name}|{shape.sub_name}')
             data = self.calc_polygon_in_draw(shape)
             self.map.data[f'{shape.name}|{shape.sub_name}'] = \
                 dict_update(self.map.data.get(shape.name), transform_data(data))
@@ -196,12 +197,13 @@ class ExportMap:
         for x1, y1 in [(x1, y1) for x1 in range(size_x) for y1 in range(size_y)]:
             data_column, convert_val = data[x1][y1], []
             for i in range(len(data_column)):
-                if not data_column[i]:
-                    convert_val.append(i)
                 if data_column[i]:
+                    convert_val.append(i)
+                if not data_column[i]:
                     if len(convert_val) < 6:
                         for j in convert_val:
-                            self.repeat[f'{x1}-{y1}-{j}'], data_column[j] = True, True
+                            self.repeat[f'{x1}-{y1}-{j}'] = None
+                            data[x1][y1][j] = False
                     convert_val = []
         return data
 
@@ -242,7 +244,7 @@ class ExportRoof(ExportMap):
             'yCoord': ''
         }
         if path is None:
-            path = 'test'
+            path = 'temp_files/test'
         path += '.csv'
         print(path)
         self.export_to_csv(path)

@@ -8,6 +8,7 @@ from mvc.Model.map import Map
 from mvc.Model.shape import Shape
 from utils.geometry.point_in_polygon import check_polygon_in_polygon
 from utils.geometry.prepare_layers_for_plot_3d import data_for_plot_3d
+from utils.geometry.simplify_line import simplify_line
 from utils.transform_data_to_export import dict_update, transform_data
 
 
@@ -62,17 +63,23 @@ class DrawVoxels:
             # include_not_primary
             i_n_t = True if self.map.draw_speed == 'Simple' else False
 
-            layers = [lay for lay in fig.layers if (lay.primary or i_n_t) and lay.x != []]
-            layers_x = [lay.scalable_curve[0] for lay in layers]
+            main_layers = [lay for lay in fig.layers if (lay.primary or i_n_t) and lay.x != []]
+
+            layers, layers_x, layers_y = [], [], []
+            value = max([len(lay.scalable_curve[0]) for lay in main_layers])
+            for lay in main_layers:
+                a, b = simplify_line(lay.scalable_curve[0], lay.scalable_curve[1], value)
+                layers_x.append(a)
+                layers_y.append(b)
+                layers.append((lay.z, a, b))
 
             if not layers_x:
                 continue
-            layers_y = [lay.scalable_curve[1] for lay in layers]
 
-            ceil: () = lambda i, m: int(i if 0 <= i <= m else 0 if i < 0 else m - 1)
+            ceil: () = lambda i, m: int(sorted([0, i, m-1])[1])
 
-            layers_z = [[lay.z + r_p_o[ceil(x1, self.map.size.x)][ceil(y1, self.map.size.y)]
-                         for x1, y1 in zip(lay.scalable_curve[0], lay.scalable_curve[1])] for lay in layers]
+            layers_z = [[lay[0] + r_p_o[ceil(x1, self.map.size.x)][ceil(y1, self.map.size.y)]
+                         for x1, y1 in zip(lay[1], lay[2])] for lay in layers]
 
             layers_x, layers_y, layers_z = data_for_plot_3d(layers_x, layers_y, layers_z)
             x, y, z = np.array(layers_x), np.array(layers_y), np.array(layers_z)

@@ -4,6 +4,7 @@ import random
 from typing import List, Optional
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from mvc.Model.line_segment import LineSegment
 from utils.observer import Subject
@@ -33,10 +34,14 @@ def split_shape_with_start_param(cur_shape: Shape, x_off, y_off) -> (Shape, Shap
     b_shape.y_offset = cur_shape.y_offset + y_off
 
     r, g, b = cur_shape.color
-    similar_color = lambda val: int((val + 0.5 * val * (random.random() - 0.5)) % 255)
+    ceil: () = lambda i, m: sorted([0, i, m])[1]
+    similar_color = lambda val: ceil(int((val + 0.5 * val * (random.random() - 0.5))), 255)
 
+    print(cur_shape.color)
     a_shape.color = (similar_color(i) for i in [r, g, b])
+    print(a_shape.color)
     b_shape.color = (similar_color(i) for i in [r, g, b])
+    print(b_shape.color)
 
     a_shape.layers.pop()
     b_shape.layers.pop()

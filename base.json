@@ -359,7 +359,7 @@
         }
       },
       "visible": true,
-      "_alpha": 0.11765,
+      "_alpha": 0.1,
       "sub_name": "",
       "_priority": 1,
       "_color": [
@@ -377,18 +377,18 @@
           "start_x": null,
           "start_y": null,
           "x": [
-            0.08592,
-            0.05353,
-            24.79758,
-            24.79758,
-            0.08592
+            0.1,
+            0.1,
+            24.99,
+            24.99,
+            0.1
           ],
           "y": [
-            24.84199,
-            0.14797,
-            0.23826,
-            24.79685,
-            24.84199
+            0.1,
+            24.99,
+            24.99,
+            0.1,
+            0.1
           ],
           "_z": 0,
           "primary": true,
@@ -415,18 +415,18 @@
           "start_x": null,
           "start_y": null,
           "x": [
-            0.08592,
-            0.05353,
-            24.79758,
-            24.79758,
-            0.08592
+            0.1,
+            0.1,
+            24.99,
+            24.99,
+            0.1
           ],
           "y": [
-            24.84199,
-            0.14797,
-            0.23826,
-            24.79685,
-            24.84199
+            0.1,
+            24.99,
+            24.99,
+            0.1,
+            0.1
           ],
           "_z": 500,
           "primary": true,
@@ -448,7 +448,226 @@
           "current_split": 0
         }
       ],
-      "split_shapes": [],
+      "split_shapes": [
+        {
+          "size": {
+            "x_constraints": {
+              "_start": 0,
+              "_end": 25
+            },
+            "y_constraints": {
+              "_start": 0,
+              "_end": 25
+            },
+            "z_constraints": {
+              "_start": 0,
+              "_end": 500
+            }
+          },
+          "visible": true,
+          "_alpha": 0.9,
+          "sub_name": "_a",
+          "_priority": 100,
+          "_color": [
+            0,
+            98,
+            0
+          ],
+          "name": "layer 1",
+          "x_offset": 0,
+          "y_offset": 0,
+          "layers": [
+            {
+              "pre_x": null,
+              "pre_y": null,
+              "start_x": null,
+              "start_y": null,
+              "x": [
+                15.998,
+                24.99,
+                24.99,
+                11.02
+              ],
+              "y": [
+                24.99,
+                24.99,
+                0.1,
+                0.1
+              ],
+              "_z": 0,
+              "primary": true,
+              "size": {
+                "x_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "y_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "z_constraints": {
+                  "_start": 0,
+                  "_end": 500
+                }
+              },
+              "splits": [],
+              "current_split": 0
+            },
+            {
+              "pre_x": null,
+              "pre_y": null,
+              "start_x": null,
+              "start_y": null,
+              "x": [
+                15.998,
+                24.99,
+                24.99,
+                11.02
+              ],
+              "y": [
+                24.99,
+                24.99,
+                0.1,
+                0.1
+              ],
+              "_z": 320,
+              "primary": true,
+              "size": {
+                "x_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "y_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "z_constraints": {
+                  "_start": 0,
+                  "_end": 500
+                }
+              },
+              "splits": [],
+              "current_split": 0
+            }
+          ],
+          "split_shapes": [],
+          "parts_property": {},
+          "presence_intermediate_layers": false,
+          "_filler": false,
+          "_offset": 0
+        },
+        {
+          "size": {
+            "x_constraints": {
+              "_start": 0,
+              "_end": 25
+            },
+            "y_constraints": {
+              "_start": 0,
+              "_end": 25
+            },
+            "z_constraints": {
+              "_start": 0,
+              "_end": 500
+            }
+          },
+          "visible": true,
+          "_alpha": 0.9,
+          "sub_name": "_b",
+          "_priority": 100,
+          "_color": [
+            0,
+            67,
+            0
+          ],
+          "name": "layer 1",
+          "x_offset": 0,
+          "y_offset": 0,
+          "layers": [
+            {
+              "pre_x": null,
+              "pre_y": null,
+              "start_x": null,
+              "start_y": null,
+              "x": [
+                0.1,
+                0.1,
+                15.998,
+                11.02,
+                0.1
+              ],
+              "y": [
+                0.1,
+                24.99,
+                24.99,
+                0.1,
+                0.1
+              ],
+              "_z": 0,
+              "primary": true,
+              "size": {
+                "x_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "y_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "z_constraints": {
+                  "_start": 0,
+                  "_end": 500
+                }
+              },
+              "splits": [],
+              "current_split": 0
+            },
+            {
+              "pre_x": null,
+              "pre_y": null,
+              "start_x": null,
+              "start_y": null,
+              "x": [
+                0.1,
+                0.1,
+                15.998,
+                11.02,
+                0.1
+              ],
+              "y": [
+                0.1,
+                24.99,
+                24.99,
+                0.1,
+                0.1
+              ],
+              "_z": 320,
+              "primary": true,
+              "size": {
+                "x_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "y_constraints": {
+                  "_start": 0,
+                  "_end": 25
+                },
+                "z_constraints": {
+                  "_start": 0,
+                  "_end": 500
+                }
+              },
+              "splits": [],
+              "current_split": 0
+            }
+          ],
+          "split_shapes": [],
+          "parts_property": {},
+          "presence_intermediate_layers": false,
+          "_filler": false,
+          "_offset": 0
+        }
+      ],
       "parts_property": {},
       "presence_intermediate_layers": false,
       "_filler": true,

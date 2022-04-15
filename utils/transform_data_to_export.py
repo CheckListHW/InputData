@@ -12,8 +12,6 @@ def transform_data(data: []) -> dict:
                 elif not data[i][j][k] and start:
                     start = False
                     map_dict[i][j][-1]['e'] = k - 1
-            if i == 13 and j == 19:
-                print(map_dict[i][j])
             if not map_dict[i][j]:
                 map_dict[i].pop(j)
         if map_dict[i] == {}:

@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
 
 from mvc.Controller.qt_matplotlib_connector import EditorController
 from mvc.Model.map import Map
@@ -26,6 +27,7 @@ class Plot3d:
 
     def draw(self):
         if hasattr(self, 'connector'):
+            self.ax.invert_zaxis()
             self.connector.draw()
 
 

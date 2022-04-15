@@ -246,7 +246,6 @@ class ExportRoof(ExportMap):
         if path is None:
             path = 'temp_files/test'
         path += '.csv'
-        print(path)
         self.export_to_csv(path)
 
     def export_to_csv(self, path: str):

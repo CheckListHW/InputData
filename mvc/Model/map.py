@@ -30,6 +30,25 @@ def pop_from_dict_many(dict_value: dict, names: [str]):
         pop_from_dict(dict_value, name)
 
 
+def plot_roof(xs: [float], ys: [float], zs: [float]):
+    plt.figure().add_subplot(111, projection='3d').scatter(xs, ys, zs)
+    plt.show()
+
+
+def fit_to_grid(data: {PointType}, x_size: int = 25, y_size: int = 25) -> {PointType}:
+    fit_data = {}
+    for i, j in [(i, j) for i in range(x_size) for j in range(y_size)]:
+        if data.get(f'{i}-{j}') is None:
+            for i1, j1 in [(i - 1, j - 1), (i + 1, j - 1), (i - 1, j + 1), (i + 1, j + 1)]:
+                if data.get(f'{i1}-{i1}') is not None:
+                    fit_data[f'{i}-{j}'] = data[f'{i1}-{i1}']
+                    break
+        else:
+            fit_data[f'{i}-{j}'] = data[f'{i}-{j}']
+
+    return fit_data
+
+
 class Map(Subject, JsonInOut):
     __slots__ = 'size', 'shapes', 'roof_profile', 'data', 'draw_speed', 'splits'
 
@@ -151,6 +170,7 @@ class Map(Subject, JsonInOut):
 
 
 class ExportMap:
+
     def __init__(self, map: Map):
         self.map = map
         self.repeat, self.map.data = {}, {}
@@ -164,7 +184,7 @@ class ExportMap:
         self.__init__(self.map)
         for shape in self.map.get_visible_shapes():
             print(f'{shape.name}|{shape.sub_name}')
-            data = self.calc_polygon_in_draw(shape)
+            data = self.correction_strong_mixing(self.calc_polygon_in_draw(shape), shape.size.x, shape.size.y)
             self.map.data[f'{shape.name}|{shape.sub_name}'] = \
                 dict_update(self.map.data.get(shape.name), transform_data(data))
 
@@ -191,7 +211,7 @@ class ExportMap:
                             self.repeat[rep_name] = True
                             data[x1, y1, z1_offset] = True
 
-        return self.correction_strong_mixing(data, fig.size.x, fig.size.y)
+        return data
 
     def correction_strong_mixing(self, data: [], size_x, size_y) -> []:
         for x1, y1 in [(x1, y1) for x1 in range(size_x) for y1 in range(size_y)]:
@@ -208,26 +228,8 @@ class ExportMap:
         return data
 
 
-def plot_roof(xs: [float], ys: [float], zs: [float]):
-    plt.figure().add_subplot(111, projection='3d').scatter(xs, ys, zs)
-    plt.show()
-
-
-def fit_to_grid(data: {PointType}, x_size: int = 25, y_size: int = 25) -> {PointType}:
-    fit_data = {}
-    for i, j in [(i, j) for i in range(x_size) for j in range(y_size)]:
-        if data.get(f'{i}-{j}') is None:
-            for i1, j1 in [(i - 1, j - 1), (i + 1, j - 1), (i - 1, j + 1), (i + 1, j + 1)]:
-                if data.get(f'{i1}-{i1}') is not None:
-                    fit_data[f'{i}-{j}'] = data[f'{i1}-{i1}']
-                    break
-        else:
-            fit_data[f'{i}-{j}'] = data[f'{i}-{j}']
-
-    return fit_data
-
-
 class ExportRoof(ExportMap):
+
     def __init__(self, data_map: Map, initial_depth=2000, step_depth=0.2, path: str = None):
         super(ExportRoof, self).__init__(data_map)
         self.initial_depth = initial_depth
@@ -276,6 +278,7 @@ class ExportRoof(ExportMap):
         fit_to_grid(points, self.map.size.x, self.map.size.y)
         points = sorted(points.values(), key=lambda i: i[0])
         points = sorted(points, key=lambda i: i[1])
+
         df = self.data_prepare_for_export(points, max_z - min_z)
         df.to_csv(path, index=False)
         plot_roof(xs=df['i_index'], ys=df['j_index'], zs=df['seisVal'])
